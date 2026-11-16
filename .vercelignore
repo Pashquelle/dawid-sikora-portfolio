@@ -1,0 +1,14 @@
+# Co NIE ma trafiać na serwer.
+# Składnia jak w .gitignore. Te pliki zostają w repo na GitHubie,
+# ale Vercel ich nie wgrywa, więc nie da się do nich dobić adresem.
+
+# Zamrożone kopie strony, zrzuty robocze, odłożone teksty
+robocze/
+
+# Oryginały i warianty grafik, których strona nie używa
+assets/zrodla/
+
+# Dokumentacja pracy nad projektem — nie jest częścią serwisu
+.claude/
+CLAUDE.md
+DESIGN.md
