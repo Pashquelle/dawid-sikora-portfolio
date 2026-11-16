@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fortrus Flex — a design system that gives every screen the same answer — Dawid Sikora</title>
+<meta name="description" content="Case study: Fortrus Flex, the design system behind Agyle — 127 primitives, 59 semantic tokens carrying light and dark in the same row, a type and layout scale, and components specified in every state they ship in.">
+
+<!--
+  ============================================================
+  Dawid Sikora — case study
+  ============================================================
+  Kierunek wizualny: „Panel danych" — context/reference.html
+  Tokeny i reguły:   DESIGN.md
+  Treść i struktura: context/case-study.html (wireframe)
+
+  System wizualny siedzi w style.css, wspólnym z index.html.
+  Tutaj zostają wyłącznie komponenty istniejące tylko na tej
+  podstronie — te same co w case-study-bajecznewakacje.html,
+  z jedną różnicą: suwak porównania zestawia tryb jasny z ciemnym,
+  a nie stan „przed" ze stanem „po", więc jego klasy i komentarze
+  mówią o jasnym i ciemnym.
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+  /* =========================================================
+     PASEK PRZYKLEJONY — tylko na case study
+     ---------------------------------------------------------
+     Na podstronie czytanej od góry do dołu powrót do prac musi być
+     pod ręką przez całą lekturę, nie tylko na starcie. Pasek ma
+     własne tło i linię nośną, więc treść pod nim nie prześwituje.
+     z-index wyżej niż dymki cech w hero (te mają 2).
+     ========================================================= */
+  .bar{ position:sticky; top:0; z-index:30; }
+
+  /* Po oderwaniu się od góry strony logotyp znika, a powrót zajmuje
+     jego miejsce w lewym rogu. Klasę dokłada skrypt na dole strony;
+     bez niego pasek po prostu zostaje z logotypem. Przełączenie jest
+     twarde, bez przenikania — tak jak reszta tej strony. */
+  .bar.is-stuck .brandmark{ display:none; }
+
+  /* =========================================================
+     POWRÓT DO PRAC — jedzie z treścią i parkuje w pasku
+     ---------------------------------------------------------
+     Link zostaje tam, gdzie stoi w wireframie: w kolumnie treści,
+     nad tytułem. Przy przewijaniu przykleja się do góry i wjeżdża
+     w pasek — bez przeskoku w bok, bo przez cały czas siedzi w .wrap,
+     więc trzyma ten sam margines co H1 pod nim.
+
+     padding-top rzędu = górny padding paska, dzięki czemu po
+     zaparkowaniu link siada równo w linii linków nawigacji.
+
+     pointer-events: rząd jest szeroki na całą stronę i po zaparkowaniu
+     leży na pasku — bez tego zjadałby kliknięcia w nawigację i w CTA.
+     ========================================================= */
+  /* Górny oddech strony bierze <main>, nie ten rząd: padding rodzica
+     nie rusza pozycji parkowania, a margines na samym rzędzie owszem —
+     przykleiłby się o tyle niżej, bo sticky liczy się od marginesu. */
+  main{ padding-top:var(--space-16); }
+  .backlink-row{
+    /* display:flex, żeby wysokość rzędu równała się wysokości linku —
+       przy inline-block doszedłby jeszcze luz pod linią bazową i środek
+       wypadłby za nisko */
+    display:flex; align-items:center;
+    /* --backlink-top liczy skrypt na dole strony: połowa różnicy między
+       wysokością paska a wysokością linku, czyli równo góra i dół.
+       Zapas 16px działa, gdyby skryptu zabrakło. */
+    position:sticky; top:var(--backlink-top, var(--space-4)); z-index:31;
+    margin-bottom:var(--space-8);
+    pointer-events:none;
+  }
+  .backlink{
+    pointer-events:auto;
+    display:inline-block; text-decoration:none; white-space:nowrap;
+    padding:var(--space-1);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .backlink:hover{ background:var(--accent); color:var(--accent-ink); }
+
+  /* Powrót dostaje tę samą rozsypkę co przyciski i linki tertiary —
+     limonka przybywa pikselami, nie od razu. Sprite i geometria wspólne
+     z systemem (style.css), stąd gotowe klatki btn-dissolve.
+     Skrót `background` wyżej zeruje podwłasności tła, więc sprite,
+     rozmiar i powtarzanie muszą stać tutaj komplenie. */
+  @media (prefers-reduced-motion:no-preference){
+    .backlink:hover{
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+      /* napis ciemnieje, gdy limonki jest już dość pod spodem */
+      transition:color 0s .3s;
+    }
+  }
+
+  /* =========================================================
+     NAGŁÓWEK CASE STUDY
+     ---------------------------------------------------------
+     Zamiast hero z dwiema komórkami: tytuł, zajawka i pasek
+     metadanych. Pasek to ta sama tabela co w hero, tylko rozłożona
+     w poziomie — cztery kolumny rozdzielone linią porządkującą.
+     ========================================================= */
+  /* padding-bottom, nie skrót: .case-head siedzi na tym samym elemencie
+     co .wrap, a skrót wyzerowałby jego boczny --gutter i cały nagłówek
+     stałby o jedno wcięcie na lewo od reszty strony */
+  .case-head{ padding-bottom:var(--space-24); }
+  .case-head h1{ margin:0 0 var(--space-8); }
+  .case-head .lead{ max-width:68ch; }
+
+  .case-meta{
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    margin:var(--space-16) 0 0;   /* dl ma własny margines domyślny */
+    border-top:var(--border-width) solid var(--line-strong);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-meta > div{ padding:var(--space-4) var(--space-6) var(--space-4) 0; }
+  .case-meta > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-meta dt{
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted); margin-bottom:var(--space-2);
+  }
+  .case-meta dd{ margin:0; font-size:var(--text-small); font-weight:500; }
+
+  /* =========================================================
+     WYNIK NA GÓRZE — do trzech liczb pod paskiem metadanych
+     ---------------------------------------------------------
+     Rekruter skanuje i w większości nie dojedzie do sekcji 05.
+     Ten pasek podaje twarde liczby od razu; pełny kontekst,
+     koszty decyzji i „co zrobiłbym inaczej" zostają na dole —
+     to powtórzenie, nie przeniesienie.
+
+     Bez własnego border-top: pasek dokleja się do dolnej linii
+     .case-meta, więc obie tabele czytają się jak jeden blok.
+     Liczby są mniejsze niż w .outcome (h3, nie h2) — na górze
+     mają wspierać nagłówek, a nie z nim konkurować.
+
+     Trzy kafelki to sufit, nie cel. Przy dwóch zostaw dwa:
+     grid-auto-columns trzyma równą szerokość niezależnie od
+     liczby elementów, więc nic się nie rozjedzie.
+     ========================================================= */
+  .case-results{
+    display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+    margin:0;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-results > div{ padding:var(--space-6) var(--space-6) var(--space-6) 0; }
+  .case-results > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-results dt{
+    font-size:var(--text-h3); font-weight:700; line-height:1.25;
+    letter-spacing:-.02em; margin-bottom:var(--space-2);
+  }
+  .case-results dd{
+    margin:0; font-size:var(--text-small); color:var(--text-soft);
+    max-width:32ch;
+  }
+
+  /* =========================================================
+     ROZDZIAŁY
+     ---------------------------------------------------------
+     Padding sekcji i linię zamykającą biorą z <section> w style.css,
+     odstęp H2 do treści też. Tutaj tylko wnętrze rozdziału.
+     ========================================================= */
+  .prose{ max-width:68ch; }            /* DESIGN.md §3: maks. długość wiersza */
+  .prose p{ color:var(--text-soft); }
+  .prose p + p{ margin-top:var(--space-8); }
+
+  .figure{ margin:var(--space-16) 0 0; }
+  .figure figcaption{
+    margin-top:var(--space-3);
+    font-size:var(--text-label); color:var(--text-muted);
+  }
+
+  /* =========================================================
+     ROZDZIAŁ Z KADREM OBOK — tekst po lewej, zrzut po prawej
+     ---------------------------------------------------------
+     Cały rozdział siedzi w siatce: nadtytuł, nagłówek i akapity
+     w lewej kolumnie, kadr w prawej. Dzięki temu zrzut startuje
+     w linii nadtytułu, a nie dopiero przy pierwszym akapicie —
+     inaczej prawa kolumna zaczynałaby się pustką wysokości H2.
+
+     Zrzuty UI przychodzą w natywnych 1600 px. Puszczone przez
+     .img-fit na pełną szerokość .wrap (1280) byłyby rozciągane
+     i gubiły ostrość — dlatego kolumna kadru ma twardy sufit
+     i obrazek zawsze idzie w dół skali, nigdy w górę.
+
+     Kadr jest przyklejony, bo akapity obok opowiadają o tym, co
+     na nim widać: przy przewijaniu ma zostać w polu widzenia
+     zamiast uciekać do góry. Nic się przy tym nie animuje —
+     rzecz po prostu stoi, więc reduced-motion to nie dotyczy.
+     ========================================================= */
+  .split{
+    display:grid; grid-template-columns:1fr minmax(0, 560px);
+    gap:var(--space-16); align-items:start;
+  }
+  /* H2 w siatce nie łapie reguły section > .wrap > h2, więc odstęp
+     pod nagłówkiem dostaje tutaj — mniejszy niż w rozdziałach bez
+     kadru, bo kolumna jest węższa i nie udźwignie tyle światła. */
+  .split h2{ margin-bottom:var(--space-10); }
+  .split .prose{ max-width:60ch; }
+  .split .figure{ margin:0; position:sticky; top:calc(var(--space-16) + 56px); }
+  .split .figure img{
+    display:block; width:100%; height:auto;
+    background:var(--surface);
+    border:var(--border-width) solid var(--line);
+  }
+  .bg-soft .split .figure img{ background:var(--bg); }
+
+  /* Dwa kadry w jednej kolumnie — rozdział o dwóch kolekcjach zmiennych
+     pokazuje obie, jedna pod drugą, w tej samej szerokości co pojedynczy
+     kadr. Stos nie jest przyklejony: kolumna z dwoma zrzutami jest wyższa
+     od okna, więc przyklejanie i tak nic nie daje, a dwa osobne sticky
+     ustawione na ten sam top nachodziłyby na siebie przy przewijaniu. */
+  .split .figure-stack{ display:grid; gap:var(--space-10); }
+  .split .figure-stack .figure{ position:static; }
+
+  /* Kadr w rozmiarze własnym, nie na szerokość kolumny. Zrzut stylów
+     przychodzi w 424 px; rozciągnięty do 560 px kolumny byłby skalowany
+     w górę i rozmyty, a to plansza z tekstem — rozmycie widać od razu.
+     Kolumna zostaje szeroka, obrazek po prostu jej nie wypełnia.
+     max-width pilnuje, żeby na wąskim ekranie nadal się mieścił. */
+  .split .figure--natywny img{ width:auto; max-width:100%; }
+
+  /* =========================================================
+     JASNY / CIEMNY
+     ---------------------------------------------------------
+     Ten sam mechanizm co porównanie przed/po w case study
+     BajeczneWakacje, tylko zestawia dwa motywy zamiast dwóch
+     wersji serwisu. Oba zrzuty leżą na sobie w identycznej skali
+     (1194×834 co do piksela), a ten jasny jest przycinany
+     clip-path do --pozycja. Przycinanie, nie zmiana szerokości:
+     obrazek nie jest skalowany w trakcie ciągnięcia, więc nic
+     się nie rozjeżdża ani nie rozmazuje.
+
+     Suwakiem jest <input type=range> rozciągnięty na całość
+     i przezroczysty. Dzięki temu mysz, dotyk i strzałki działają
+     bez jednej linii JS-a — skrypt tylko przepisuje wartość
+     do zmiennej CSS.
+     ========================================================= */
+  .compare{
+    --kciuk:96px;                         /* szerokość przycisku = obszar chwytu */
+    position:relative; isolation:isolate;
+    border:var(--border-width) solid var(--line-strong);
+    line-height:0;                        /* bez tego inline-img zostawia pasek pod spodem */
+  }
+  .compare img{ display:block; width:100%; height:auto; }
+  /* Jasny leży na wierzchu i to jego ubywa — ruch w prawo odsłania
+     ciemny, czyli ten, którego czytelnik jeszcze nie widział. */
+  /* Wysokość bierze ciemny, leżący w zwykłym przepływie; jasny jest na
+     nim rozciągnięty co do piksela, bo oba zrzuty mają ten sam format. */
+  .compare-jasny{
+    position:absolute; top:0; left:0; height:100%;
+    clip-path:inset(0 calc(100% - var(--pozycja)) 0 0);
+  }
+  .compare-linia{
+    position:absolute; top:0; bottom:0; left:var(--pozycja);
+    width:var(--border-width); background:var(--line-strong);
+    transform:translateX(-50%);
+  }
+  /* Uchwyt: prostokąt na linii, bez zaokrągleń — jak reszta panelu.
+     Strzałki w obie strony mówią, że to się przesuwa; samo „Swipe"
+     nie mówi, w którą stronę. */
+  .compare-linia::after{
+    content:"\2190 Swipe \2192";
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:var(--kciuk); height:34px;
+    display:flex; align-items:center; justify-content:center;
+    white-space:nowrap;
+    font-size:var(--text-micro); letter-spacing:.1em; text-transform:uppercase;
+    line-height:1; color:var(--text);
+    background:var(--accent);
+    border:var(--border-width) solid var(--line-strong);
+  }
+  /* Etykiety siedzą nad kadrem, dociśnięte do rogów ramki, a nie na
+     zrzutach — na obrazku zasłaniałyby pasek pacjenta, czyli dokładnie
+     to miejsce, w którym oba motywy najbardziej się różnią. */
+  .compare-znacznik{
+    position:absolute; bottom:100%;
+    padding:var(--space-1) var(--space-3);
+    font-size:var(--text-micro); letter-spacing:.1em; text-transform:uppercase;
+    line-height:1.6;
+    background:var(--line-strong); color:var(--bg);
+    transition:opacity .25s ease;
+  }
+  .compare-znacznik--jasny{ left:0; }
+  .compare-znacznik--ciemny{ right:0; }
+  /* Etykieta gaśnie, gdy jej zrzut zejdzie do ćwiartki kadru: podpis
+     nad paskiem szerokim na kilka procent opisuje już nie motyw,
+     tylko pasek. Klasy dokłada skrypt na dole. */
+  .compare.bez-jasny  .compare-znacznik--jasny,
+  .compare.bez-ciemny .compare-znacznik--ciemny{ opacity:0; }
+
+  /* Zakładki wystają ponad ramkę, więc trzeba im zrobić miejsce
+     w przepływie — inaczej wjechałyby na akapit nad figurą. */
+  .figure:has(.compare-znacznik) .compare{ margin-top:var(--space-8); }
+
+  /* Wejście szersze od kadru o szerokość kciuka: inaczej uchwyt nigdy
+     nie dojeżdża do samych krawędzi i ostatni kawałek zrzutu zostaje
+     nieosiągalny. Z tym przesunięciem 0% i 100% trafiają co do piksela. */
+  .compare-suwak{
+    position:absolute; top:0; z-index:2;
+    left:calc(var(--kciuk) / -2); width:calc(100% + var(--kciuk));
+    height:100%; margin:0; padding:0;
+    background:transparent; -webkit-appearance:none; appearance:none;
+    cursor:ew-resize;
+  }
+  /* Kciuk jest przezroczysty: łapie kursor, a widać przycisk narysowany
+     na linii. Szerokość równa przyciskowi, żeby chwyt zgadzał się z tym,
+     co widać. */
+  .compare-suwak::-webkit-slider-thumb{
+    -webkit-appearance:none; width:var(--kciuk); height:44px;
+    background:transparent; cursor:ew-resize;
+  }
+  .compare-suwak::-moz-range-thumb{
+    width:var(--kciuk); height:44px; border:0; background:transparent; cursor:ew-resize;
+  }
+  .compare-suwak::-moz-range-track{ background:transparent; border:0; }
+  .compare-suwak:focus-visible{ outline:var(--border-width) solid var(--line-strong); outline-offset:4px; }
+
+  /* Decyzje — trzy kolumny otwarte linią nośną, jak kroki procesu. */
+  /* Trzy kolumny, dowolna liczba rzędów — decyzje zawijają się same.
+     row-gap większy od column-gap, żeby drugi rząd czytał się jako
+     następny rząd, a nie jako dalszy ciąg kolumny. */
+  .decisions{
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    column-gap:var(--space-12); row-gap:var(--space-16);
+    margin-top:var(--space-16);
+  }
+  /* Subgrid: trzy wiersze karty (tytuł, WHY, treść) dzielą wysokości
+     w obrębie rzędu, więc dwuwierszowy tytuł w jednej kolumnie nie
+     zsuwa podnagłówka w pozostałych. */
+  .decision{
+    display:grid; grid-template-rows:subgrid; grid-row:span 3;
+    row-gap:var(--space-2);
+    border-top:var(--border-width) solid var(--line-strong); padding-top:var(--space-6);
+  }
+  .decision h3{ margin:0; }
+  .decision .label{
+    display:block; margin:var(--space-4) 0 0;
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .decision p{ font-size:var(--text-body); color:var(--text-soft); }
+
+  /* Podsumowanie pod kafelkami zaczyna nowy wątek, więc dostaje pełny
+     odstęp rozdziału, a nie światło międzyakapitowe. */
+  .outcome + .prose{ margin-top:var(--space-16); }
+
+  /* Podtytuł wewnątrz rozdziału. Bez kreski: rozdziały są już zamknięte
+     liniami sekcji, kolejny separator tylko siekałby stronę. */
+  .subhead{ margin:var(--space-16) 0 var(--space-8); max-width:68ch; }
+  .subhead + .prose{ margin-top:0; }
+  .decisions + .subhead{ margin-top:var(--space-20); }
+
+  /* Wynik — liczby są tu treścią, więc dostają rangę nagłówka. */
+  .outcome{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-12);
+    margin-top:var(--space-16);
+  }
+  .outcome .num{
+    display:block; font-size:var(--text-h2); font-weight:700; line-height:1.25;
+    letter-spacing:-.03em;
+    padding-bottom:var(--space-4); margin-bottom:var(--space-4);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .outcome p{ font-size:var(--text-body); color:var(--text-soft); }
+
+  .aside-note{ margin-top:var(--space-16); }
+  .aside-note strong{ font-weight:700; color:var(--text); }
+
+  @media (max-width:880px){
+    main{ padding-top:var(--space-12); }
+    .case-head{ padding-bottom:var(--space-20); }
+    .case-meta{ grid-template-columns:repeat(2, 1fr); }
+    .case-meta > div:nth-child(odd){ border-left:0; padding-left:0; }
+    .case-meta > div:nth-child(n+3){ border-top:var(--border-width) solid var(--line); }
+    /* Liczby schodzą w kolumnę: na wąskim ekranie trzy obok siebie
+       łamałyby podpisy po jednym słowie w linii. */
+    .case-results{ grid-auto-flow:row; }
+    .case-results > div + div{
+      border-left:0; padding-left:0;
+      border-top:var(--border-width) solid var(--line);
+    }
+    .decisions, .outcome{ grid-template-columns:1fr; }
+    /* Kadr schodzi pod tekst i przestaje się kleić: na wąskim ekranie
+       przyklejony obrazek zasłaniałby połowę akapitów, o których mówi. */
+    .split{ grid-template-columns:1fr; gap:var(--space-10); }
+    .split .figure{ position:static; }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  ============================================================
+  CO JEST SPRAWDZONE, A CO JEST MOJĄ RAMĄ
+  ============================================================
+  Sprawdzone, bo widać to na zrzutach w assets/:
+  • dwie kolekcje zmiennych — Primitives (127) i Tokens (59)
+  • rozbicie prymitywów: Primary 14, jedenaście ramp po 10
+    (Gray, Green, Amber, Red, Orange, Lime, Indygo, Violet,
+    Grape, Cyan, Pink), Neutrals 3 — razem 127
+  • kolumny Light i Dark przy każdym tokenie; border/default
+    Gray/3 → Gray/7, warning Amber/6 → Amber/4, primary
+    Primary/5 → Primary/4; radius sm 6, md 8, lg 16, xl 24,
+    xxl 32 — ten sam w obu motywach
+  • grupy tokenów: Spacing 8, Radius 8, Border 5, Text 11
+  • style tekstu: nagłówki H1–H6, body xxs 10/14, xs 12/16,
+    sm 14/20, md 16/24, lg 18/28, xl 20/32
+  • siatki: trzy szerokości desktopowe (liczby zasłonięte),
+    tablet 1192 px w poziomie i w pionie, mobile 393 i 375 px
+  • cienie xs, sm, md, lg, xl
+  • checkbox: baza 16px (1 rem), pięć rozmiarów xs–xl, trzy
+    stany (false, true, indeterminate), etykieta po obu
+    stronach, caption on/off — 5 × 3 × 2 × 2 = 60 wariantów
+  • tryb jasny i ciemny tego samego ekranu pacjenta
+
+  Potwierdzone przez Dawida 2026-10-27:
+  • rola Design Team Lead, 2025, jeden miesiąc, solo
+  • 104 komponenty w bibliotece, każdy z własnymi wariantami
+    i instancjami (liczby nie widać na żadnym zrzucie)
+  • trzy wyniki w pasku na górze = te same co na karcie w index.html
+
+  Moje, nie z dokumentów — do potwierdzenia albo poprawienia:
+  • „pięć zespołów" i liczba modułów — w case study Agyle mowa
+    o pięciu równoległych projektach, więc stąd, ale to nie jest
+    policzone na dokumencie
+  • wszystkie zdania o tym, dlaczego coś zostało tak zrobione
+
+  DO ROZSTRZYGNIĘCIA — NAZWA:
+  case-study-agyle.html nazywa ten system „Agyle Health Design
+  System", a logotyp i karta na stronie głównej mówią „Fortrus
+  Flex". Ta strona idzie za logotypem. Jeśli to dwie różne rzeczy
+  albo jedna zmieniła nazwę, trzeba zrównać oba case studies —
+  teraz dwa miejsca w portfolio mówią co innego o tym samym.
+  ============================================================
+-->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="l-brand" viewBox="0 0 727 104">
+    <path d="M726.812 90.8199H721.065C718.975 90.8199 717.146 90.4716 715.578 89.7749C714.011 89.0782 712.791 87.9461 711.921 86.3785C711.05 84.811 710.614 82.7209 710.614 80.1083V52.4151L710.353 49.4106C710.353 44.708 709.177 41.0503 706.826 38.4378C704.562 35.8252 700.861 34.5189 695.723 34.5189C691.02 34.5189 687.014 35.6946 683.705 38.0459C680.395 40.3972 677.914 43.3146 676.259 46.798L670.25 40.7891C671.556 38.6119 673.429 36.4348 675.867 34.2577C678.305 32.0805 681.266 30.2952 684.75 28.9019C688.233 27.5085 692.196 26.8118 696.637 26.8118C703.952 26.8118 709.482 28.8148 713.227 32.8207C716.972 36.7396 718.844 42.226 718.844 49.28V78.6714C718.844 80.3261 719.192 81.5017 719.889 82.1984C720.673 82.808 721.805 83.1128 723.285 83.1128H726.812V90.8199ZM687.885 92.1262C682.747 92.1262 678.741 90.8634 675.867 88.338C673.08 85.7254 671.687 82.329 671.687 78.1489C671.687 74.0559 673.08 70.6595 675.867 67.9599C678.654 65.1731 682.224 62.7783 686.579 60.7753L711.921 49.28L713.096 55.1583L690.236 66.0004C686.84 67.568 684.314 69.2226 682.66 70.9643C681.092 72.619 680.308 74.6219 680.308 76.9733C680.308 79.5858 681.179 81.5888 682.921 82.9822C684.75 84.2885 687.232 84.9416 690.367 84.9416C693.241 84.9416 695.897 84.4626 698.335 83.5047C700.861 82.4597 703.038 81.1098 704.867 79.4552C706.695 77.7135 708.089 75.8411 709.047 73.8382C710.092 71.7481 710.614 69.6145 710.614 67.4374L710.876 72.14C710.353 75.2751 709.09 78.4102 707.087 81.5453C705.171 84.5933 702.559 87.1188 699.25 89.1217C696.027 91.1247 692.239 92.1262 687.885 92.1262Z"/>
+    <path d="M631.541 90.8199H622.92V28.1181H631.541V90.8199ZM631.541 54.5051L630.758 50.325C631.019 47.3641 631.629 44.4902 632.586 41.7035C633.631 38.8297 635.025 36.2606 636.767 33.9964C638.508 31.7322 640.598 29.9469 643.037 28.6406C645.562 27.3343 648.393 26.6812 651.528 26.6812C655.185 26.6812 658.32 27.8568 660.933 30.2082C663.545 32.4724 664.852 35.7381 664.852 40.0053C664.852 42.2695 664.59 44.3596 664.068 46.2755C663.633 48.1914 663.11 49.6718 662.5 50.7169H653.226C654.097 49.6718 654.837 48.2785 655.446 46.5368C656.143 44.7079 656.491 42.8356 656.491 40.9197C656.491 38.9167 655.882 37.1315 654.663 35.5639C653.444 33.9964 651.353 33.2126 648.393 33.2126C645.345 33.2126 642.514 34.2576 639.902 36.3477C637.289 38.3507 635.243 41.0068 633.762 44.3161C632.282 47.5382 631.541 50.9346 631.541 54.5051Z"/>
+    <path d="M578.478 92.1262C572.817 92.1262 567.766 90.7764 563.325 88.0767C558.883 85.377 555.4 81.5888 552.874 76.712C550.436 71.7481 549.217 66.0004 549.217 59.469C549.217 52.7634 550.436 46.9722 552.874 42.0954C555.4 37.2186 558.883 33.4739 563.325 30.8613C567.766 28.1616 572.817 26.8118 578.478 26.8118C584.225 26.8118 589.32 28.1616 593.761 30.8613C598.203 33.4739 601.642 37.2186 604.081 42.0954C606.606 46.9722 607.869 52.7634 607.869 59.469C607.869 66.0004 606.606 71.7481 604.081 76.712C601.642 81.5888 598.203 85.377 593.761 88.0767C589.32 90.7764 584.225 92.1262 578.478 92.1262ZM578.478 84.811C582.658 84.811 586.272 83.853 589.32 81.9371C592.455 80.0213 594.893 77.191 596.635 73.4463C598.377 69.6145 599.248 64.9554 599.248 59.469C599.248 53.8955 598.377 49.2364 596.635 45.4917C594.893 41.6599 592.455 38.7861 589.32 36.8702C586.272 34.8673 582.658 33.8658 578.478 33.8658C574.472 33.8658 570.901 34.8673 567.766 36.8702C564.631 38.7861 562.193 41.6599 560.451 45.4917C558.709 49.2364 557.838 53.8955 557.838 59.469C557.838 64.9554 558.709 69.6145 560.451 73.4463C562.193 77.191 564.631 80.0213 567.766 81.9371C570.901 83.853 574.472 84.811 578.478 84.811Z"/>
+    <path d="M504.108 0.384613H514.157V10.433H504.108V0.384613ZM504.108 60.6748H514.157V70.7232H504.108V80.7715H494.06V10.433H504.108V60.6748ZM534.254 30.5297H544.302V40.5781H534.254V30.5297ZM524.205 40.5781H534.254V50.6264H524.205V40.5781ZM514.157 50.6264H524.205V60.6748H514.157V50.6264ZM524.205 60.6748H534.254V80.7715H524.205V60.6748ZM484.012 80.7715H494.06V90.8199H484.012V80.7715ZM504.108 80.7715H514.157V90.8199H504.108V80.7715ZM534.254 80.7715H544.302V90.8199H534.254V80.7715Z"/>
+    <path d="M464.813 16.884H456.191V3.29865H464.813V16.884ZM464.813 90.8199H456.191V28.1181H464.813V90.8199Z"/>
+    <path d="M412.332 91.9955C407.107 91.9955 402.012 91.2553 397.048 89.7749C392.172 88.2073 387.861 85.7689 384.116 82.4596C380.458 79.0633 377.672 74.6655 375.756 69.2661L382.418 63.5185C383.811 68.5695 386.119 72.5754 389.341 75.5363C392.651 78.4972 396.352 80.6744 400.445 82.0678C404.538 83.3741 408.5 84.0272 412.332 84.0272C415.902 84.0272 419.212 83.5047 422.26 82.4596C425.308 81.4146 427.746 79.76 429.575 77.4958C431.491 75.2315 432.449 72.2706 432.449 68.613C432.449 65.1296 431.665 62.3428 430.097 60.2528C428.53 58.0756 426.222 56.3339 423.174 55.0276C420.126 53.7213 416.381 52.5457 411.94 51.5006L402.404 49.4106C399.356 48.7139 396.395 47.7995 393.521 46.6674C390.648 45.5353 388.079 44.0983 385.814 42.3566C383.55 40.6149 381.721 38.3942 380.328 35.6946C379.022 32.9949 378.368 29.7292 378.368 25.8974C378.368 20.6723 379.675 16.318 382.287 12.8345C384.987 9.26401 388.47 6.60789 392.738 4.86617C397.092 3.03737 401.707 2.12297 406.584 2.12297C414.596 2.12297 421.476 3.86468 427.224 7.34811C433.058 10.8315 437.238 15.8825 439.764 22.5011L432.579 28.2487C430.576 22.0656 427.311 17.5372 422.782 14.6633C418.254 11.7024 412.811 10.222 406.454 10.222C402.883 10.222 399.661 10.8316 396.787 12.0508C394 13.27 391.736 14.9681 389.994 17.1453C388.253 19.3224 387.382 22.0221 387.382 25.2443C387.382 30.034 388.906 33.6045 391.954 35.9558C395.089 38.22 399.487 40.0489 405.147 41.4422L415.467 43.9242C418.776 44.7079 421.955 45.7094 425.003 46.9286C428.138 48.0607 430.881 49.5412 433.233 51.37C435.671 53.1988 437.587 55.5066 438.98 58.2933C440.374 60.993 441.07 64.3458 441.07 68.3517C441.07 73.4027 439.764 77.7135 437.151 81.284C434.626 84.7674 431.186 87.4235 426.832 89.2524C422.564 91.0812 417.731 91.9955 412.332 91.9955Z"/>
+    <path d="M302.106 92.2568C296.707 92.2568 292.048 90.907 288.129 88.2073C284.297 85.5077 281.293 81.7194 279.116 76.8426C277.026 71.8787 275.98 66.0875 275.98 59.469C275.98 52.8505 277.026 47.1028 279.116 42.226C281.293 37.3492 284.297 33.561 288.129 30.8613C292.048 28.1617 296.707 26.8118 302.106 26.8118C306.809 26.8118 310.684 27.9004 313.732 30.0775C316.867 32.1676 319.219 34.9543 320.786 38.4378C322.441 41.8341 323.399 45.4917 323.66 49.4106L323.137 53.5907C323.137 50.1073 322.484 46.8851 321.178 43.9242C319.872 40.9633 317.869 38.5684 315.169 36.7396C312.469 34.9108 308.986 33.9964 304.719 33.9964C299.058 33.9964 294.312 36.0429 290.48 40.136C286.648 44.229 284.733 50.6733 284.733 59.469C284.733 68.2647 286.648 74.7526 290.48 78.9327C294.312 83.0257 299.058 85.0722 304.719 85.0722C308.986 85.0722 312.469 84.1578 315.169 82.329C317.869 80.5002 319.872 78.1054 321.178 75.1445C322.484 72.0965 323.137 68.8307 323.137 65.3473L323.66 69.658C323.399 73.5769 322.441 77.2345 320.786 80.6309C319.219 84.0272 316.867 86.814 313.732 88.9911C310.684 91.1683 306.809 92.2568 302.106 92.2568ZM331.628 90.8199H323.137V3.29865H331.628V90.8199Z"/>
+    <path d="M261.342 16.884H252.721V3.29865H261.342V16.884ZM261.342 90.8199H252.721V28.1181H261.342V90.8199Z"/>
+    <path d="M153.201 30.5297H163.249V40.5781H153.201V30.5297ZM173.297 30.5297H193.394V40.5781H173.297V30.5297ZM203.443 30.5297H223.539V40.5781H203.443V30.5297ZM233.588 30.5297H243.636V40.5781H233.588V30.5297ZM143.152 40.5781H153.201V50.6264H143.152V40.5781ZM173.297 80.7715H163.249V40.5781H173.297V80.7715ZM203.443 80.7715H193.394V40.5781H203.443V80.7715ZM223.539 40.5781H233.588V80.7715H223.539V40.5781ZM153.201 80.7715H163.249V90.8199H153.201V80.7715ZM173.297 80.7715H193.394V90.8199H173.297V80.7715ZM203.443 80.7715H223.539V90.8199H203.443V80.7715Z"/>
+    <path d="M137.412 90.8199H131.664C129.574 90.8199 127.745 90.4716 126.178 89.7749C124.61 89.0782 123.391 87.9461 122.52 86.3785C121.649 84.811 121.214 82.7209 121.214 80.1083V52.4151L120.953 49.4106C120.953 44.708 119.777 41.0503 117.426 38.4378C115.161 35.8252 111.46 34.5189 106.322 34.5189C101.62 34.5189 97.6136 35.6946 94.3044 38.0459C90.9951 40.3972 88.5132 43.3146 86.8585 46.798L80.8496 40.7891C82.1559 38.6119 84.0282 36.4348 86.4666 34.2577C88.9051 32.0805 91.866 30.2952 95.3494 28.9019C98.8328 27.5085 102.795 26.8118 107.237 26.8118C114.552 26.8118 120.082 28.8148 123.826 32.8207C127.571 36.7396 129.444 42.226 129.444 49.28V78.6714C129.444 80.3261 129.792 81.5017 130.489 82.1984C131.272 82.808 132.404 83.1128 133.885 83.1128H137.412V90.8199ZM98.4845 92.1262C93.3464 92.1262 89.3405 90.8634 86.4666 88.338C83.6799 85.7254 82.2865 82.329 82.2865 78.1489C82.2865 74.0559 83.6799 70.6595 86.4666 67.9599C89.2534 65.1731 92.8239 62.7783 97.1782 60.7753L122.52 49.28L123.696 55.1583L100.836 66.0004C97.4395 67.568 94.914 69.2226 93.2593 70.9643C91.6918 72.619 90.908 74.6219 90.908 76.9733C90.908 79.5858 91.7789 81.5888 93.5206 82.9822C95.3494 84.2885 97.8314 84.9416 100.966 84.9416C103.84 84.9416 106.496 84.4626 108.935 83.5047C111.46 82.4597 113.637 81.1098 115.466 79.4552C117.295 77.7135 118.688 75.8411 119.646 73.8382C120.691 71.7481 121.214 69.6145 121.214 67.4374L121.475 72.14C120.953 75.2751 119.69 78.4102 117.687 81.5453C115.771 84.5933 113.158 87.1188 109.849 89.1217C106.627 91.1247 102.839 92.1262 98.4845 92.1262Z"/>
+    <path d="M28.869 90.8199H3.00446V83.2434H27.6933C34.9214 83.2434 41.0174 81.9807 45.9813 79.4552C50.9452 76.9297 54.7334 73.0109 57.346 67.6986C59.9586 62.3864 61.2649 55.5066 61.2649 47.0593C61.2649 38.612 59.9586 31.7322 57.346 26.4199C54.7334 21.1077 50.9452 17.1888 45.9813 14.6633C41.0174 12.1379 34.9214 10.8751 27.6933 10.8751H3.00446V3.29865H28.869C38.1001 3.29865 45.7636 5.04036 51.8596 8.52379C57.9556 11.9201 62.4841 16.884 65.445 23.4155C68.493 29.9469 70.017 37.8282 70.017 47.0593C70.017 56.2904 68.493 64.1716 65.445 70.7031C62.4841 77.2345 57.9556 82.242 51.8596 85.7254C45.7636 89.1217 38.1001 90.8199 28.869 90.8199ZM8.6215 90.8199H0V3.29865H8.6215V90.8199Z"/>
+  </symbol>
+</svg>
+
+<header class="bar">
+  <a class="brandmark" href="index.html">
+    <svg class="brandmark-logo" aria-hidden="true"><use href="#l-brand"/></svg>
+    <span class="brandmark-text">Dawid Sikora</span>
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#process">Process</a></li>
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-sm" href="mailto:dsikoradesign@gmail.com">Email me</a>
+</header>
+
+<main>
+
+  <!-- Powrót: startuje w treści, przy przewijaniu parkuje w pasku. -->
+  <div class="wrap backlink-row">
+    <a class="backlink" href="index.html#work">&larr; All work</a>
+  </div>
+
+  <!-- ===================== NAGŁÓWEK ===================== -->
+  <div class="wrap case-head">
+    <h1>A design system that gives every screen the same answer</h1>
+    <p class="lead">Fortrus builds Agyle, a modular electronic patient record running in NHS hospitals. Several squads, several modules, and the same checkbox drawn a slightly different way in each of them &mdash; which sounds like an internal tidiness problem until you remember who pays for it. A nurse who learned a control in one module had to learn it again in the next. Fortrus Flex is the system that stopped that: two layers of tokens, a type and layout scale, and components specified in every state they actually ship in &mdash; handed to developers as a library rather than as a folder of screenshots.</p>
+
+    <dl class="case-meta">
+      <div><dt>My role</dt><dd>Design Team Lead</dd></div>
+      <div><dt>Timeline</dt><dd>2025 &middot; 1 month</dd></div>
+      <div><dt>Team</dt><dd>Only me</dd></div>
+      <div><dt>Tools</dt><dd>Figma &mdash; variables, styles, published library</dd></div>
+    </dl>
+
+    <!-- Te same trzy wyniki co na karcie w index.html — kafelek na stronie
+         głównej i pasek tutaj mają mówić to samo, inaczej czytelnik dostaje
+         dwie wersje jednego projektu. Same glify, bez liczb: nikt tego nie
+         mierzył, więc strzałka mówi kierunek i tyle sobie rości.
+         data-licznik="off" zdejmuje kafelki z naliczania w count.js. -->
+    <dl class="case-results">
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Up">&#8599;</span></dt>
+        <dd>Speed to a finished screen.</dd>
+      </div>
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Light and dark">&#9680;</span></dt>
+        <dd>Light and dark from one system.</dd>
+      </div>
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Down">&#8600;</span></dt>
+        <dd>Developer guesswork.</dd>
+      </div>
+    </dl>
+
+    <figure class="figure">
+      <img class="ph ph-3x2 img-fit" src="assets/fortrusflex/fortrusflex-card.png"
+           alt="Fortrus Flex — logotyp systemu projektowego na czarnym tle: sygnet z monogramem w kwadratowej ramce, obok biały napis Fortrus Flex."
+           width="1812" height="1208" decoding="async">
+      <figcaption>Fortrus Flex. A design system gets a name and a mark for the same reason a product does &mdash; people have to be able to refer to it.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================== 01 — PROBLEM ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">01 &mdash; The problem</span>
+      <h2>The same control, redrawn five times, relearned five times.</h2>
+      <div class="prose">
+        <p>Agyle is modular, and the modules were built by different squads at different times. That is a sensible way to ship a large product and a terrible way to end up with one: the same control drifted a few pixels, a grey and a label position between modules. Nothing dramatic on a screenshot. Dramatic on a ward, where somebody learned one version and is now looking at another while a patient waits.</p>
+        <p>Internally the waste was invisible. Designers redrew components that already existed, because finding the old one took longer than making a new one; developers got three reference screens and had to decide which counted. So the brief wasn&rsquo;t &bdquo;make a component library". It was: give every screen one place to get its answer from, and make getting it there faster than inventing a new one. A system that is correct and slower than guessing loses to guessing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 — STRUKTURA ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <span class="eyebrow">02 &mdash; The structure</span>
+          <h2>Two collections, because one always breaks on the second theme.</h2>
+          <div class="prose">
+            <p>In Figma the system sits in two variable collections. The bottom one is paint and nothing else: every colour the brand owns, with no opinion about where it goes. A colour down there doesn&rsquo;t know it is a border.</p>
+            <p>The top one is decisions, named after the job rather than the colour &mdash; a border, an error message, a disabled label. Nothing up there holds a value of its own; it points at the layer below. That indirection is the whole investment, and it is the first thing dropped when a system is built in a hurry. A single layer is quicker to make and impossible to re-theme, because every decision is welded to a colour.</p>
+            <p>The split also changes what a change costs. Moving the brand blue is one edit in the primitives and nothing else. Deciding that disabled text should sit lighter is one edit in the tokens and nothing else. Neither requires opening a single screen.</p>
+          </div>
+        </div>
+
+        <!-- Obie kolekcje jedna pod drugą: rozdział mówi o dwóch warstwach,
+             więc pokazuje dwie. Szerokość kolumny bez zmian, zmienia się
+             tylko jej wysokość. -->
+        <div class="figure-stack">
+          <figure class="figure">
+            <img src="assets/fortrusflex/flex-primitives.png"
+                 alt="Panel zmiennych w Figmie, kolekcja Primitives. Po lewej lista kolekcji: Primitives 127 i Tokens 59, pod nią grupy — All 127, Primary 14, a dalej Gray, Green, Amber, Red, Orange, Lime, Indygo, Violet, Grape, Cyan i Pink po 10 oraz Neutrals 3. Po prawej tabela Name/Value z rampą primary od 0 (E4F5FF) do 8 (005AC7), każdy stopień z próbką koloru i kodem HEX, a pod nią cztery warianty z przezroczystością: primary-color-light-10, light-12, dark-15 i dark-20, wszystkie oparte na 2180F7."
+                 width="1950" height="1496" loading="lazy" decoding="async">
+            <figcaption>The bottom layer. 127 primitives, every one of them a hex code and nothing else.</figcaption>
+          </figure>
+
+          <figure class="figure">
+            <img src="assets/fortrusflex/flex-tokens.png"
+                 alt="Panel zmiennych w Figmie, kolekcja Tokens. Po lewej grupy: All 59, Spacing 8, Radius 8, Border 5 z podgrupami Warning, Primary, Error i Success oraz Text 11 z podgrupami Error, Success, Warning, Disabled, Primary i Gray. Po prawej tabela z kolumnami Name, Light i Dark. Promienie radius-sm 6, md 8, lg 16, xl 24 i xxl 32 mają w obu kolumnach tę samą wartość. Niżej sekcja Border: default to Gray/3 w trybie jasnym i Gray/7 w ciemnym, Border/Warning to Amber/6 i Amber/4, Border/Primary to Primary/5 i Primary/4."
+                 width="1922" height="1472" loading="lazy" decoding="async">
+            <figcaption>The top layer. 59 tokens, no hex codes at all &mdash; every value in both columns points at a primitive. The second column is the whole of dark mode; the next section is what it buys.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 — JASNY I CIEMNY ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">03 &mdash; Light and dark</span>
+      <h2>Dark mode isn't an inversion. It's a different rung on the same ladder.</h2>
+      <div class="prose">
+        <p>Invert a light interface and you get a dark background and nothing else that works: quiet borders start shouting, urgent warnings go flat. The usual workaround is a second set of screens, maintained by hand, drifting from the first within a quarter.</p>
+        <p>Here every token holds two values, and dark is a different step of the <em>same</em> ramp, not a different colour. A default border goes Gray/3 &rarr; Gray/7; a warning goes Amber/6 &rarr; Amber/4, because against black the background does half the shouting. Radius, spacing and type don&rsquo;t move at all. So dark mode cost a column in a table, not a second design file &mdash; both screens below are one component tree reading one set of token names.</p>
+      </div>
+
+      <!-- Porównanie jasny/ciemny. Suwakiem jest <input type=range> leżący
+           na obrazkach: dostaje obsługę myszy, dotyku i klawiatury za
+           darmo, zamiast trzech osobnych nasłuchów. Bez JS-a widać
+           tryb ciemny w całości, a suwak nic nie psuje. -->
+      <figure class="figure">
+        <div class="compare" style="--pozycja:50%">
+          <img class="compare-ciemny" src="assets/fortrusflex/flex-dark.png"
+               alt="Ekran pacjenta w Agyle w trybie ciemnym: na granatowym tle pasek z nazwiskiem HARRIS, Karen, numerem NHS, datą urodzenia, rozpoznaniem Quadriplegia i poziomem GMFCS, pod nim trzy zakładki, sześć pól formularza z etykietami i opisami, listy żetonów, przycisk Add new record, niebieski dymek informacyjny z cytatem i para przycisków Secondary i Primary."
+               width="1194" height="834" loading="lazy" decoding="async">
+          <img class="compare-jasny" src="assets/fortrusflex/flex-light.png"
+               alt="Ten sam ekran pacjenta w Agyle w trybie jasnym: na białym tle ten sam pasek z danymi pacjentki, te same zakładki, pola formularza, żetony, przycisk Add new record, dymek informacyjny i przyciski Secondary i Primary."
+               width="1194" height="834" loading="lazy" decoding="async">
+          <span class="compare-linia" aria-hidden="true"></span>
+          <input class="compare-suwak" type="range" min="0" max="100" value="50" step="0.1"
+                 aria-label="Odsłoń tryb ciemny: w lewo motyw jasny, w prawo ciemny">
+          <span class="compare-znacznik compare-znacznik--jasny" aria-hidden="true">Light</span>
+          <span class="compare-znacznik compare-znacznik--ciemny" aria-hidden="true">Dark</span>
+        </div>
+        <figcaption>One screen, two themes, one set of token names, and the two columns from the table above doing all the work. Drag the handle &mdash; the field borders are the thing to watch: they don&rsquo;t vanish in the dark, they change rung.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 04 — STYLE ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <span class="eyebrow">04 &mdash; The styles</span>
+          <h2>The parts a variable can't hold.</h2>
+          <div class="prose">
+            <p>Tokens hold values. They don&rsquo;t hold a type ramp, a grid or an elevation &mdash; those are styles, and they answer a different question. Not &bdquo;which colour", but &bdquo;how big, how far apart, and what sits above what".</p>
+            <p>A type scale exists so nobody picks a size by eye. A layout grid exists so a screen behaves the same way on the narrowest device in the building as on the widest. A named set of elevations exists so &bdquo;above" has a finite number of answers. Three different problems, one move: replace an open question with a short list.</p>
+          </div>
+        </div>
+
+        <figure class="figure figure--natywny">
+          <img src="assets/fortrusflex/flex-styles.png"
+               alt="Trzy nachodzące na siebie panele stylów z Figmy. „Text styles": grupa Heading z poziomami H1–H6 i grupa Body ze stopniami xxs 10/14, xs 12/16, sm 14/20, md 16/24, lg 18/28 i xl 20/32. „Layout guides": grupa Desktop z trzema szerokościami, Tablet z pozycjami 1192 px w poziomie i w pionie, Mobile z 393 px i 375 px. „Effect styles": grupa Shadows z pięcioma stopniami xs, sm, md, lg i xl."
+               width="424" height="670" loading="lazy" decoding="async">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 — KOMPONENTY ===================== -->
+  <section>
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <span class="eyebrow">05 &mdash; The components</span>
+          <h2>104 components, each one a family rather than a drawing.</h2>
+          <div class="prose">
+            <p>The library ships 104 components, and not one of them is a single fixed object. Every one carries its own variants and instances, so size, state, label position and the rest are properties you switch &mdash; not reasons to go and make another component.</p>
+            <p>That is what makes a system flexible instead of merely tidy. Every state is specified up front, including the ones nobody enjoys drawing &mdash; and those are exactly the ones a developer meets at 4pm on a Thursday. Whatever gets invented in that moment becomes the product&rsquo;s real design system.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/fortrusflex/flex-components.png"
+               alt="Plansza „Checkbox Style" z Fortrus Flex, baza 16px (1 rem). Siatka wariantów: kolumny pogrupowane na etykietę po prawej i po lewej, w każdej grupie trzy stany — False, True i Indeterminate. Wiersze to rozmiary xs, sm, md, lg i xl, najpierw w wersji bez captionu, niżej ten sam komplet z captionem pod etykietą. Zaznaczone pola są niebieskie z białym ptaszkiem, stan nieokreślony z poziomą kreską."
+               width="1534" height="1124" loading="lazy" decoding="async">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 06 — DECYZJE ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">06 &mdash; The calls I made</span>
+      <h2>Three decisions that shaped the system.</h2>
+
+      <div class="decisions">
+        <div class="decision">
+          <h3>Semantic tokens, not raw colour</h3>
+          <span class="label">Why</span>
+          <p>Primitives hold the colour, tokens hold the decision, and a token is named after its job rather than its value &mdash; border/warning/default, not blue-500. One flat layer of hex codes would have been quicker to build and impossible to re-theme, because every decision would be welded to a colour and every change a rename rippling through the files.</p>
+        </div>
+        <div class="decision">
+          <h3>Dark mode as a column, not a file</h3>
+          <span class="label">Why</span>
+          <p>Every token carries a light and a dark value, so switching a component &mdash; or a whole screen &mdash; is one click, not a redraw. A second set of files would have meant doing the work twice and watching the two drift apart within a quarter.</p>
+        </div>
+        <div class="decision">
+          <h3>Ship into the developer environment</h3>
+          <span class="label">Why</span>
+          <p>A system handed over as a Figma link is a suggestion. Delivered as a library developers pull from, it&rsquo;s the path of least resistance &mdash; and the path of least resistance is the only one that gets taken under deadline.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 07 — WYNIK ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">07 &mdash; The result</span>
+      <h2>Every screen now builds from the same kit.</h2>
+
+      <div class="outcome">
+        <div>
+          <span class="num" data-licznik="off"><span role="img" aria-label="Up">&#8599;</span></span>
+          <p>Speed to a finished screen. Assembling from a published library beats redrawing a control that already exists somewhere &mdash; which is the only way a system wins against guessing.</p>
+        </div>
+        <div>
+          <span class="num" data-licznik="off"><span role="img" aria-label="Light and dark">&#9680;</span></span>
+          <p>Light and dark from one system. Each token carries both values, so there is one component tree instead of two sets of screens to keep in step &mdash; and a new theme is an afternoon, not a project.</p>
+        </div>
+        <div>
+          <span class="num" data-licznik="off"><span role="img" aria-label="Down">&#8600;</span></span>
+          <p>Developer guesswork. Components arrive with their states specified, so nobody has to decide which of three reference screens counted.</p>
+        </div>
+      </div>
+
+      <div class="prose">
+        <p>What shipped: 127 primitives, 59 semantic tokens carrying light and dark in the same row, a type scale with every line box on a four-pixel rhythm, layout guides from a 375&nbsp;px phone up, five named elevations, and components specified across the states they actually ship in. Published as a library, into the environment developers already work in.</p>
+        <p>The part I care about most is the least visible one. A nurse moving between two Agyle modules now meets the same control twice, and nobody has to remember to make that true &mdash; it comes out of the structure. That is the difference between a style guide and a system: a style guide asks people to comply, a system makes compliance the easy option.</p>
+      </div>
+
+      <div class="prose aside-note">
+        <p><strong>What I&rsquo;d do differently.</strong> I built the structure before I built the way in. Two collections and a semantic layer are the right architecture and they are also the part that makes a system feel like homework to a designer under deadline &mdash; and a system only pays off if using it is faster than ignoring it. I&rsquo;d spend the first week watching two designers and two developers try to build one real screen with it, and fix whatever made them hesitate, before adding a single token. Adoption is a usability problem, and I treated it as a documentation problem for longer than I should have.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NASTĘPNY CASE STUDY ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">Next case study</span>
+      <a class="story" href="case-study-agyle.html">
+        <span class="story-media ph ph-3x2">
+          <img class="img-fit" src="assets/agyle/agyle-ed-card.png"
+               alt="Moduł Whiteboard systemu Agyle na tablecie, na limonkowym tle: ciemna mapa oddziału ratunkowego ze strefami i kafelkami łóżek, obok otwarty panel akcji."
+               width="3980" height="2572" loading="lazy" decoding="async">
+          <span class="px-frame" aria-hidden="true"></span>
+        </span>
+        <div>
+          <span class="story-meta">Healthcare Product Design &middot; 2022&ndash;2026</span>
+          <h3>A huge, data-heavy healthcare ecosystem &mdash; for people who are counting seconds</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Masses of data, everything connected to everything, and hospitals still running on paper while serving patients. The job was to digitise the whole flow and cut time on task on the interactions that happen hundreds of times a shift.</span></li>
+            <li><span class="label">What I did</span><span class="value">Led UX/UI for most of that time: exploring ways to cut time on task, designing new modules, and building the design system.</span></li>
+            <li><span class="label">Result</span><span class="value metrics">
+              <span class="metric"><span class="metric-num">+17%</span><span class="metric-cap">Task success rate (average)</span></span>
+              <span class="metric"><span class="metric-num">&minus;22%</span><span class="metric-cap">Error rate (average)</span></span>
+              <span class="metric"><span class="metric-num" data-licznik="off"><span role="img" aria-label="Down">&#8600;</span></span><span class="metric-cap">Friction</span></span>
+            </span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== KONTAKT ===================== -->
+  <section id="contact">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">dsikoradesign@gmail.com</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:dsikoradesign@gmail.com">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a class="lnk" href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:dsikoradesign@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     JASNY / CIEMNY — suwak przepisuje swoją wartość do CSS
+     Cała reszta (przycięcie, linia, uchwyt) dzieje się w arkuszu.
+     ========================================================= -->
+<script>
+(() => {
+  document.querySelectorAll('.compare').forEach(box => {
+    const suwak = box.querySelector('.compare-suwak');
+    if (!suwak) return;
+    const ustaw = () => {
+      const v = parseFloat(suwak.value);
+      box.style.setProperty('--pozycja', v + '%');
+      // Próg 25/75: podpis znika, gdy jego zrzut zajmuje już tylko
+      // ćwiartkę kadru, czyli gdy suwak przejedzie trzy czwarte drogi
+      // w stronę drugiego motywu.
+      box.classList.toggle('bez-jasny',  v < 25);
+      box.classList.toggle('bez-ciemny', v > 75);
+    };
+    suwak.addEventListener('input', ustaw);
+    ustaw();                     // powrót z zakładki może oddać inną wartość
+  });
+})();
+</script>
+
+<!-- =========================================================
+     PASEK PO ODERWANIU — logotyp ustępuje miejsca powrotowi
+     Klasa leci dopiero po ruszeniu strony w dół; na samej górze
+     pasek wygląda tak samo jak na stronie głównej.
+     ========================================================= -->
+<script>
+(() => {
+  const bar = document.querySelector('.bar');
+  const row = document.querySelector('.backlink-row');
+  if (!bar) return;
+
+  // 8px zapasu: gumowe odbicie przy krawędzi nie ma migać logotypem
+  const ustaw = () => bar.classList.toggle('is-stuck', window.scrollY > 8);
+  addEventListener('scroll', ustaw, { passive: true });
+  ustaw();                       // wejście z zakładki albo z kotwicy
+
+  // Wysokości paska i linku zależą od kroju i szerokości okna, więc
+  // pozycji parkowania nie da się wpisać w CSS na sztywno. Liczymy ją:
+  // połowa różnicy = równy odstęp nad linkiem i pod nim.
+  if (!row) return;
+  const srodkuj = () => {
+    const gora = Math.round((bar.offsetHeight - row.offsetHeight) / 2);
+    document.documentElement.style.setProperty('--backlink-top', gora + 'px');
+  };
+  addEventListener('resize', srodkuj);
+  addEventListener('load', srodkuj);   // po doczytaniu kroju wysokości się zmienią
+  srodkuj();
+})();
+</script>
+
+<script src="reveal.js"></script>
+<script src="count.js"></script>
+
+</body>
+</html>

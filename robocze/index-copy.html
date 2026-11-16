@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dawid Sikora — UX/UI &amp; Product Designer</title>
+<meta name="description" content="Product Designer. Flexible, systems-first, at home in data-heavy products.">
+
+<!--
+  ============================================================
+  Dawid Sikora — strona główna
+  ============================================================
+  Kierunek wizualny: „Panel danych" — context/reference.html
+  Tokeny i reguły:   DESIGN.md
+  Treść i struktura: context/wireframe-dawid-sikora.html
+
+  Nie zaglądano do context/archiwum/ (zakaz w CLAUDE.md).
+
+  Miejsca oznaczone [DO UZUPEŁNIENIA — …] pochodzą z wireframe'u
+  i czekają na prawdziwe dane. Lorem ipsum nie używamy (DESIGN.md §7).
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Logotypy narzędzi. Źródło: Simple Icons (CC0), pliki w assets/logos/.
+     Sprite, żeby nie powtarzać ścieżek przy każdym kafelku. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <!-- Logotyp Dawid Sikora. Źródło: assets/logos/dawidsikora.svg.
+       Inline (jak logotypy narzędzi), bo zewnętrzny plik nie doczytuje
+       się przy otwarciu strony z dysku; fill idzie z currentColor. -->
+  <symbol id="l-brand" viewBox="0 0 727 104">
+    <path d="M726.812 90.8199H721.065C718.975 90.8199 717.146 90.4716 715.578 89.7749C714.011 89.0782 712.791 87.9461 711.921 86.3785C711.05 84.811 710.614 82.7209 710.614 80.1083V52.4151L710.353 49.4106C710.353 44.708 709.177 41.0503 706.826 38.4378C704.562 35.8252 700.861 34.5189 695.723 34.5189C691.02 34.5189 687.014 35.6946 683.705 38.0459C680.395 40.3972 677.914 43.3146 676.259 46.798L670.25 40.7891C671.556 38.6119 673.429 36.4348 675.867 34.2577C678.305 32.0805 681.266 30.2952 684.75 28.9019C688.233 27.5085 692.196 26.8118 696.637 26.8118C703.952 26.8118 709.482 28.8148 713.227 32.8207C716.972 36.7396 718.844 42.226 718.844 49.28V78.6714C718.844 80.3261 719.192 81.5017 719.889 82.1984C720.673 82.808 721.805 83.1128 723.285 83.1128H726.812V90.8199ZM687.885 92.1262C682.747 92.1262 678.741 90.8634 675.867 88.338C673.08 85.7254 671.687 82.329 671.687 78.1489C671.687 74.0559 673.08 70.6595 675.867 67.9599C678.654 65.1731 682.224 62.7783 686.579 60.7753L711.921 49.28L713.096 55.1583L690.236 66.0004C686.84 67.568 684.314 69.2226 682.66 70.9643C681.092 72.619 680.308 74.6219 680.308 76.9733C680.308 79.5858 681.179 81.5888 682.921 82.9822C684.75 84.2885 687.232 84.9416 690.367 84.9416C693.241 84.9416 695.897 84.4626 698.335 83.5047C700.861 82.4597 703.038 81.1098 704.867 79.4552C706.695 77.7135 708.089 75.8411 709.047 73.8382C710.092 71.7481 710.614 69.6145 710.614 67.4374L710.876 72.14C710.353 75.2751 709.09 78.4102 707.087 81.5453C705.171 84.5933 702.559 87.1188 699.25 89.1217C696.027 91.1247 692.239 92.1262 687.885 92.1262Z"/>
+    <path d="M631.541 90.8199H622.92V28.1181H631.541V90.8199ZM631.541 54.5051L630.758 50.325C631.019 47.3641 631.629 44.4902 632.586 41.7035C633.631 38.8297 635.025 36.2606 636.767 33.9964C638.508 31.7322 640.598 29.9469 643.037 28.6406C645.562 27.3343 648.393 26.6812 651.528 26.6812C655.185 26.6812 658.32 27.8568 660.933 30.2082C663.545 32.4724 664.852 35.7381 664.852 40.0053C664.852 42.2695 664.59 44.3596 664.068 46.2755C663.633 48.1914 663.11 49.6718 662.5 50.7169H653.226C654.097 49.6718 654.837 48.2785 655.446 46.5368C656.143 44.7079 656.491 42.8356 656.491 40.9197C656.491 38.9167 655.882 37.1315 654.663 35.5639C653.444 33.9964 651.353 33.2126 648.393 33.2126C645.345 33.2126 642.514 34.2576 639.902 36.3477C637.289 38.3507 635.243 41.0068 633.762 44.3161C632.282 47.5382 631.541 50.9346 631.541 54.5051Z"/>
+    <path d="M578.478 92.1262C572.817 92.1262 567.766 90.7764 563.325 88.0767C558.883 85.377 555.4 81.5888 552.874 76.712C550.436 71.7481 549.217 66.0004 549.217 59.469C549.217 52.7634 550.436 46.9722 552.874 42.0954C555.4 37.2186 558.883 33.4739 563.325 30.8613C567.766 28.1616 572.817 26.8118 578.478 26.8118C584.225 26.8118 589.32 28.1616 593.761 30.8613C598.203 33.4739 601.642 37.2186 604.081 42.0954C606.606 46.9722 607.869 52.7634 607.869 59.469C607.869 66.0004 606.606 71.7481 604.081 76.712C601.642 81.5888 598.203 85.377 593.761 88.0767C589.32 90.7764 584.225 92.1262 578.478 92.1262ZM578.478 84.811C582.658 84.811 586.272 83.853 589.32 81.9371C592.455 80.0213 594.893 77.191 596.635 73.4463C598.377 69.6145 599.248 64.9554 599.248 59.469C599.248 53.8955 598.377 49.2364 596.635 45.4917C594.893 41.6599 592.455 38.7861 589.32 36.8702C586.272 34.8673 582.658 33.8658 578.478 33.8658C574.472 33.8658 570.901 34.8673 567.766 36.8702C564.631 38.7861 562.193 41.6599 560.451 45.4917C558.709 49.2364 557.838 53.8955 557.838 59.469C557.838 64.9554 558.709 69.6145 560.451 73.4463C562.193 77.191 564.631 80.0213 567.766 81.9371C570.901 83.853 574.472 84.811 578.478 84.811Z"/>
+    <path d="M504.108 0.384613H514.157V10.433H504.108V0.384613ZM504.108 60.6748H514.157V70.7232H504.108V80.7715H494.06V10.433H504.108V60.6748ZM534.254 30.5297H544.302V40.5781H534.254V30.5297ZM524.205 40.5781H534.254V50.6264H524.205V40.5781ZM514.157 50.6264H524.205V60.6748H514.157V50.6264ZM524.205 60.6748H534.254V80.7715H524.205V60.6748ZM484.012 80.7715H494.06V90.8199H484.012V80.7715ZM504.108 80.7715H514.157V90.8199H504.108V80.7715ZM534.254 80.7715H544.302V90.8199H534.254V80.7715Z"/>
+    <path d="M464.813 16.884H456.191V3.29865H464.813V16.884ZM464.813 90.8199H456.191V28.1181H464.813V90.8199Z"/>
+    <path d="M412.332 91.9955C407.107 91.9955 402.012 91.2553 397.048 89.7749C392.172 88.2073 387.861 85.7689 384.116 82.4596C380.458 79.0633 377.672 74.6655 375.756 69.2661L382.418 63.5185C383.811 68.5695 386.119 72.5754 389.341 75.5363C392.651 78.4972 396.352 80.6744 400.445 82.0678C404.538 83.3741 408.5 84.0272 412.332 84.0272C415.902 84.0272 419.212 83.5047 422.26 82.4596C425.308 81.4146 427.746 79.76 429.575 77.4958C431.491 75.2315 432.449 72.2706 432.449 68.613C432.449 65.1296 431.665 62.3428 430.097 60.2528C428.53 58.0756 426.222 56.3339 423.174 55.0276C420.126 53.7213 416.381 52.5457 411.94 51.5006L402.404 49.4106C399.356 48.7139 396.395 47.7995 393.521 46.6674C390.648 45.5353 388.079 44.0983 385.814 42.3566C383.55 40.6149 381.721 38.3942 380.328 35.6946C379.022 32.9949 378.368 29.7292 378.368 25.8974C378.368 20.6723 379.675 16.318 382.287 12.8345C384.987 9.26401 388.47 6.60789 392.738 4.86617C397.092 3.03737 401.707 2.12297 406.584 2.12297C414.596 2.12297 421.476 3.86468 427.224 7.34811C433.058 10.8315 437.238 15.8825 439.764 22.5011L432.579 28.2487C430.576 22.0656 427.311 17.5372 422.782 14.6633C418.254 11.7024 412.811 10.222 406.454 10.222C402.883 10.222 399.661 10.8316 396.787 12.0508C394 13.27 391.736 14.9681 389.994 17.1453C388.253 19.3224 387.382 22.0221 387.382 25.2443C387.382 30.034 388.906 33.6045 391.954 35.9558C395.089 38.22 399.487 40.0489 405.147 41.4422L415.467 43.9242C418.776 44.7079 421.955 45.7094 425.003 46.9286C428.138 48.0607 430.881 49.5412 433.233 51.37C435.671 53.1988 437.587 55.5066 438.98 58.2933C440.374 60.993 441.07 64.3458 441.07 68.3517C441.07 73.4027 439.764 77.7135 437.151 81.284C434.626 84.7674 431.186 87.4235 426.832 89.2524C422.564 91.0812 417.731 91.9955 412.332 91.9955Z"/>
+    <path d="M302.106 92.2568C296.707 92.2568 292.048 90.907 288.129 88.2073C284.297 85.5077 281.293 81.7194 279.116 76.8426C277.026 71.8787 275.98 66.0875 275.98 59.469C275.98 52.8505 277.026 47.1028 279.116 42.226C281.293 37.3492 284.297 33.561 288.129 30.8613C292.048 28.1617 296.707 26.8118 302.106 26.8118C306.809 26.8118 310.684 27.9004 313.732 30.0775C316.867 32.1676 319.219 34.9543 320.786 38.4378C322.441 41.8341 323.399 45.4917 323.66 49.4106L323.137 53.5907C323.137 50.1073 322.484 46.8851 321.178 43.9242C319.872 40.9633 317.869 38.5684 315.169 36.7396C312.469 34.9108 308.986 33.9964 304.719 33.9964C299.058 33.9964 294.312 36.0429 290.48 40.136C286.648 44.229 284.733 50.6733 284.733 59.469C284.733 68.2647 286.648 74.7526 290.48 78.9327C294.312 83.0257 299.058 85.0722 304.719 85.0722C308.986 85.0722 312.469 84.1578 315.169 82.329C317.869 80.5002 319.872 78.1054 321.178 75.1445C322.484 72.0965 323.137 68.8307 323.137 65.3473L323.66 69.658C323.399 73.5769 322.441 77.2345 320.786 80.6309C319.219 84.0272 316.867 86.814 313.732 88.9911C310.684 91.1683 306.809 92.2568 302.106 92.2568ZM331.628 90.8199H323.137V3.29865H331.628V90.8199Z"/>
+    <path d="M261.342 16.884H252.721V3.29865H261.342V16.884ZM261.342 90.8199H252.721V28.1181H261.342V90.8199Z"/>
+    <path d="M153.201 30.5297H163.249V40.5781H153.201V30.5297ZM173.297 30.5297H193.394V40.5781H173.297V30.5297ZM203.443 30.5297H223.539V40.5781H203.443V30.5297ZM233.588 30.5297H243.636V40.5781H233.588V30.5297ZM143.152 40.5781H153.201V50.6264H143.152V40.5781ZM173.297 80.7715H163.249V40.5781H173.297V80.7715ZM203.443 80.7715H193.394V40.5781H203.443V80.7715ZM223.539 40.5781H233.588V80.7715H223.539V40.5781ZM153.201 80.7715H163.249V90.8199H153.201V80.7715ZM173.297 80.7715H193.394V90.8199H173.297V80.7715ZM203.443 80.7715H223.539V90.8199H203.443V80.7715Z"/>
+    <path d="M137.412 90.8199H131.664C129.574 90.8199 127.745 90.4716 126.178 89.7749C124.61 89.0782 123.391 87.9461 122.52 86.3785C121.649 84.811 121.214 82.7209 121.214 80.1083V52.4151L120.953 49.4106C120.953 44.708 119.777 41.0503 117.426 38.4378C115.161 35.8252 111.46 34.5189 106.322 34.5189C101.62 34.5189 97.6136 35.6946 94.3044 38.0459C90.9951 40.3972 88.5132 43.3146 86.8585 46.798L80.8496 40.7891C82.1559 38.6119 84.0282 36.4348 86.4666 34.2577C88.9051 32.0805 91.866 30.2952 95.3494 28.9019C98.8328 27.5085 102.795 26.8118 107.237 26.8118C114.552 26.8118 120.082 28.8148 123.826 32.8207C127.571 36.7396 129.444 42.226 129.444 49.28V78.6714C129.444 80.3261 129.792 81.5017 130.489 82.1984C131.272 82.808 132.404 83.1128 133.885 83.1128H137.412V90.8199ZM98.4845 92.1262C93.3464 92.1262 89.3405 90.8634 86.4666 88.338C83.6799 85.7254 82.2865 82.329 82.2865 78.1489C82.2865 74.0559 83.6799 70.6595 86.4666 67.9599C89.2534 65.1731 92.8239 62.7783 97.1782 60.7753L122.52 49.28L123.696 55.1583L100.836 66.0004C97.4395 67.568 94.914 69.2226 93.2593 70.9643C91.6918 72.619 90.908 74.6219 90.908 76.9733C90.908 79.5858 91.7789 81.5888 93.5206 82.9822C95.3494 84.2885 97.8314 84.9416 100.966 84.9416C103.84 84.9416 106.496 84.4626 108.935 83.5047C111.46 82.4597 113.637 81.1098 115.466 79.4552C117.295 77.7135 118.688 75.8411 119.646 73.8382C120.691 71.7481 121.214 69.6145 121.214 67.4374L121.475 72.14C120.953 75.2751 119.69 78.4102 117.687 81.5453C115.771 84.5933 113.158 87.1188 109.849 89.1217C106.627 91.1247 102.839 92.1262 98.4845 92.1262Z"/>
+    <path d="M28.869 90.8199H3.00446V83.2434H27.6933C34.9214 83.2434 41.0174 81.9807 45.9813 79.4552C50.9452 76.9297 54.7334 73.0109 57.346 67.6986C59.9586 62.3864 61.2649 55.5066 61.2649 47.0593C61.2649 38.612 59.9586 31.7322 57.346 26.4199C54.7334 21.1077 50.9452 17.1888 45.9813 14.6633C41.0174 12.1379 34.9214 10.8751 27.6933 10.8751H3.00446V3.29865H28.869C38.1001 3.29865 45.7636 5.04036 51.8596 8.52379C57.9556 11.9201 62.4841 16.884 65.445 23.4155C68.493 29.9469 70.017 37.8282 70.017 47.0593C70.017 56.2904 68.493 64.1716 65.445 70.7031C62.4841 77.2345 57.9556 82.242 51.8596 85.7254C45.7636 89.1217 38.1001 90.8199 28.869 90.8199ZM8.6215 90.8199H0V3.29865H8.6215V90.8199Z"/>
+  </symbol>
+  <symbol id="l-figma"  viewBox="0 0 24 24"><path d="M15.852 8.981h-4.588V0h4.588c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.491-4.49 4.491zM12.735 7.51h3.117c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-3.117V7.51zm0 1.471H8.148c-2.476 0-4.49-2.014-4.49-4.49S5.672 0 8.148 0h4.588v8.981zm-4.587-7.51c-1.665 0-3.019 1.355-3.019 3.019s1.354 3.02 3.019 3.02h3.117V1.471H8.148zm4.587 15.019H8.148c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h4.588v8.98zM8.148 8.981c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h3.117V8.981H8.148zM8.172 24c-2.489 0-4.515-2.014-4.515-4.49s2.014-4.49 4.49-4.49h4.588v4.441c0 2.503-2.047 4.539-4.563 4.539zm-.024-7.51a3.023 3.023 0 0 0-3.019 3.019c0 1.665 1.365 3.019 3.044 3.019 1.705 0 3.093-1.376 3.093-3.068v-2.97H8.148zm7.704 0h-.098c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h.098c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.49-4.49 4.49zm-.097-7.509c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h.098c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-.098z"/></symbol>
+  <symbol id="l-claude" viewBox="0 0 24 24"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></symbol>
+  <symbol id="l-cursor" viewBox="0 0 24 24"><path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></symbol>
+  <symbol id="l-miro"   viewBox="0 0 24 24"><path d="M17.392 0H13.9L17 4.808 10.444 0H6.949l3.102 6.3L3.494 0H0l3.05 8.131L0 24h3.494L10.05 6.985 6.949 24h3.494L17 5.494 13.899 24h3.493L24 3.672 17.392 0z"/></symbol>
+  <symbol id="l-adobe"  viewBox="0 0 24 24"><path d="M14.782 3.153c-.231.02-.472.04-.703.07a8.453 8.453 0 0 0-2.832.834 8.951 8.951 0 0 0-2.46 1.777c-.03.04-.09.06-.141.05a7.44 7.44 0 0 0-1.496-.07 7.424 7.424 0 0 0-2.932.763c-1.768.884-3.013 2.26-3.736 4.108a7.089 7.089 0 0 0-.462 2.139c0 .05-.01.09-.02.13v.773c.02.201.05.392.07.593.1.813.332 1.596.703 2.33.824 1.646 2.089 2.851 3.786 3.594a7.127 7.127 0 0 0 2.45.593c.032 0 .06.004.086.01h8.576c.183-.017.362-.035.547-.06a8.344 8.344 0 0 0 2.811-.834 8.836 8.836 0 0 0 3.646-3.304 8.187 8.187 0 0 0 1.184-3.093c.05-.34.08-.692.121-1.034 0-.05.01-.09.02-.13v-.794c-.02-.23-.05-.452-.05-.662a8.345 8.345 0 0 0-.834-2.812 8.952 8.952 0 0 0-3.324-3.645 8.245 8.245 0 0 0-3.072-1.175c-.362-.06-.713-.09-1.075-.13-.05 0-.09-.01-.14-.02zm.369 1.693c2.126.005 3.93.826 5.395 2.455a6.93 6.93 0 0 1 1.616 3.323c.15.764.181 1.547.07 2.32-.19 1.346-.702 2.55-1.576 3.605a7.082 7.082 0 0 1-3.997 2.45 7.297 7.297 0 0 1-2.56.1c-1.095-.14-2.099-.501-3.003-1.154a5.2 5.2 0 0 1-.672-.573c-1.226-1.205-2.44-2.42-3.666-3.625-.301-.3-.321-.632-.18-.934a.822.822 0 0 1 .863-.472c.21.02.372.141.522.292 1.105 1.114 2.2 2.209 3.304 3.324a5.263 5.263 0 0 0 3.093 1.536c1.948.261 3.605-.341 4.92-1.798.713-.793 1.145-1.747 1.326-2.811.26-1.587-.11-3.013-1.095-4.268-.873-1.115-2.018-1.808-3.404-2.059-1.416-.25-2.751.02-3.966.794-.03.02-.1.03-.131.01a9.04 9.04 0 0 0-1.406-.854s-.01-.01-.02-.03a6.603 6.603 0 0 1 1.255-.823 6.646 6.646 0 0 1 2.641-.784 8.45 8.45 0 0 1 .67-.024zM7.546 7.509c1.455-.024 2.791.525 3.982 1.63.854.802 1.637 1.636 2.46 2.47.231.23.281.522.171.833-.11.311-.362.462-.683.512a.722.722 0 0 1-.632-.23c-.784-.784-1.567-1.557-2.34-2.35-.633-.653-1.386-1.025-2.27-1.186-1.958-.351-3.936.784-4.639 2.641-.904 2.36.522 5.031 2.982 5.594.482.11.995.11 1.497.1.14-.01.22.04.32.13.483.473.995.945 1.497 1.416.03.03.07.06.1.09-.06 0-.1.01-.14.01h-2.3a5.833 5.833 0 0 1-5.693-4.568c-.653-2.942 1.034-5.925 3.926-6.798a6.33 6.33 0 0 1 1.762-.294Z"/></symbol>
+</svg>
+
+<header class="bar">
+  <a class="brandmark" href="/">
+    <svg class="brandmark-logo" aria-hidden="true"><use href="#l-brand"/></svg>
+    <span class="brandmark-text">Dawid Sikora</span>
+  </a>
+  <nav>
+    <ul>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-sm" href="mailto:dsikoradesign@gmail.com">Email me</a>
+</header>
+
+<main>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" style="padding:0; border-bottom:var(--border-width) solid var(--line-strong);">
+    <div class="cell">
+      <p class="status"><i></i>Open to new roles</p>
+      <h1>Product Designer. <span class="trait trait--flex">Flexible</span>, <span class="trait trait--systems">systems&#8209;first</span>, at home in <span class="trait trait--data">data&#8209;heavy</span> products.</h1>
+      <div class="hero-cta">
+        <a class="btn" href="#work">Go straight to the work</a>
+      </div>
+    </div>
+
+    <div class="cell">
+      <table class="meta">
+        <tr><th>role</th><td>UX/UI &amp; Product Designer</td></tr>
+        <tr><th>domain</th><td>data-heavy systems</td></tr>
+        <tr><th>industries</th><td>healthcare, traveltech, SaaS</td></tr>
+        <tr><th>scope</th><td>research → UX → UI</td></tr>
+        <tr><th>experience</th><td>5+ years</td></tr>
+        <tr><th>status</th><td>open to new roles</td></tr>
+      </table>
+
+    <!-- Dymki cech — każdy wywoływany najechaniem na swoje słowo w H1.
+         Leżą na tabeli metadanych, która na ten czas znika. -->
+    <aside class="trait-note note--flex">
+      <span class="trait-note-bar"></span>
+      <span class="trait-note-label">Flexible</span>
+      <p>Two-week startup sprints or a change board with three sign-offs. I adapt to the workflow you already run, not the one I'd prefer.</p>
+      <span class="trait-note-pixel" aria-hidden="true"></span>
+    </aside>
+
+    <aside class="trait-note note--systems">
+      <span class="trait-note-bar"></span>
+      <span class="trait-note-label">Systems-first</span>
+      <p>A product is layers, not screens: what the user sees, what their manager reads above them, what the admin controls behind both. I design the whole ecosystem.</p>
+      <span class="trait-note-pixel" aria-hidden="true"></span>
+    </aside>
+
+    <aside class="trait-note note--data">
+      <span class="trait-note-bar"></span>
+      <span class="trait-note-label">Data-heavy</span>
+      <p>Four years on advanced digital tools for hospitals. Dense clinical data, hard constraints, and a user with no time to hunt for a number.</p>
+      <span class="trait-note-pixel" aria-hidden="true"></span>
+    </aside>
+    </div>
+
+  </section>
+
+  <!-- ===================== PROCES ===================== -->
+  <section id="process" class="bg-soft shader-bg">
+    <div class="wrap">
+      <span class="eyebrow">How I work</span>
+      <h2>You'll know how I think before you ever hire me.</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-no">01</span>
+          <h3>I take the system apart first</h3>
+          <p>Data, roles, flows, technical limits, budget. Before I draw a single frame, I want to know what I'm actually dealing with.</p>
+        </div>
+        <div class="step">
+          <span class="step-no">02</span>
+          <h3>Every screen has one job</h3>
+          <p>Someone opens a screen with a question already in their head. My job is to answer it fast. Whatever doesn't help with that answer gets cut.</p>
+        </div>
+        <div class="step">
+          <span class="step-no">03</span>
+          <h3>I stay until it's live</h3>
+          <p>Design that dies in handover isn't design. I sit with your developers through implementation, answer the edge cases nobody drew, and check the build against the intent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRACE ===================== -->
+  <section id="work">
+    <div class="wrap">
+      <span class="eyebrow">Selected work</span>
+      <h2>Four messy problems, and how I untangled them.</h2>
+
+      <!-- Kadr idzie prosto z mockupu: proporcja 1.55 wobec 1.5 ramki, więc
+           object-fit docina kilka pikseli u góry i u dołu i nic się nie dzieje.
+           Tło mockupu jest już w limonce, nie trzeba go podkładać. -->
+      <a class="story" href="case-study-agyle.html">
+        <span class="story-media ph ph-3x2">
+          <img class="img-fit" src="assets/agyle-ed-card.png"
+               alt="Moduł Whiteboard systemu Agyle na tablecie, na limonkowym tle: ciemna mapa oddziału ratunkowego ze strefami i kafelkami łóżek, obok otwarty panel akcji."
+               width="3980" height="2572" loading="lazy" decoding="async">
+        </span>
+        <div>
+          <span class="story-meta">Product Design &middot; 2022&ndash;2026</span>
+          <h3>A huge, data-heavy ecosystem &mdash; for people who are counting seconds</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Masses of data, everything connected to everything, and hospitals still running on paper while serving patients. The job was to digitise the whole flow and cut time on task on the interactions that happen hundreds of times a shift.</span></li>
+            <li><span class="label">What I did</span><span class="value">Led UX/UI for most of that time: exploring ways to cut time on task, designing new modules, and building the design system.</span></li>
+            <li><span class="label">Result</span><span class="value metrics">
+              <span class="metric"><span class="metric-num">+17%</span><span class="metric-cap">Task success rate (average)</span></span>
+              <span class="metric"><span class="metric-num">&minus;22%</span><span class="metric-cap">Error rate (average)</span></span>
+              <span class="metric"><span class="metric-num" data-licznik="off"><span role="img" aria-label="Down">&#8600;</span></span><span class="metric-cap">Friction</span></span>
+            </span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <a class="story" href="case-study.html">
+        <!-- Osobny plik, nie pełne ujęcie: karta ma proporcję 3:2, a oryginał 4:3.
+             Kadr wycięty na twardo (assets/pixel/crop.mjs) zamiast object-fit,
+             żeby o tym, co widać, decydowało kadrowanie, a nie szerokość kolumny.
+             Pełne ujęcie zostaje na podstronie case study. -->
+        <span class="story-media ph ph-3x2">
+          <img src="assets/fikolki-card.png"
+               alt="Fikołki — góra ekranu głównego aplikacji: powitanie rodziny, Karta Malucha Premium i kod QR."
+               width="1038" height="692" loading="lazy" decoding="async">
+        </span>
+        <div>
+          <span class="story-meta">0–1 Product Design · 2025</span>
+          <h3>Four new business mechanics, and no app to run them on</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Fikołki was pivoting its play centres onto subscriptions and QR gates, and wanted a family tree and on-site points on top. Four new mechanics, all decided, none of them with a screen.</span></li>
+            <li><span class="label">What I did</span><span class="value">Designed the product from an empty canvas: a family tree holding every kid on one account, a QR code ready before the queue builds, three subscription tiers you can actually tell apart, and points that name what they buy.</span></li>
+            <!-- Maksymalnie trzy liczby. Jeśli którejś nie macie, usuń cały
+                 .metric zamiast zostawiać pusty kafelek — dziura w wyniku
+                 kosztuje więcej niż dwie liczby zamiast trzech. Podpisy
+                 zmień na to, co naprawdę mierzyliście. -->
+            <li><span class="label">Result</span><span class="value metrics">
+              <span class="metric"><span class="metric-num">10.5k</span><span class="metric-cap">Subscriptions sold</span></span>
+              <span class="metric"><span class="metric-num">&minus;47%</span><span class="metric-cap">Birthday enquiries at reception</span></span>
+              <span class="metric"><span class="metric-num">+13%</span><span class="metric-cap">Event sales</span></span>
+            </span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <a class="story" href="case-study.html">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">Design system · [DO UZUPEŁNIENIA — rok]</span>
+          <h3>A component system that stopped the drift</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Every view looked like a different person had designed it. That's because one had.</span></li>
+            <li><span class="label">What I did</span><span class="value">Pulled the repeating patterns into one system, with usage rules and documentation developers actually open.</span></li>
+            <li><span class="label">Result</span><span class="value metrics">
+              <span class="metric"><span class="metric-num">[DO UZUPEŁNIENIA]</span><span class="metric-cap">Time to ship a screen</span></span>
+              <span class="metric"><span class="metric-num">[DO UZUPEŁNIENIA]</span><span class="metric-cap">Components reused</span></span>
+              <span class="metric"><span class="metric-num">[DO UZUPEŁNIENIA]</span><span class="metric-cap">Design QA rounds</span></span>
+            </span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <!-- Kadr 3:2 wycięty z okładki mockupu (System.Drawing, skrypt w notatkach),
+           tak jak przy Fikołkach: obraz jest już w proporcji ramki, więc
+           object-fit nie ma czego docinać. JPG, nie PNG — mockup jest
+           fotograficzny i w PNG ważył kilkukrotnie więcej. -->
+      <a class="story" href="case-study-bajecznewakacje.html">
+        <span class="story-media ph ph-3x2">
+          <img src="assets/bajecznewakacje-hero.png"
+               alt="BajeczneWakacje.pl — strona główna serwisu po przebudowie, pokazana na limonkowym tle: fioletowy pasek nawigacji, wyszukiwarka w białej karcie na zdjęciu tarasów ryżowych, pod nią kafelki okazji z oceną, datami i ceną za osobę."
+               width="1990" height="1286" loading="lazy" decoding="async">
+        </span>
+        <div>
+          <span class="story-meta">UX/UI Design · 2023</span>
+          <h3>A holiday booking flow that survives the fifth step</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">The site could sell a holiday and then couldn't take payment for it — you reserved and waited for a call back. And when a sale did land, it was often a resold trip, because the agency's own offers were invisible on the agency's own site.</span></li>
+            <li><span class="label">What I did</span><span class="value">Solo, end to end: a Baymard-based audit of the live site, then the whole path rather than the pretty part — search and filters, results in the list instead of behind a pop-up, an online checkout where there had been none, and the states nobody screenshots. Desktop and mobile, on the design system the site had never had.</span></li>
+            <li><span class="label">Result</span><span class="value">A booking that ends in a payment instead of a phone call, a search that answers before it interrogates, and the agency's own trips finally visible on the pages where people choose.</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <div class="work-more">
+        <p>These four are picked for the thinking, not for the prettiest pixels. The rest is one click away.</p>
+        <a class="btn" href="/projects">See all work</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NARZĘDZIA ===================== -->
+  <section id="tools">
+    <div class="wrap">
+      <span class="eyebrow">What I work in</span>
+      <div class="tools">
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-figma"/></svg><span>Figma</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-claude"/></svg><span>Claude Code</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-cursor"/></svg><span>Cursor</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-miro"/></svg><span>Miro</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-figma"/></svg><span>FigJam</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-adobe"/></svg><span>Adobe CC</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== O MNIE ===================== -->
+  <section id="about" class="bg-soft shader-bg">
+    <div class="wrap about">
+      <div>
+        <span class="eyebrow">About</span>
+        <h2>I came into design through systems. It shows.</h2>
+        <p>I read a product as a set of dependencies, not a stack of screens waiting to be painted. Give me a lot of data and very little room for it, and I'm in my element.</p>
+        <p>After hours I play board games and video games. Right now I'm reading about UX in games — there the interface has to be invisible and lead the player by the hand at the same time. A lot of that carries over to products that aren't games.</p>
+        <!-- Przycisk do podstrony "about" schowany do czasu, gdy będzie tam
+             więcej treści niż w tej sekcji. Odkomentuj, żeby wrócił. -->
+        <!-- <a class="about-link lnk" href="about.html">More about me</a> -->
+      </div>
+      <!-- Portret pikselowy w farbie akcentu — zrobiony z kodu
+           (assets/pixel/portret.mjs), nie filtrem w edytorze, więc da
+           się go przegenerować, gdy zmieni się zdjęcie albo kolor.
+           image-rendering:pixelated, bo przeglądarka domyślnie
+           wygładziłaby krawędzie i zjadła cały efekt. -->
+      <img class="ph ph-1x1 img-fit px-art" src="assets/portret-pixel.png"
+           alt="Dawid Sikora — portret pikselowy w limonce i czerni: sylwetka w czapce z daszkiem, okularach i wiatrówce, cieniowana czterema stopniami jednego koloru."
+           width="1008" height="1008" loading="lazy" decoding="async">
+    </div>
+  </section>
+
+  <!-- ===================== KONTAKT ===================== -->
+  <section id="contact">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">dsikoradesign@gmail.com</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:dsikoradesign@gmail.com">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a class="lnk" href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:dsikoradesign@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     GrainGradient pod sekcjami „How I work" (wave) i „About" (corners)
+     Parametry 1:1 z wariantu React. Jak coś padnie (brak sieci,
+     brak WebGL2), klasa `shader-bg` leci i sekcja wraca do jasnej.
+     ========================================================= -->
+<script type="module">
+  // sekcja -> parametry kształtu; reszta uniformów wspólna
+  const cele = [
+    { id:'process', shape:'wave',    scale:2.12 },
+    { id:'about',   shape:'corners', scale:1.72 },
+  ];
+  const sekcje = cele.map(c => ({ ...c, el: document.getElementById(c.id) }));
+
+  try {
+    const {
+      ShaderMount, grainGradientFragmentShader, getShaderColorFromString,
+      getShaderNoiseTexture, GrainGradientShapes, ShaderFitOptions, defaultObjectSizing
+    } = await import('https://esm.sh/@paper-design/shaders@0.0.81');
+
+    // biblioteka wymaga tekstury szumu już zdekodowanej
+    const noiseTexture = getShaderNoiseTexture();
+    if (noiseTexture && !noiseTexture.complete) await noiseTexture.decode();
+
+    const colors = ['#daf23a', '#daf23a', '#000a0f'];
+    const still = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+    for (const { el, shape, scale } of sekcje) {
+      const uniforms = {
+        u_colorBack:   getShaderColorFromString('#000a0f'),
+        u_colors:      colors.map(getShaderColorFromString),
+        u_colorsCount: colors.length,
+        u_softness:    0.6,
+        u_intensity:   0.15,
+        u_noise:       0.43,
+        u_shape:       GrainGradientShapes[shape],
+        u_noiseTexture:noiseTexture,
+        u_fit:         ShaderFitOptions[defaultObjectSizing.fit],
+        u_scale:       scale,
+        u_rotation:    defaultObjectSizing.rotation,
+        u_offsetX:     defaultObjectSizing.offsetX,
+        u_offsetY:     defaultObjectSizing.offsetY,
+        u_originX:     defaultObjectSizing.originX,
+        u_originY:     defaultObjectSizing.originY,
+        u_worldWidth:  defaultObjectSizing.worldWidth,
+        u_worldHeight: defaultObjectSizing.worldHeight,
+      };
+      new ShaderMount(el, grainGradientFragmentShader, uniforms, undefined, still ? 0 : 0.68, 0);
+    }
+  } catch (err) {
+    for (const { el } of sekcje) {
+      el.classList.remove('shader-bg');
+      el.querySelector(':scope > canvas')?.remove();
+    }
+    console.warn('GrainGradient off:', err);
+  }
+</script>
+
+<script src="reveal.js"></script>
+<script src="count.js"></script>
+
+</body>
+</html>

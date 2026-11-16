@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podgląd kierunków 2 — eksploracja kierunku „Panel danych”</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700;800&family=Martian+Mono:wght@300;400;600;800&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-font-smoothing:antialiased; }
+  body{ margin:0; background:#111; }
+  .hero{ min-height:92vh; display:flex; flex-direction:column; }
+
+  /* ---------- paski opisowe (komentarz, nie część projektu) ---------- */
+  .label{
+    background:#111; color:#fff; padding:26px 6vw 30px;
+    font-family:'IBM Plex Mono',monospace; font-size:.8rem; line-height:1.6;
+  }
+  .label .num{ color:#7a7a7a; letter-spacing:.16em; text-transform:uppercase; display:block; margin-bottom:10px; }
+  .label .who{ font-family:'Work Sans',sans-serif; font-size:1.16rem; line-height:1.45; max-width:64ch; margin:0 0 14px; }
+  .label .tech{ color:#8d8d8d; margin:0 0 8px; }
+  .label .tech b{ color:#c9c9c9; font-weight:500; }
+  .label .trait-note{ color:#6f6f6f; margin:0; }
+  .intro{ background:#000; color:#fff; padding:34px 6vw; font-family:'IBM Plex Mono',monospace; font-size:.82rem; line-height:1.7; }
+  .intro b{ display:block; margin-bottom:8px; }
+  .intro span{ color:#8d8d8d; }
+
+  /* =========================================================
+     A — KANON (dopięty oryginał)
+     ========================================================= */
+  .a{ background:#EBE8E0; color:#171713; font-family:'JetBrains Mono',monospace; justify-content:center; }
+  .a .bar{
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    padding:13px 4vw; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+    border-top:1px solid #171713; border-bottom:1px solid #C9C5B8;
+  }
+  .a .bar nav{ display:flex; gap:22px; }
+  .a .bar a{ color:inherit; text-decoration:none; }
+  .a .bar a:hover{ background:#D8F23A; }
+  .a .status i{ display:inline-block; width:7px; height:7px; background:#1F6F3E; margin-right:8px; }
+  .a .body{ display:grid; grid-template-columns:1.45fr 1fr; border-bottom:1px solid #171713; }
+  .a .cell{ padding:10vh 4vw; }
+  .a .cell + .cell{ border-left:1px solid #C9C5B8; }
+  .a h1{
+    font-weight:800; font-size:clamp(1.7rem,3.7vw,3rem); line-height:1.24;
+    letter-spacing:-.05em; margin:0; max-width:21ch;
+  }
+  .a .trait{ background:#D8F23A; padding:0 .16em; transition:background .25s ease, opacity .25s ease; }
+  .a h1:hover .trait{ background:transparent; opacity:.38; }
+  .a h1 .trait:hover{ background:#D8F23A; opacity:1; }
+  .a .cta{
+    display:inline-block; margin-top:44px; text-decoration:none;
+    font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:15px 24px; border:1px solid #171713; background:#D8F23A; color:#171713;
+  }
+  .a .cta:hover{ background:#171713; color:#D8F23A; }
+  .a table{ width:100%; border-collapse:collapse; font-size:.78rem; }
+  .a th{
+    text-align:left; font-weight:400; color:#7C7867; text-transform:uppercase;
+    letter-spacing:.1em; padding:12px 0; border-bottom:1px solid #C9C5B8; width:46%;
+  }
+  .a td{ padding:12px 0; border-bottom:1px solid #C9C5B8; font-weight:500; }
+
+  /* =========================================================
+     B — SZERYF W SIATCE
+     ========================================================= */
+  .b{ background:#F7F3EA; color:#191510; font-family:'IBM Plex Mono',monospace; justify-content:center; }
+  .b .bar{
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    padding:14px 5vw; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+    border-bottom:1px solid #191510; color:#6C6152;
+  }
+  .b .bar nav{ display:flex; gap:24px; }
+  .b .bar a{ color:inherit; text-decoration:none; }
+  .b .bar .on{ color:#B8461F; }
+  .b .body{ display:grid; grid-template-columns:.34fr 1fr; border-bottom:1px solid #191510; }
+  .b .side{ padding:9vh 0 9vh 5vw; border-right:1px solid #DED6C6; }
+  .b .main{ padding:9vh 5vw; }
+  .b .side dl{ margin:0; font-size:.72rem; line-height:1.9; }
+  .b .side dt{ color:#9A8E7B; text-transform:uppercase; letter-spacing:.12em; margin-top:22px; }
+  .b .side dt:first-child{ margin-top:0; }
+  .b .side dd{ margin:0; color:#191510; }
+  .b h1{
+    font-family:'Instrument Serif',Georgia,serif; font-weight:400;
+    font-size:clamp(2.4rem,5.6vw,4.6rem); line-height:1.04; letter-spacing:-.015em;
+    margin:0; max-width:18ch;
+  }
+  .b .trait{ position:relative; transition:opacity .28s ease, color .28s ease; }
+  .b .trait::before{
+    content:""; position:absolute; left:-.1em; right:-.1em; top:-.06em; bottom:-.02em;
+    border:1px solid #B8461F; opacity:.45; transition:opacity .28s ease, background .28s ease;
+  }
+  .b h1:hover .trait{ opacity:.3; }
+  .b h1:hover .trait::before{ opacity:0; }
+  .b h1 .trait:hover{ opacity:1; color:#B8461F; }
+  .b h1 .trait:hover::before{ opacity:1; background:rgba(184,70,31,.09); }
+  .b .cta{
+    display:inline-block; margin-top:48px; text-decoration:none; color:#191510;
+    font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
+    border-bottom:2px solid #B8461F; padding-bottom:5px;
+  }
+  .b .cta:hover{ color:#B8461F; }
+
+  /* =========================================================
+     C — ARKUSZ
+     ========================================================= */
+  .c{ background:#F2F1EC; color:#121210; font-family:'JetBrains Mono',monospace; justify-content:flex-start; }
+  .c .bar{
+    display:grid; grid-template-columns:repeat(12,1fr);
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+    border-bottom:1px solid #121210; color:#8A8A82;
+  }
+  .c .bar div{ padding:9px 10px; border-right:1px solid #DCDBD4; }
+  .c .bar div:last-child{ border-right:0; }
+  .c .bar .wide{ grid-column:span 4; color:#121210; }
+  .c .bar .end{ grid-column:span 3; text-align:right; color:#121210; }
+  .c .sheet{ display:grid; grid-template-columns:44px 1fr; flex:1; }
+  .c .gutter{ border-right:1px solid #DCDBD4; }
+  .c .gutter span{
+    display:block; padding:0 8px; height:52px; line-height:52px; text-align:right;
+    font-size:.64rem; color:#B5B4AC; border-bottom:1px solid #EAE9E3;
+  }
+  .c .field{ padding:7vh 3vw 5vh; }
+  .c .rowlabel{ font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:#8A8A82; margin:0 0 16px; }
+  .c h1{
+    font-family:'Martian Mono',monospace; font-weight:600;
+    font-size:clamp(1.3rem,2.9vw,2.35rem); line-height:1.4; letter-spacing:-.06em;
+    margin:0; max-width:30ch;
+  }
+  .c .trait{
+    border-bottom:3px solid #FF5C1A; padding-bottom:1px;
+    transition:opacity .25s ease, background .25s ease, color .25s ease;
+  }
+  .c h1:hover .trait{ opacity:.34; }
+  .c h1 .trait:hover{ opacity:1; background:#FF5C1A; color:#F2F1EC; }
+  .c .strip{
+    display:grid; grid-template-columns:repeat(4,1fr); margin-top:6vh;
+    border-top:1px solid #121210; border-bottom:1px solid #121210;
+  }
+  .c .strip div{ padding:16px 14px; border-right:1px solid #DCDBD4; }
+  .c .strip div:last-child{ border-right:0; }
+  .c .strip b{ display:block; font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; color:#8A8A82; font-weight:400; margin-bottom:7px; }
+  .c .strip span{ font-size:.86rem; }
+  .c .cta{
+    display:inline-block; margin-top:5vh; text-decoration:none;
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    padding:15px 26px; background:#FF5C1A; color:#F2F1EC;
+  }
+
+  /* =========================================================
+     D — LEKKI DRUK
+     ========================================================= */
+  .d{ background:#FAF6EE; color:#1E1A15; font-family:'IBM Plex Mono',monospace; justify-content:center; padding:0 7vw; }
+  .d .bar{
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    padding:22px 0; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:#93897A; border-bottom:1px solid #E3DCCE;
+  }
+  .d .bar nav{ display:flex; gap:26px; }
+  .d .bar a{ color:inherit; text-decoration:none; }
+  .d .mid{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:10vh 0; }
+  .d .status{ font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:#C0563A; margin:0; }
+  .d h1{
+    font-weight:300; font-size:clamp(1.6rem,3.3vw,2.7rem); line-height:1.5;
+    letter-spacing:-.03em; margin:34px 0 0; max-width:26ch;
+  }
+  .d .trait{
+    font-weight:600; position:relative;
+    transition:opacity .3s ease, color .3s ease;
+  }
+  .d .trait::after{
+    content:""; position:absolute; left:0; right:0; bottom:-.22em; height:1px;
+    background:#C0563A; transition:height .3s ease, bottom .3s ease;
+  }
+  .d h1:hover .trait{ opacity:.26; }
+  .d h1 .trait:hover{ opacity:1; color:#C0563A; }
+  .d h1 .trait:hover::after{ height:3px; bottom:-.26em; }
+  .d .cta{
+    display:inline-block; margin-top:60px; text-decoration:none; color:#1E1A15;
+    font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+    border:1px solid #1E1A15; padding:16px 28px;
+  }
+  .d .cta:hover{ background:#C0563A; border-color:#C0563A; color:#FAF6EE; }
+  .d .foot{
+    display:flex; gap:48px; flex-wrap:wrap; padding:22px 0;
+    border-top:1px solid #E3DCCE; font-size:.7rem; letter-spacing:.1em;
+    text-transform:uppercase; color:#93897A;
+  }
+  .d .foot b{ color:#1E1A15; font-weight:400; }
+
+  /* =========================================================
+     E — KARTA KATALOGOWA
+     ========================================================= */
+  .e{ background:#E9E6DC; color:#14201C; font-family:'Space Mono',monospace; justify-content:center; padding:6vh 5vw; }
+  .e .card{ border:1.5px solid #14201C; background:#F4F2EA; }
+  .e .cardtop{
+    display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    padding:12px 22px; border-bottom:1.5px solid #14201C;
+    font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  }
+  .e .cardtop .code{ color:#0E7C6B; }
+  .e .cardbody{ padding:8vh 22px 6vh; }
+  .e h1{
+    font-weight:700; font-size:clamp(1.5rem,3.2vw,2.6rem); line-height:1.36;
+    letter-spacing:-.035em; margin:0; max-width:24ch;
+  }
+  .e .trait{
+    display:inline-block; border:1.5px solid #0E7C6B; color:#0E7C6B;
+    padding:0 .3em; margin:0 .04em; border-radius:3px;
+    transition:opacity .25s ease, background .25s ease, color .25s ease;
+  }
+  .e h1:hover .trait{ opacity:.32; }
+  .e h1 .trait:hover{ opacity:1; background:#0E7C6B; color:#F4F2EA; }
+  .e .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:42px; }
+  .e .chips span{
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+    border:1px solid #9FA79F; padding:7px 12px; color:#4A544E;
+  }
+  .e .cardfoot{
+    display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap;
+    padding:16px 22px; border-top:1.5px solid #14201C;
+    font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  }
+  .e .cardfoot .status i{ display:inline-block; width:7px; height:7px; border-radius:50%; background:#0E7C6B; margin-right:8px; }
+  .e .cta{
+    text-decoration:none; background:#0E7C6B; color:#F4F2EA; padding:13px 22px;
+    font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  }
+
+  @media (max-width:880px){
+    .hero{ min-height:auto; }
+    .a .body,.b .body{ grid-template-columns:1fr; }
+    .a .cell + .cell{ border-left:0; border-top:1px solid #C9C5B8; }
+    .a .bar nav,.b .bar nav,.d .bar nav{ display:none; }
+    .b .side{ border-right:0; border-bottom:1px solid #DED6C6; padding:6vh 5vw; }
+    .b .main{ padding:6vh 5vw; }
+    .c .bar{ grid-template-columns:repeat(4,1fr); }
+    .c .bar .wide,.c .bar .end{ grid-column:span 2; }
+    .c .sheet{ grid-template-columns:30px 1fr; }
+    .c .strip{ grid-template-columns:repeat(2,1fr); }
+    .c .strip div{ border-bottom:1px solid #DCDBD4; }
+  }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Eksploracja kierunku 02 — „Panel danych”</b>
+  <span>Pięć wariantów tego samego art direction. Wspólne DNA: mono jako krój prowadzący, widoczna siatka i linie, układ tabelaryczny, ciepłe jasne tło, jeden sygnałowy akcent. Zmienne: rodzina mono, hue akcentu, gęstość, obecność szeryfa. Treść i mechanika .trait — z context/wireframe-dawid-sikora.html.</span>
+</div>
+
+<!-- ============== A — KANON ============== -->
+<section class="hero a">
+  <div class="bar">
+    <span>dawid_sikora / product_design</span>
+    <nav><a href="#">process</a><a href="#">work</a><a href="#">about</a><a href="#">email</a></nav>
+    <span class="status"><i></i>open to new roles</span>
+  </div>
+  <div class="body">
+    <div class="cell">
+      <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+      <a class="cta" href="#">Go straight to the work</a>
+    </div>
+    <div class="cell">
+      <table>
+        <tr><th>role</th><td>UX/UI &amp; Product Designer</td></tr>
+        <tr><th>domain</th><td>data-heavy systems</td></tr>
+        <tr><th>scope</th><td>research → logic → UI</td></tr>
+        <tr><th>handover</th><td>stays until it ships</td></tr>
+        <tr><th>status</th><td>open to new roles</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">02·A · Kanon</span>
+  <p class="who">Mówi do leadów produktowych z SaaS-u i narzędzi wewnętrznych — rozpoznają swój świat w pierwszej sekundzie, zanim przeczytają choć jedno zdanie.</p>
+  <p class="tech">Typografia: <b>JetBrains Mono</b> 800/500, ujemny tracking · Paleta: szarobeż, czerń, sygnałowa limonka · Rytm: dwie kolumny 1.45/1, ramka góra-dół, gęsto</p>
+  <p class="trait-note">Dopięte względem oryginału: cięższa waga nagłówka, mocniejszy tracking, hover na nawigacji podświetla limonką, CTA odwraca się na czarne.</p>
+</div>
+
+<!-- ============== B — SZERYF W SIATCE ============== -->
+<section class="hero b">
+  <div class="bar">
+    <span>Dawid Sikora — UX/UI &amp; Product Design</span>
+    <nav><a href="#">Process</a><a href="#">Work</a><a href="#">About</a><a class="on" href="#">Email me</a></nav>
+  </div>
+  <div class="body">
+    <div class="side">
+      <dl>
+        <dt>Status</dt><dd>Open to new roles</dd>
+        <dt>Domain</dt><dd>Data-heavy systems</dd>
+        <dt>Scope</dt><dd>Research → logic → UI</dd>
+        <dt>Based</dt><dd>Poland / remote</dd>
+      </dl>
+    </div>
+    <div class="main">
+      <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+      <a class="cta" href="#">Go straight to the work →</a>
+    </div>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">02·B · Szeryf w siatce</span>
+  <p class="who">Mówi do Head of Design, który chce zobaczyć rzemiosło i rękę autora, ale nie chce stracić sygnału „ten człowiek rozumie systemy”.</p>
+  <p class="tech">Typografia: <b>Instrument Serif</b> w nagłówku, <b>IBM Plex Mono</b> we wszystkim innym · Paleta: kość słoniowa, czerń, przygaszony cynober · Rytm: wąski pasek metadanych po lewej, szeroka kolumna nagłówka, średnia gęstość</p>
+  <p class="trait-note">.trait → cienka ramka wokół słowa, jak zaznaczona komórka. Hover wypełnia ją lekkim tłem, pozostałe ramki znikają.</p>
+</div>
+
+<!-- ============== C — ARKUSZ ============== -->
+<section class="hero c">
+  <div class="bar">
+    <div class="wide">dawid_sikora.portfolio</div>
+    <div>process</div>
+    <div>work</div>
+    <div>about</div>
+    <div>email</div>
+    <div class="end">open to new roles</div>
+  </div>
+  <div class="sheet">
+    <div class="gutter">
+      <span>01</span><span>02</span><span>03</span><span>04</span><span>05</span>
+      <span>06</span><span>07</span><span>08</span><span>09</span><span>10</span>
+      <span>11</span><span>12</span>
+    </div>
+    <div class="field">
+      <p class="rowlabel">A1 — positioning</p>
+      <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+      <div class="strip">
+        <div><b>case studies</b><span>03</span></div>
+        <div><b>domain</b><span>data-heavy</span></div>
+        <div><b>scope</b><span>research → UI</span></div>
+        <div><b>handover</b><span>stays until live</span></div>
+      </div>
+      <a class="cta" href="#">Go straight to the work</a>
+    </div>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">02·C · Arkusz</span>
+  <p class="who">Mówi do każdego, kto spędza dzień w tabelach i dashboardach — to jedyny wariant, w którym sama strona wygląda jak problem, który rozwiązujesz.</p>
+  <p class="tech">Typografia: <b>Martian Mono</b> (szeroki, techniczny) w nagłówku + <b>JetBrains Mono</b> w drobnych · Paleta: chłodna jasna szarość, czerń, sygnałowy pomarańcz · Rytm: numerowana rynna wierszy, siatka 12 kolumn, najgęstszy z całej piątki</p>
+  <p class="trait-note">.trait → gruba kreska pod słowem. Hover odwraca słowo na pomarańczowe pole, pozostałe gasną — jak zaznaczenie w arkuszu.</p>
+</div>
+
+<!-- ============== D — LEKKI DRUK ============== -->
+<section class="hero d">
+  <div class="bar">
+    <span>Dawid Sikora</span>
+    <nav><a href="#">Process</a><a href="#">Work</a><a href="#">About</a><a href="#">Email me</a></nav>
+  </div>
+  <div class="mid">
+    <p class="status">Open to new roles</p>
+    <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+    <div><a class="cta" href="#">Go straight to the work</a></div>
+  </div>
+  <div class="foot">
+    <span>Domain — <b>data-heavy systems</b></span>
+    <span>Scope — <b>research → logic → UI</b></span>
+    <span>Handover — <b>stays until it ships</b></span>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">02·D · Lekki druk</span>
+  <p class="who">Mówi do dojrzałych rekruterów i design leadów, którzy techniczny sznyt czytają jako precyzję, a nie jako pozę — i którym gęsta siatka wydaje się zbyt krzykliwa.</p>
+  <p class="tech">Typografia: <b>IBM Plex Mono</b> w wadze 300, jeden krój na całość · Paleta: ciepła kremowa biel, ciemny brąz, wygaszony cynober · Rytm: dwie włosowe linie zamiast siatki, treść w środku ekranu, najluźniejszy z piątki</p>
+  <p class="trait-note">.trait → jedyne pogrubione słowa w lekkim tekście, z włosową linią pod spodem. Hover pogrubia linię do 3px i barwi słowo.</p>
+</div>
+
+<!-- ============== E — KARTA KATALOGOWA ============== -->
+<section class="hero e">
+  <div class="card">
+    <div class="cardtop">
+      <span>Dawid Sikora · UX/UI &amp; Product Design</span>
+      <span class="code">rec. 001 / positioning</span>
+    </div>
+    <div class="cardbody">
+      <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+      <div class="chips">
+        <span>research</span><span>information architecture</span><span>design systems</span>
+        <span>dashboards</span><span>handover</span><span>figma</span>
+      </div>
+    </div>
+    <div class="cardfoot">
+      <span class="status"><i></i>Open to new roles</span>
+      <a class="cta" href="#">Go straight to the work</a>
+    </div>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">02·E · Karta katalogowa</span>
+  <p class="who">Mówi do młodszych, bardziej produktowych zespołów — tych, które lubią, gdy portfolio ma własny, lekko przekorny pomysł na siebie, a nie tylko dobry gust.</p>
+  <p class="tech">Typografia: <b>Space Mono</b> jako jedyny krój, z jego charakterystycznymi krojami cyfr · Paleta: szarobeż, karta w cieplejszym odcieniu, morska zieleń · Rytm: cała treść w jednej zamkniętej karcie z ramką, oddech wokół karty, średnia gęstość</p>
+  <p class="trait-note">.trait → słowo w konturowym tagu, jak wartość pola. Hover wypełnia tag zielenią na wylot.</p>
+</div>
+
+</body>
+</html>

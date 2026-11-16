@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dawid Sikora — art direction reference</title>
+
+<!--
+  ============================================================
+  REFERENCE — kierunek wizualny „Panel danych”
+  ============================================================
+  Wybrany kierunek art direction dla portfolio.
+  Treść i mechanika .trait pochodzą z wireframe-dawid-sikora.html.
+
+  DNA kierunku:
+  - JetBrains Mono jako jedyny krój na całej stronie
+  - ciepłe szarobeżowe tło, czerń, jeden sygnałowy akcent (limonka)
+  - widoczna siatka: linie działowe zamiast cieni, ramek i zaokrągleń
+  - układ tabelaryczny — metadane jako wiersze, nie jako ozdobniki
+  - wysoka gęstość, ciasny ujemny tracking w nagłówku
+  - brak dekoracji: kolor pojawia się tylko tam, gdzie coś znaczy
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- tokeny ---------- */
+  :root{
+    --bg:        #EBE8E0;   /* ciepły szarobeż — tło całej strony      */
+    --ink:       #171713;   /* tekst główny, linie nośne               */
+    --ink-soft:  #4A4A3F;   /* tekst drugorzędny                       */
+    --ink-mute:  #7C7867;   /* etykiety, nagłówki kolumn               */
+    --line:      #C9C5B8;   /* linie wewnętrzne siatki                 */
+    --accent:    #D8F23A;   /* sygnałowa limonka — wyróżnienie, CTA    */
+    --ok:        #1F6F3E;   /* wskaźnik statusu                        */
+
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-font-smoothing:antialiased; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--mono); line-height:1.6;
+  }
+  a{ color:inherit; }
+
+  /* ---------- hero ---------- */
+  .hero{ min-height:100vh; display:flex; flex-direction:column; justify-content:center; }
+
+  /* pasek nawigacyjny — otwiera siatkę linią nośną */
+  .bar{
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    padding:13px 4vw; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+    border-top:1px solid var(--ink); border-bottom:1px solid var(--line);
+  }
+  .bar nav{ display:flex; gap:22px; }
+  .bar a{ text-decoration:none; }
+  .bar a:hover{ background:var(--accent); }
+
+  .status i{
+    display:inline-block; width:7px; height:7px;
+    background:var(--ok); margin-right:8px;
+  }
+
+  /* dwie komórki: wypowiedź po lewej, dane po prawej */
+  .body{
+    display:grid; grid-template-columns:1.45fr 1fr;
+    border-bottom:1px solid var(--ink);
+  }
+  .cell{ padding:9vh 4vw; }
+  .cell + .cell{ border-left:1px solid var(--line); }
+
+  h1{
+    font-weight:700; font-size:clamp(1.8rem,3.9vw,3.1rem); line-height:1.22;
+    letter-spacing:-.045em; margin:0; max-width:21ch;
+  }
+
+  /* ---------- mechanika .trait ----------
+     Trzy cechy są wyróżnione limonkowym polem.
+     Hover na całym nagłówku gasi wszystkie pola i przygasza słowa;
+     hover na jednej cesze przywraca ją do pełni.
+     Efekt: czytelnik sam izoluje jedną rzecz na raz.            */
+  .trait{
+    background:var(--accent); padding:0 .16em;
+    transition:background .25s ease, opacity .25s ease;
+  }
+  h1:hover .trait{ background:transparent; opacity:.4; }
+  h1 .trait:hover{ background:var(--accent); opacity:1; }
+
+  .cta{
+    display:inline-block; margin-top:40px; text-decoration:none;
+    font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:14px 22px; border:1px solid var(--ink);
+    background:var(--accent); color:var(--ink);
+  }
+  .cta:hover{ background:var(--ink); color:var(--accent); }
+
+  /* tabela metadanych — nośnik treści, nie dekoracja */
+  table{ width:100%; border-collapse:collapse; font-size:.78rem; }
+  th{
+    text-align:left; font-weight:400; color:var(--ink-mute);
+    text-transform:uppercase; letter-spacing:.1em;
+    padding:11px 0; border-bottom:1px solid var(--line); width:46%;
+  }
+  td{ padding:11px 0; border-bottom:1px solid var(--line); font-weight:500; }
+
+  @media (max-width:880px){
+    .hero{ min-height:auto; }
+    .body{ grid-template-columns:1fr; }
+    .cell + .cell{ border-left:0; border-top:1px solid var(--line); }
+    .bar nav{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+
+  <div class="bar">
+    <span>dawid_sikora / product_design</span>
+    <nav>
+      <a href="#process">process</a>
+      <a href="#work">work</a>
+      <a href="#about">about</a>
+      <a href="#contact">email</a>
+    </nav>
+    <span class="status"><i></i>open to new roles</span>
+  </div>
+
+  <div class="body">
+    <div class="cell">
+      <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+      <a class="cta" href="#work">Go straight to the work</a>
+    </div>
+
+    <div class="cell">
+      <table>
+        <tr><th>role</th><td>UX/UI &amp; Product Designer</td></tr>
+        <tr><th>domain</th><td>data-heavy systems</td></tr>
+        <tr><th>scope</th><td>research → logic → UI</td></tr>
+        <tr><th>handover</th><td>stays until it ships</td></tr>
+        <tr><th>status</th><td>open to new roles</td></tr>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podgląd kierunków wizualnych — hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-font-smoothing:antialiased; }
+  body{ margin:0; background:#111; }
+  .hero{ min-height:92vh; display:flex; flex-direction:column; }
+
+  /* ---------- paski opisowe (komentarz, nie część projektu) ---------- */
+  .label{
+    background:#111; color:#fff; padding:26px 6vw 30px;
+    font-family:'IBM Plex Mono',monospace; font-size:.8rem; line-height:1.6;
+  }
+  .label .num{ color:#7a7a7a; letter-spacing:.16em; text-transform:uppercase; display:block; margin-bottom:10px; }
+  .label .who{ font-family:'Work Sans',sans-serif; font-size:1.18rem; line-height:1.45; max-width:64ch; margin:0 0 14px; }
+  .label .tech{ color:#8d8d8d; margin:0 0 8px; }
+  .label .tech b{ color:#c9c9c9; font-weight:500; }
+  .label .trait-note{ color:#6f6f6f; margin:0; }
+  .intro{ background:#000; color:#fff; padding:34px 6vw; font-family:'IBM Plex Mono',monospace; font-size:.82rem; line-height:1.7; }
+  .intro b{ color:#fff; }
+  .intro span{ color:#8d8d8d; display:block; margin-top:8px; }
+
+  /* =========================================================
+     01 — REDAKCJA
+     ========================================================= */
+  .d1{ background:#FBF7F0; color:#16120E; padding:4vh 6vw 8vh; font-family:'Work Sans',sans-serif; }
+  .d1 .top{
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    border-bottom:1px solid #16120E; padding-bottom:14px; flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  }
+  .d1 .top nav{ display:flex; gap:26px; }
+  .d1 .top a{ color:inherit; text-decoration:none; }
+  .d1 .top .mail{ border:1px solid #16120E; padding:7px 14px; }
+  .d1 .mid{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding-top:8vh; }
+  .d1 .status{
+    font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.2em;
+    text-transform:uppercase; color:#C8402B; display:flex; align-items:center; gap:10px;
+  }
+  .d1 .status i{ width:8px; height:8px; background:#C8402B; display:block; }
+  .d1 h1{
+    font-family:'Instrument Serif',Georgia,serif; font-weight:400;
+    font-size:clamp(2.9rem,7.6vw,6.6rem); line-height:.98; letter-spacing:-.018em;
+    margin:28px 0 0; max-width:19ch;
+  }
+  .d1 .trait{ position:relative; font-style:italic; color:#C8402B; transition:opacity .28s ease; }
+  .d1 .trait::after{
+    content:""; position:absolute; left:0; right:0; bottom:.06em; height:1px;
+    background:#C8402B; transition:height .28s ease;
+  }
+  .d1 h1:hover .trait{ opacity:.22; }
+  .d1 h1 .trait:hover{ opacity:1; }
+  .d1 h1 .trait:hover::after{ height:.1em; }
+  .d1 .foot{
+    display:grid; grid-template-columns:1fr auto; gap:5vw; align-items:end;
+    border-top:1px solid #16120E; margin-top:6vh; padding-top:22px;
+  }
+  .d1 .meta{ font-family:'IBM Plex Mono',monospace; font-size:.74rem; line-height:1.95; text-transform:uppercase; letter-spacing:.08em; color:#6B6055; margin:0; }
+  .d1 .meta span{ color:#16120E; }
+  .d1 .cta{
+    color:#16120E; font-size:1.05rem; text-decoration:none;
+    border-bottom:2px solid #C8402B; padding-bottom:4px; white-space:nowrap;
+  }
+  .d1 .cta:hover{ color:#C8402B; }
+
+  /* =========================================================
+     02 — PANEL DANYCH
+     ========================================================= */
+  .d2{ background:#EBE8E0; color:#171713; font-family:'JetBrains Mono',monospace; justify-content:center; }
+  .d2 .bar{
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    padding:13px 4vw; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+    border-top:1px solid #171713; border-bottom:1px solid #C9C5B8;
+  }
+  .d2 .bar nav{ display:flex; gap:22px; }
+  .d2 .bar a{ color:inherit; text-decoration:none; }
+  .d2 .status i{ display:inline-block; width:7px; height:7px; background:#1F6F3E; margin-right:8px; }
+  .d2 .body{ display:grid; grid-template-columns:1.45fr 1fr; border-bottom:1px solid #171713; }
+  .d2 .cell{ padding:9vh 4vw; }
+  .d2 .cell + .cell{ border-left:1px solid #C9C5B8; }
+  .d2 h1{
+    font-weight:700; font-size:clamp(1.8rem,3.9vw,3.1rem); line-height:1.22;
+    letter-spacing:-.045em; margin:0; max-width:21ch;
+  }
+  .d2 .trait{ background:#D8F23A; padding:0 .16em; transition:background .25s ease, opacity .25s ease, color .25s ease; }
+  .d2 h1:hover .trait{ background:transparent; opacity:.4; }
+  .d2 h1 .trait:hover{ background:#D8F23A; opacity:1; }
+  .d2 .cta{
+    display:inline-block; margin-top:40px; text-decoration:none;
+    font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:14px 22px; border:1px solid #171713; background:#D8F23A; color:#171713;
+  }
+  .d2 table{ width:100%; border-collapse:collapse; font-size:.78rem; }
+  .d2 th{
+    text-align:left; font-weight:400; color:#7C7867; text-transform:uppercase;
+    letter-spacing:.1em; padding:11px 0; border-bottom:1px solid #C9C5B8; width:46%;
+  }
+  .d2 td{ padding:11px 0; border-bottom:1px solid #C9C5B8; font-weight:500; }
+
+  /* =========================================================
+     03 — ZAKREŚLACZ
+     ========================================================= */
+  .d3{ background:#F6EFE1; color:#241F17; padding:9vh 8vw; font-family:'Space Mono',monospace; justify-content:center; align-items:flex-start; }
+  .d3 .status{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+    border:1.5px solid #241F17; padding:7px 15px;
+    border-radius:210px 14px 200px 16px/16px 200px 14px 210px;
+  }
+  .d3 .status i{ width:8px; height:8px; border-radius:50%; background:#C3452C; display:block; }
+  .d3 h1{
+    font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:clamp(2.5rem,6.4vw,5.4rem);
+    line-height:1.08; letter-spacing:-.02em; margin:38px 0 0; max-width:17ch;
+    font-variation-settings:'SOFT' 60,'WONK' 1;
+  }
+  .d3 .trait{
+    background-image:linear-gradient(180deg,#FFCE3D,#FFCE3D);
+    background-repeat:no-repeat; background-position:0 78%;
+    background-size:100% .16em; padding:0 .06em;
+    transition:background-size .3s ease, opacity .3s ease;
+  }
+  .d3 h1:hover .trait{ opacity:.35; background-size:100% .08em; }
+  .d3 h1 .trait:hover{ opacity:1; background-size:100% .72em; background-position:0 62%; }
+  .d3 .note{
+    display:inline-block; transform:rotate(-2.2deg); color:#C3452C;
+    font-size:.8rem; margin:34px 0 0; border-bottom:1.5px dashed #C3452C; padding-bottom:2px;
+  }
+  .d3 .cta{
+    display:inline-block; margin-top:40px; text-decoration:none; color:#241F17; font-size:.84rem;
+    padding:15px 28px; background:#FFCE3D; border:2px solid #241F17;
+    border-radius:230px 18px 210px 20px/20px 210px 18px 230px;
+  }
+
+  /* =========================================================
+     04 — PLAKAT
+     ========================================================= */
+  .d4{ background:#FFFCF5; color:#0A0A09; padding:3vw; font-family:'JetBrains Mono',monospace; justify-content:space-between; }
+  .d4 .strip{
+    display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    font-size:.68rem; letter-spacing:.18em; text-transform:uppercase;
+  }
+  .d4 .strip a{ color:inherit; text-decoration:none; }
+  .d4 h1{
+    font-family:'Archivo Black',Impact,sans-serif; font-weight:400; text-transform:uppercase;
+    font-size:clamp(2.2rem,7.4vw,7rem); line-height:.86; letter-spacing:-.035em;
+    margin:4vh 0; max-width:16ch;
+  }
+  .d4 .trait{
+    color:#FF4A17;
+    -webkit-text-stroke:2px #FF4A17;
+    transition:color .25s ease, opacity .25s ease;
+  }
+  .d4 h1:hover .trait{ color:transparent; opacity:.85; }
+  .d4 h1 .trait:hover{ color:#FF4A17; opacity:1; }
+  .d4 .rule{ height:8px; background:#0A0A09; margin-bottom:1.4vw; }
+  .d4 .foot{ display:grid; grid-template-columns:1fr 1fr auto; gap:2vw; align-items:end; }
+  .d4 .status{ font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; margin:0; }
+  .d4 .num{ font-family:'Archivo Black',sans-serif; font-size:clamp(1.4rem,3.2vw,2.4rem); line-height:1; }
+  .d4 .num small{ display:block; font-family:'JetBrains Mono',monospace; font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:#6C6C64; margin-top:8px; }
+  .d4 .cta{
+    display:inline-block; text-decoration:none; font-size:.74rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:16px 24px; background:#FF4A17; color:#FFFCF5;
+  }
+
+  /* =========================================================
+     05 — ODDECH
+     ========================================================= */
+  .d5{
+    background:#F8F5EF; color:#2A2925; padding:18vh 8vw;
+    font-family:'Bricolage Grotesque',sans-serif; justify-content:center;
+  }
+  .d5 .inner{ max-width:24ch; }
+  .d5 .status{
+    display:inline-flex; align-items:center; gap:10px; font-size:.8rem;
+    color:#85806F; letter-spacing:.02em;
+  }
+  .d5 .status i{ width:7px; height:7px; border-radius:50%; background:#5C7A4A; display:block; }
+  .d5 h1{
+    font-weight:400; font-size:clamp(1.9rem,3.6vw,2.9rem); line-height:1.44;
+    letter-spacing:-.018em; margin:44px 0 0;
+    font-variation-settings:'opsz' 48;
+  }
+  .d5 .trait{
+    font-weight:700; border-bottom:1px dotted #B5AF9E; padding-bottom:2px;
+    transition:opacity .3s ease, color .3s ease, border-color .3s ease;
+  }
+  .d5 h1:hover .trait{ opacity:.3; }
+  .d5 h1 .trait:hover{ opacity:1; color:#5C7A4A; border-color:#5C7A4A; }
+  .d5 .cta{
+    display:inline-block; margin-top:72px; font-size:.98rem; color:#2A2925; text-decoration:none;
+    border-bottom:1px solid #C6C0B0; padding-bottom:5px;
+  }
+  .d5 .cta:hover{ border-color:#5C7A4A; color:#5C7A4A; }
+
+  @media (max-width:880px){
+    .hero{ min-height:auto; }
+    .d1 .foot{ grid-template-columns:1fr; gap:26px; justify-items:start; }
+    .d1 .top nav{ display:none; }
+    .d2 .body{ grid-template-columns:1fr; }
+    .d2 .cell + .cell{ border-left:0; border-top:1px solid #C9C5B8; }
+    .d2 .bar nav{ display:none; }
+    .d4 .foot{ grid-template-columns:1fr; gap:24px; }
+    .d4 .cta{ justify-self:start; }
+    .d5{ padding:12vh 8vw; }
+    .d5 .inner{ max-width:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Podgląd 5 kierunków wizualnych — sekcja hero</b>
+  <span>Punkt odniesienia: context/wireframe-dawid-sikora.html · Treść, struktura i mechanika .trait (hover przygasza pozostałe cechy) są identyczne we wszystkich pięciu. Różni się wyłącznie forma.</span>
+</div>
+
+<!-- ===================== 01 — REDAKCJA ===================== -->
+<section class="hero d1">
+  <div class="top">
+    <span>Dawid Sikora</span>
+    <nav><a href="#">Process</a><a href="#">Work</a><a href="#">About</a></nav>
+    <a class="mail" href="#">Email me</a>
+  </div>
+  <div class="mid">
+    <p class="status"><i></i>Open to new roles</p>
+    <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+  </div>
+  <div class="foot">
+    <p class="meta">
+      Specialism — <span>data-heavy products</span><br>
+      Method — <span>system first, screens later</span><br>
+      Stays — <span>until it ships</span>
+    </p>
+    <a class="cta" href="#">Go straight to the work →</a>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">Kierunek 01 · Redakcja</span>
+  <p class="who">Mówi do Head of Design i rekruterów, którzy czytają portfolio jak artykuł — chcą argumentu i redakcyjnej powagi, zanim zobaczą pierwszy screen.</p>
+  <p class="tech">Typografia: <b>Instrument Serif</b> (display) + <b>Work Sans</b> (tekst) + <b>IBM Plex Mono</b> (etykiety) · Paleta: kremowy papier, atramentowa czerń, jeden cynobrowy akcent · Rytm: linie działowe, nagłówek dosunięty do lewej, gęsto</p>
+  <p class="trait-note">.trait → kursywa w cynobrze; hover pogrubia włosową linię pod słowem, reszta spada do 22%</p>
+</div>
+
+<!-- ===================== 02 — PANEL DANYCH ===================== -->
+<section class="hero d2">
+  <div class="bar">
+    <span>dawid_sikora / product_design</span>
+    <nav><a href="#">process</a><a href="#">work</a><a href="#">about</a><a href="#">email</a></nav>
+    <span class="status"><i></i>open to new roles</span>
+  </div>
+  <div class="body">
+    <div class="cell">
+      <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+      <a class="cta" href="#">Go straight to the work</a>
+    </div>
+    <div class="cell">
+      <table>
+        <tr><th>role</th><td>UX/UI &amp; Product Designer</td></tr>
+        <tr><th>domain</th><td>data-heavy systems</td></tr>
+        <tr><th>scope</th><td>research → logic → UI</td></tr>
+        <tr><th>handover</th><td>stays until it ships</td></tr>
+        <tr><th>status</th><td>open to new roles</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">Kierunek 02 · Panel danych</span>
+  <p class="who">Mówi do zespołów produktowych i leadów z fintechu, SaaS-u czy narzędzi wewnętrznych — do ludzi, którzy od razu rozpoznają, że ktoś naprawdę siedzi w złożonych systemach.</p>
+  <p class="tech">Typografia: <b>JetBrains Mono</b> jako jedyny krój na całą stronę · Paleta: szarobeżowe tło, czerń, sygnałowa limonka · Rytm: widoczna siatka, ramki, układ tabelaryczny, gęsto</p>
+  <p class="trait-note">.trait → limonkowe pole pod słowem; hover gasi pozostałe pola do zera, zostaje jedno aktywne</p>
+</div>
+
+<!-- ===================== 03 — ZAKREŚLACZ ===================== -->
+<section class="hero d3">
+  <span class="status"><i></i>Open to new roles</span>
+  <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+  <p class="note">↑ najedź na zakreślone słowo</p>
+  <a class="cta" href="#">Go straight to the work</a>
+</section>
+
+<div class="label">
+  <span class="num">Kierunek 03 · Zakreślacz</span>
+  <p class="who">Mówi do design leadów, którzy przeglądają dwudzieste portfolio tego dnia i zatrzymają się dopiero na tym, które ma poczucie humoru i widoczną rękę autora.</p>
+  <p class="tech">Typografia: <b>Fraunces</b> (miękka, „krzywa” szeryfowa) + <b>Space Mono</b> (adnotacje) · Paleta: piaskowe tło, ciepły bursztyn, czerwień długopisu · Rytm: luźno, odręczne adnotacje, nierówne krawędzie</p>
+  <p class="trait-note">.trait → cienka kreska zakreślacza; hover rozlewa ją na całą wysokość słowa, pozostałe kurczą się do włosa</p>
+</div>
+
+<!-- ===================== 04 — PLAKAT ===================== -->
+<section class="hero d4">
+  <div class="strip">
+    <span>Dawid Sikora</span>
+    <nav><a href="#">Process · Work · About</a></nav>
+    <a href="#">Email me</a>
+  </div>
+  <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+  <div>
+    <div class="rule"></div>
+    <div class="foot">
+      <p class="status">Open to new roles</p>
+      <div class="num">03<small>case studies, not screenshots</small></div>
+      <a class="cta" href="#">Go straight to the work</a>
+    </div>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">Kierunek 04 · Plakat</span>
+  <p class="who">Mówi do rekruterów skanujących portfolio w dziesięć sekund — zapamiętają jedno zdanie i pewność siebie, z jaką zostało postawione.</p>
+  <p class="tech">Typografia: <b>Archivo Black</b> (nagłówek prawie od krawędzi do krawędzi) + <b>JetBrains Mono</b> (drobne) · Paleta: ciepła biel, czerń, elektryczny pomarańcz · Rytm: zero marginesów, interlinia 0.86, maksymalna gęstość</p>
+  <p class="trait-note">.trait → pomarańcz pełny; hover wygasza pozostałe do samego konturu litery, aktywne wraca na pełne wypełnienie</p>
+</div>
+
+<!-- ===================== 05 — ODDECH ===================== -->
+<section class="hero d5">
+  <div class="inner">
+    <span class="status"><i></i>Open to new roles</span>
+    <h1>Product Designer. <span class="trait">Flexible</span>, <span class="trait">systems&#8209;first</span>, at home in <span class="trait">data&#8209;heavy</span> products.</h1>
+    <a class="cta" href="#">Go straight to the work</a>
+  </div>
+</section>
+
+<div class="label">
+  <span class="num">Kierunek 05 · Oddech</span>
+  <p class="who">Mówi do dojrzałych design leadów, którzy pewność siebie czytają z tego, ile ktoś potrafi zostawić pustego miejsca — i do wszystkich, którzy mają dość krzyczących portfolio.</p>
+  <p class="tech">Typografia: <b>Bricolage Grotesque</b> jako jedyny krój, dwie wagi · Paleta: ciepła złamana biel, dwa stopnie tekstu, mchowa zieleń w jednym punkcie · Rytm: bardzo luźno, kolumna 24ch, ogromne odstępy</p>
+  <p class="trait-note">.trait → pogrubienie i kropkowane podkreślenie; hover barwi aktywne na mchowo, reszta spada do 30%</p>
+</div>
+
+</body>
+</html>

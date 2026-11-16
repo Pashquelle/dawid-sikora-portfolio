@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Dawid Sikora</title>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    font-family: Georgia, "Times New Roman", serif;
+    color:#111; background:#fff; line-height:1.6;
+  }
+
+  .wrap{ width:100%; max-width:1080px; margin:0 auto; padding:0 28px; }
+  a{ color:inherit; }
+
+  h1{ font-size:clamp(2.8rem, 7vw, 5.4rem); line-height:1.02; letter-spacing:-0.028em; font-weight:400; }
+  h2{ font-size:clamp(1.9rem, 3.6vw, 2.9rem); line-height:1.14; letter-spacing:-0.015em; font-weight:400; }
+  h3{ font-size:1.4rem; line-height:1.25; font-weight:400; }
+  p { font-size:1.0625rem; color:#4f4f4f; }
+  .lead{ font-size:1.3rem; color:#3a3a3a; line-height:1.5; }
+
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:#767676; margin-bottom:28px; display:block;
+  }
+
+  header{ border-bottom:1px solid #e4e4e4; position:sticky; top:0; background:#fff; z-index:20; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:22px 0; gap:24px; }
+  .brandmark{ font-size:1.0625rem; letter-spacing:-0.01em; text-decoration:none; }
+  .nav-links{ display:flex; align-items:center; gap:30px; list-style:none; }
+  .nav-links a{ font-size:0.95rem; color:#4f4f4f; text-decoration:none; }
+  .nav-links a:hover{ color:#111; }
+
+  .btn{
+    display:inline-block; padding:15px 28px; font-size:0.95rem; font-family:inherit;
+    border:1px solid #111; background:#111; color:#fff; text-decoration:none;
+    border-radius:2px; cursor:pointer;
+  }
+  .btn:hover{ background:#3a3a3a; border-color:#3a3a3a; }
+  .btn-ghost{ background:transparent; color:#111; }
+  .btn-ghost:hover{ background:#f0f0f0; }
+  .btn-sm{ padding:10px 18px; font-size:0.875rem; }
+
+  section{ padding:120px 0; }
+  .divider{ border-top:1px solid #e4e4e4; }
+  .bg-soft{ background:#f6f6f6; }
+
+  .ph{ background:#e6e6e6; border:1px solid #d7d7d7; width:100%; display:block; }
+  .ph-3x2{ aspect-ratio:3/2; }
+  .ph-1x1{ aspect-ratio:1/1; }
+
+  /* --- hero --- */
+  .hero{ padding:130px 0 116px; text-align:center; }
+  .hero h1{ max-width:20ch; margin:0 auto; }
+  .hero-cta{ margin-top:48px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+
+  /* three traits: hovering one dims the rest */
+  .trait{
+    position:relative; display:inline-block;
+    transition:opacity .25s ease, color .25s ease;
+  }
+  .trait::after{
+    content:""; position:absolute; left:0; right:0; bottom:0.1em;
+    height:0.07em; background:#111; transition:height .25s ease, bottom .25s ease;
+  }
+  .hero h1:hover .trait{ opacity:0.28; }
+  .hero h1 .trait:hover{ opacity:1; }
+  .hero h1 .trait:hover::after{ height:0.22em; bottom:0.04em; }
+
+  .status{
+    display:inline-flex; align-items:center; gap:12px; margin-bottom:34px;
+    font-size:0.9rem; color:#4f4f4f; border:1px solid #d7d7d7;
+    border-radius:999px; padding:9px 20px 9px 14px;
+  }
+  .lamp{
+    width:9px; height:9px; border-radius:50%; background:#111;
+    border:4px solid #dcdcdc; box-sizing:content-box; display:inline-block;
+  }
+
+  /* --- work section closer --- */
+  .work-more{
+    margin-top:80px; padding-top:40px; border-top:1px solid #e4e4e4;
+    display:flex; justify-content:space-between; align-items:center; gap:28px; flex-wrap:wrap;
+  }
+  .work-more p{ max-width:46ch; }
+
+  /* --- process --- */
+  .steps{ display:grid; grid-template-columns:repeat(3, 1fr); gap:56px 48px; margin-top:12px; }
+  .step-no{
+    font-size:3.4rem; line-height:1; color:#c4c4c4; display:block; margin-bottom:22px;
+    padding-bottom:22px; border-bottom:1px solid #d3d3d3;
+  }
+  .step h3{ margin-bottom:14px; }
+
+  /* --- work --- */
+  .story{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center; text-decoration:none; }
+  .story + .story{ margin-top:96px; padding-top:96px; border-top:1px solid #e4e4e4; }
+  .story:hover .ph{ background:#dcdcdc; }
+  .story-meta{ font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; margin-bottom:12px; display:block; }
+  .story h3{ font-size:1.9rem; margin-bottom:24px; }
+  .facts{ list-style:none; }
+  .facts li{ padding:14px 0; border-top:1px solid #e4e4e4; display:grid; grid-template-columns:110px 1fr; gap:20px; }
+  .facts li:last-child{ border-bottom:1px solid #e4e4e4; }
+  .facts .label{ font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; padding-top:3px; }
+  .facts .value{ font-size:1rem; color:#4f4f4f; }
+  .story-link{ display:inline-block; margin-top:26px; font-size:0.95rem; border-bottom:1px solid #111; padding-bottom:2px; }
+
+  /* --- tools --- */
+  .tools{ display:grid; grid-template-columns:repeat(6, 1fr); gap:28px; }
+  .tool{ text-align:center; }
+  .tool .ph{ margin-bottom:14px; }
+  .tool span{ font-size:0.85rem; color:#5a5a5a; }
+
+  /* --- about --- */
+  .about{ display:grid; grid-template-columns:1fr 340px; gap:64px; align-items:start; }
+  .about p + p{ margin-top:20px; }
+  .about-link{ display:inline-block; margin-top:22px; font-size:0.95rem; border-bottom:1px solid #111; padding-bottom:2px; text-decoration:none; }
+
+  /* --- contact --- */
+  .contact{ display:grid; grid-template-columns:1fr 440px; gap:56px; align-items:center; }
+  .contact h2{ max-width:18ch; margin-bottom:18px; }
+  .contact p{ max-width:46ch; }
+
+  .mail-box{ border:1px solid #d7d7d7; border-radius:2px; padding:30px; }
+  .mail-label{ font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase; color:#7a7a7a; margin-bottom:12px; display:block; }
+  .mail-address{
+    font-size:clamp(1.15rem, 2.2vw, 1.5rem); color:#111; display:block;
+    margin-bottom:26px; word-break:break-all; user-select:all; cursor:text;
+  }
+  .contact-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+  .alt-channel{ margin-top:26px; padding-top:22px; border-top:1px solid #e4e4e4; font-size:0.95rem; }
+  .alt-channel a{ color:#111; border-bottom:1px solid #111; padding-bottom:2px; text-decoration:none; }
+
+  footer{ border-top:1px solid #e4e4e4; padding:40px 0; }
+  .foot{ display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
+  .foot a, .foot span{ font-size:0.9rem; color:#6b6b6b; text-decoration:none; }
+  .foot-links{ display:flex; gap:26px; }
+  .foot a:hover{ color:#111; }
+
+  @media (max-width:880px){
+    .nav-links{ display:none; }
+    section{ padding:80px 0; }
+    .hero{ padding:72px 0 64px; }
+    .hero-cta{ margin-top:36px; }
+    .steps{ grid-template-columns:1fr; gap:40px; }
+    .story{ grid-template-columns:1fr; gap:28px; }
+    .story + .story{ margin-top:64px; padding-top:64px; }
+    .facts li{ grid-template-columns:1fr; gap:6px; }
+    .tools{ grid-template-columns:repeat(3, 1fr); gap:24px; }
+    .about{ grid-template-columns:1fr; gap:32px; }
+    .about .ph-1x1{ max-width:240px; }
+    .contact{ grid-template-columns:1fr; gap:32px; }
+    .work-more{ margin-top:56px; }
+  }
+
+  /* --- about page --- */
+  .backlink{ font-size:0.9rem; color:#6b6b6b; text-decoration:none; display:inline-block; }
+  .backlink:hover{ color:#111; }
+
+  .about-head{ padding:80px 0 72px; }
+  .about-head h1{
+    font-size:clamp(2.3rem, 5vw, 3.6rem); line-height:1.1; letter-spacing:-0.02em;
+    max-width:18ch; margin:28px 0 40px;
+  }
+  .about-head .lead{ max-width:58ch; }
+
+  .about-split{ display:grid; grid-template-columns:1fr 380px; gap:72px; align-items:start; }
+  .prose{ max-width:66ch; }
+  .prose p + p{ margin-top:18px; }
+  .portrait-note{ font-size:0.85rem; color:#7a7a7a; margin-top:12px; }
+
+  .strengths{ display:grid; grid-template-columns:repeat(3, 1fr); gap:48px; margin-top:12px; }
+  .strength{ border-top:2px solid #111; padding-top:22px; }
+  .strength h3{ font-size:1.25rem; margin-bottom:12px; }
+
+  .timeline{ list-style:none; margin-top:12px; }
+  .timeline li{
+    padding:26px 0; border-top:1px solid #e4e4e4;
+    display:grid; grid-template-columns:180px 1fr; gap:32px;
+  }
+  .timeline li:last-child{ border-bottom:1px solid #e4e4e4; }
+  .timeline .when{ font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; padding-top:4px; }
+  .timeline h3{ font-size:1.25rem; margin-bottom:6px; }
+
+  @media (max-width:880px){
+    .about-head{ padding:48px 0 48px; }
+    .about-split{ grid-template-columns:1fr; gap:36px; }
+    .about-split .ph-1x1{ max-width:260px; }
+    .strengths{ grid-template-columns:1fr; gap:36px; }
+    .timeline li{ grid-template-columns:1fr; gap:8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brandmark" href="wireframe-dawid-sikora.html">Dawid Sikora</a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="wireframe-dawid-sikora.html#process">Process</a></li>
+        <li><a href="wireframe-dawid-sikora.html#work">Work</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-sm" href="#contact">Email me</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="wrap about-head">
+    <a class="backlink" href="wireframe-dawid-sikora.html">&larr; Back home</a>
+    <h1>I came into design through systems. It shows.</h1>
+    <p class="lead">The short version is on the home page. This is the longer one, for anyone deciding whether to put me in front of their product.</p>
+  </div>
+
+  <section class="divider" style="padding:96px 0;">
+    <div class="wrap about-split">
+      <div class="prose">
+        <span class="eyebrow">The long version</span>
+        <p>I read a product as a set of dependencies, not a stack of screens waiting to be painted. Where does this data come from, who is allowed to touch it, what breaks if it arrives late — that's the part I want to understand before I open Figma.</p>
+        <p>[DO UZUPEŁNIENIA — jak trafiłeś do designu: skąd przyszedłeś, co robiłeś wcześniej, co Cię przekonało. Dwa, trzy zdania. To jest miejsce, w którym rekruter zaczyna Cię lubić albo zamyka kartę.]</p>
+        <p>Give me a lot of data and very little room for it, and I'm in my element. Dense tables, five user roles, permissions that contradict each other, an edge case nobody documented — that's a good day, not a bad one.</p>
+        <p>I'm also easy to work with, which I mention because plenty of designers aren't. I explain my reasoning, I change my mind when the evidence says so, and I don't defend a layout because I spent three days on it.</p>
+      </div>
+      <div>
+        <span class="ph ph-1x1"></span>
+        <p class="portrait-note">[DO UZUPEŁNIENIA — Twoje zdjęcie. Zwykłe, nie korporacyjne.]</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-soft" style="padding:96px 0;">
+    <div class="wrap">
+      <span class="eyebrow">What you get</span>
+      <h2 style="margin-bottom:56px; max-width:20ch;">Three things I'm reliably good at.</h2>
+      <div class="strengths">
+        <div class="strength">
+          <h3>Flexible</h3>
+          <p>New domain, messy brief, a stack I've never touched — fine. I ask until the picture is clear, then work with what's actually there instead of what I wish was there.</p>
+        </div>
+        <div class="strength">
+          <h3>Data-heavy systems</h3>
+          <p>Dashboards, admin panels, internal tools. The products with too many numbers and not enough room. Most designers avoid them. I ask for them.</p>
+        </div>
+        <div class="strength">
+          <h3>Systems-first thinking</h3>
+          <p>I design the rules, not just the screens. Components, states and logic that hold together after I've moved on to the next thing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="divider" style="padding:96px 0;">
+    <div class="wrap">
+      <span class="eyebrow">Where I've been</span>
+      <h2 style="margin-bottom:48px; max-width:20ch;">The path, without the padding.</h2>
+      <ul class="timeline">
+        <li>
+          <span class="when">[DO UZUPEŁNIENIA — lata]</span>
+          <div>
+            <h3>[DO UZUPEŁNIENIA — stanowisko, firma]</h3>
+            <p>[DO UZUPEŁNIENIA — jedno zdanie: za co odpowiadałeś i co po sobie zostawiłeś.]</p>
+          </div>
+        </li>
+        <li>
+          <span class="when">[DO UZUPEŁNIENIA — lata]</span>
+          <div>
+            <h3>[DO UZUPEŁNIENIA — stanowisko, firma]</h3>
+            <p>[DO UZUPEŁNIENIA — jedno zdanie.]</p>
+          </div>
+        </li>
+        <li>
+          <span class="when">[DO UZUPEŁNIENIA — lata]</span>
+          <div>
+            <h3>[DO UZUPEŁNIENIA — studia lub kurs, jeśli chcesz to pokazać]</h3>
+            <p>[DO UZUPEŁNIENIA — jedno zdanie, albo usuń cały wiersz.]</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-soft" style="padding:96px 0;">
+    <div class="wrap">
+      <span class="eyebrow">What I work in</span>
+      <div class="tools">
+        <div class="tool"><span class="ph ph-1x1"></span><span>Figma</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>FigJam</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Miro</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Notion</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Maze</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Illustrator</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="divider" style="padding:96px 0;">
+    <div class="wrap about-split">
+      <div class="prose">
+        <span class="eyebrow">Off the clock</span>
+        <h2 style="margin-bottom:28px; max-width:20ch;">Board games, video games, and interfaces that disappear.</h2>
+        <p>Right now I'm reading about UX in games. A game interface has to be invisible and lead the player by the hand at the same time — a contradiction that product design usually solves with a tooltip and hopes for the best.</p>
+        <p>I keep stealing from it. Onboarding that teaches by doing, feedback that arrives in the same second as the action, difficulty that ramps instead of dropping you in. None of that is games-only.</p>
+        <p>[DO UZUPEŁNIENIA — jeszcze jedna prywatna rzecz, jeśli chcesz. Coś, co da się zagadać na rozmowie.]</p>
+      </div>
+      <div><span class="ph ph-1x1"></span></div>
+    </div>
+  </section>
+
+  <section id="contact" class="bg-soft" style="padding:96px 0;">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">[DO UZUPEŁNIENIA — adres e-mail]</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:[DO UZUPEŁNIENIA — adres e-mail]">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a href="[DO UZUPEŁNIENIA — link do LinkedIna]">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:[DO UZUPEŁNIENIA — adres e-mail]">Email</a>
+      <a href="[DO UZUPEŁNIENIA — link do LinkedIna]">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

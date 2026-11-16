@@ -1,0 +1,1194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agyle CareBridge — a patient management system a small clinic could afford — Dawid Sikora</title>
+<meta name="description" content="Case study: Agyle CareBridge built for one pathway — a cerebral palsy clinic in England replacing an enterprise PMS that cost millions a year. A minimal clinic web tool and a mobile app for families, designed with the clinic's lead consultant week by week.">
+
+<!--
+  ============================================================
+  Dawid Sikora — case study: Agyle CareBridge
+  ============================================================
+  Kierunek wizualny: „Panel danych" — context/reference.html
+  Tokeny i reguły:   DESIGN.md
+  Treść i struktura: context/case-study.html (wireframe)
+
+  System wizualny siedzi w style.css, wspólnym z index.html.
+  Komponenty tej podstrony (nagłówek case study, rozdziały,
+  decyzje, kadr obok tekstu) są przeniesione 1:1 z pozostałych
+  case studies — nic tu nie jest projektowane od nowa.
+
+  Osobna strona, nie podsekcja case-study-agyle.html: tamta opisuje
+  modularny EPR w NHS (2022–2026, pięć modułów, inna rola i inny
+  zespół). CareBridge to inny produkt, inny klient i inna rola, więc
+  dzielenie z nim jednego paska metadanych kłamałoby w obie strony.
+
+  Miejsca [DO UZUPEŁNIENIA — …] czekają na prawdziwe zrzuty.
+  Lorem ipsum nie używamy (DESIGN.md §7).
+  ============================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+  /* =========================================================
+     PASEK PRZYKLEJONY — tylko na case study
+     ---------------------------------------------------------
+     Na podstronie czytanej od góry do dołu powrót do prac musi być
+     pod ręką przez całą lekturę, nie tylko na starcie. Pasek ma
+     własne tło i linię nośną, więc treść pod nim nie prześwituje.
+     z-index wyżej niż dymki cech w hero (te mają 2).
+     ========================================================= */
+  .bar{ position:sticky; top:0; z-index:30; }
+
+  /* Po oderwaniu się od góry strony logotyp znika, a powrót zajmuje
+     jego miejsce w lewym rogu. Klasę dokłada skrypt na dole strony;
+     bez niego pasek po prostu zostaje z logotypem. Przełączenie jest
+     twarde, bez przenikania — tak jak reszta tej strony. */
+  .bar.is-stuck .brandmark{ display:none; }
+
+  /* =========================================================
+     POWRÓT DO PRAC — jedzie z treścią i parkuje w pasku
+     ---------------------------------------------------------
+     Link zostaje tam, gdzie stoi w wireframie: w kolumnie treści,
+     nad tytułem. Przy przewijaniu przykleja się do góry i wjeżdża
+     w pasek — bez przeskoku w bok, bo przez cały czas siedzi w .wrap,
+     więc trzyma ten sam margines co H1 pod nim.
+
+     padding-top rzędu = górny padding paska, dzięki czemu po
+     zaparkowaniu link siada równo w linii linków nawigacji.
+
+     pointer-events: rząd jest szeroki na całą stronę i po zaparkowaniu
+     leży na pasku — bez tego zjadałby kliknięcia w nawigację i w CTA.
+     ========================================================= */
+  /* Górny oddech strony bierze <main>, nie ten rząd: padding rodzica
+     nie rusza pozycji parkowania, a margines na samym rzędzie owszem —
+     przykleiłby się o tyle niżej, bo sticky liczy się od marginesu. */
+  main{ padding-top:var(--space-16); }
+  .backlink-row{
+    /* display:flex, żeby wysokość rzędu równała się wysokości linku —
+       przy inline-block doszedłby jeszcze luz pod linią bazową i środek
+       wypadłby za nisko */
+    display:flex; align-items:center;
+    /* --backlink-top liczy skrypt na dole strony: połowa różnicy między
+       wysokością paska a wysokością linku, czyli równo góra i dół.
+       Zapas 16px działa, gdyby skryptu zabrakło. */
+    position:sticky; top:var(--backlink-top, var(--space-4)); z-index:31;
+    margin-bottom:var(--space-8);
+    pointer-events:none;
+  }
+  .backlink{
+    pointer-events:auto;
+    display:inline-block; text-decoration:none; white-space:nowrap;
+    padding:var(--space-1);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .backlink:hover{ background:var(--accent); color:var(--accent-ink); }
+
+  /* Powrót dostaje tę samą rozsypkę co przyciski i linki tertiary —
+     limonka przybywa pikselami, nie od razu. Sprite i geometria wspólne
+     z systemem (style.css), stąd gotowe klatki btn-dissolve.
+     Skrót `background` wyżej zeruje podwłasności tła, więc sprite,
+     rozmiar i powtarzanie muszą stać tutaj komplenie. */
+  @media (prefers-reduced-motion:no-preference){
+    .backlink:hover{
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+      /* napis ciemnieje, gdy limonki jest już dość pod spodem */
+      transition:color 0s .3s;
+    }
+  }
+
+  /* =========================================================
+     NAGŁÓWEK CASE STUDY
+     ---------------------------------------------------------
+     Zamiast hero z dwiema komórkami: tytuł, zajawka i pasek
+     metadanych. Pasek to ta sama tabela co w hero, tylko rozłożona
+     w poziomie — cztery kolumny rozdzielone linią porządkującą.
+     ========================================================= */
+  /* padding-bottom, nie skrót: .case-head siedzi na tym samym elemencie
+     co .wrap, a skrót wyzerowałby jego boczny --gutter i cały nagłówek
+     stałby o jedno wcięcie na lewo od reszty strony */
+  .case-head{ padding-bottom:var(--space-24); }
+  .case-head h1{ margin:0 0 var(--space-8); }
+  .case-head .lead{ max-width:68ch; }
+
+  .case-meta{
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    margin:var(--space-16) 0 0;   /* dl ma własny margines domyślny */
+    border-top:var(--border-width) solid var(--line-strong);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-meta > div{ padding:var(--space-4) var(--space-6) var(--space-4) 0; }
+  .case-meta > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-meta dt{
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted); margin-bottom:var(--space-2);
+  }
+  .case-meta dd{ margin:0; font-size:var(--text-small); font-weight:500; }
+
+  /* =========================================================
+     WYNIK NA GÓRZE — do trzech liczb pod paskiem metadanych
+     ---------------------------------------------------------
+     Rekruter skanuje i w większości nie dojedzie do sekcji 05.
+     Ten pasek podaje twarde liczby od razu; pełny kontekst,
+     koszty decyzji i „co zrobiłbym inaczej" zostają na dole —
+     to powtórzenie, nie przeniesienie.
+
+     Bez własnego border-top: pasek dokleja się do dolnej linii
+     .case-meta, więc obie tabele czytają się jak jeden blok.
+     Liczby są mniejsze niż w .outcome (h3, nie h2) — na górze
+     mają wspierać nagłówek, a nie z nim konkurować.
+
+     Trzy kafelki to sufit, nie cel. Przy dwóch zostaw dwa:
+     grid-auto-columns trzyma równą szerokość niezależnie od
+     liczby elementów, więc nic się nie rozjedzie.
+     ========================================================= */
+  .case-results{
+    display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+    margin:0;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-results > div{ padding:var(--space-6) var(--space-6) var(--space-6) 0; }
+  .case-results > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-results dt{
+    font-size:var(--text-h3); font-weight:700; line-height:1.25;
+    letter-spacing:-.02em; margin-bottom:var(--space-2);
+  }
+  .case-results dd{
+    margin:0; font-size:var(--text-small); color:var(--text-soft);
+    max-width:32ch;
+  }
+
+  /* =========================================================
+     ROZDZIAŁY
+     ---------------------------------------------------------
+     Padding sekcji i linię zamykającą biorą z <section> w style.css,
+     odstęp H2 do treści też. Tutaj tylko wnętrze rozdziału.
+     ========================================================= */
+  .prose{ max-width:68ch; }            /* DESIGN.md §3: maks. długość wiersza */
+  .prose p{ color:var(--text-soft); }
+  .prose p + p{ margin-top:var(--space-8); }
+
+  /* Cytat: pole akcentu nad tekstem, jak pasek w dymkach cech.
+     Akcent jest wypełnieniem, nigdy kolorem liter (DESIGN.md §2). */
+  .pull{ margin:var(--space-16) 0 0; max-width:44ch; }
+  .pull::before{
+    content:''; display:block; width:80px; height:10px;
+    margin-bottom:var(--space-5);
+    background:var(--accent);
+    border:var(--border-width) solid var(--line-strong);
+  }
+  .pull p{
+    margin:0; font-size:var(--text-h3); font-weight:400; line-height:1.45;
+    color:var(--text);
+  }
+  .pull-source{
+    display:block; margin-top:var(--space-4);
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+
+  /* Nagłówek rozdziału oddycha pełnym światłem sekcji. Wszystkie
+     rozdziały na tej stronie idą pełną szerokością, więc wyjątków
+     dla węższych kolumn tu nie ma. */
+  section > .wrap > h2{ margin-bottom:var(--space-16); }
+
+  .figure{ margin:var(--space-16) 0 0; }
+
+  /* Figura bez ramki i bez wypełnienia — dla obrazów z własną
+     przezroczystością, które mają siedzieć wprost na tle sekcji.
+     ---------------------------------------------------------
+     height:auto jest tu obowiązkowe, nie kosmetyczne. Globalne img
+     w style.css daje tylko max-width:100%, a przy atrybutach width
+     i height na znaczniku przeglądarka zwęzi szerokość do kolumny
+     i zostawi wysokość z atrybutu — obraz wychodzi rozciągnięty
+     w pionie. Pozostałe figury na stronie tego nie łapią, bo idą
+     przez .img-fit albo przez wypełniony kadr .ph. */
+  .figure-bare img{ width:100%; height:auto; }
+
+  /* Figura na pełną szerokość dla zrzutu z własnym, jasnym tłem.
+     Dostaje ramkę, bo inaczej biel interfejsu rozlewa się w tło
+     sekcji i zrzut traci krawędź. height:auto z tego samego powodu
+     co przy .figure-bare — patrz komentarz wyżej. */
+  .figure-shot img{
+    width:100%; height:auto;
+    border:var(--border-width) solid var(--line);
+  }
+  .figure figcaption{
+    margin-top:var(--space-3);
+    font-size:var(--text-label); color:var(--text-muted);
+  }
+
+  .aside-note{ margin-top:var(--space-16); }
+  .aside-note strong{ font-weight:700; color:var(--text); }
+
+  /* =========================================================
+     KARUZELA EKRANÓW — przeniesione 1:1 z case-study.html
+     ---------------------------------------------------------
+     Rząd ekranów wychodzi poza kolumnę tekstu i urywa się na krawędzi
+     okna. Ucięcie jest tu komunikatem: dalej jest więcej, da się
+     przeciągnąć. Marginesy procentowe liczą się od szerokości .wrap,
+     więc (50% − 50vw) to dokładnie dystans od prawej krawędzi kolumny
+     do krawędzi ekranu — przy każdej szerokości, też powyżej 1280px.
+     ========================================================= */
+  /* Sekcja z karuzelą przycina nadmiar w poziomie.
+     ---------------------------------------------------------
+     Bez tego strona rozpycha się w bok. 50vw liczy się razem
+     z paskiem przewijania, a 50% w tym samym calc już nie —
+     różnica kilkunastu pikseli wychodzi poza dokument, włącza
+     poziomy pasek i na wąskich ekranach ucina tekst w akapitach.
+     (Ten sam błąd siedzi w case-study.html, skąd .reel pochodzi.)
+
+     clip, nie hidden: hidden wymusiłby overflow-y:auto na tej
+     samej skrzynce i zrobiłby z niej kontener przewijania, co
+     zepsułoby position:sticky paska i powrotu do prac. clip
+     zostawia oś pionową widoczną i niczego nie przewija. */
+  .section-bleed{ overflow-x:clip; }
+
+  .reel{
+    margin-right:calc(50% - 50vw);
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    cursor:grab;
+    scrollbar-width:none;                 /* pasek zastępuje sam kadr */
+  }
+  .reel::-webkit-scrollbar{ display:none; }
+  .reel:focus-visible{ outline:var(--border-width) solid var(--line-strong); outline-offset:4px; }
+  .reel.is-dragging{ cursor:grabbing; }
+  .reel img{
+    display:block; width:auto; max-width:none;
+    height:clamp(300px, 38vw, 480px);
+    user-select:none; -webkit-user-drag:none;
+  }
+  /* W trakcie ciągnięcia kursor nie ma łapać tekstu ani obrazka. */
+  .reel.is-dragging img{ pointer-events:none; }
+
+  /* Wątek po ilustracji zaczyna się od nowa, więc dostaje pełny odstęp
+     rozdziału, nie światło międzyakapitowe. */
+  .figure + .prose{ margin-top:var(--space-20); }
+
+  /* =========================================================
+     DECYZJE — trzy kolumny otwarte linią nośną
+     ---------------------------------------------------------
+     Subgrid: pięć wierszy karty (tytuł, WHY, treść, TRADE-OFF,
+     treść) dzieli wysokości między kolumnami. Bez tego
+     dwuwierszowy tytuł w jednej kolumnie zsuwa jej podnagłówki
+     w dół i cały rząd się rozjeżdża.
+     ========================================================= */
+  .decisions{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-12);
+    margin-top:var(--space-16);
+  }
+  .decision{
+    display:grid; grid-template-rows:subgrid; grid-row:span 5;
+    row-gap:var(--space-2);
+    border-top:var(--border-width) solid var(--line-strong); padding-top:var(--space-6);
+  }
+  .decision h3{ margin:0; }
+  .decision .label{
+    display:block; margin:var(--space-4) 0 0;
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .decision p{ font-size:var(--text-body); color:var(--text-soft); }
+
+  /* =========================================================
+     REKONSTRUKCJA EKRANU STAREGO PMS — „z czym się mierzyliśmy"
+     ---------------------------------------------------------
+     To nie jest zrzut ekranu i nie wolno go tak podpisywać.
+     Oryginalnego interfejsu nie możemy opublikować, więc układ,
+     hierarchia i etykiety są przerysowane 1:1, a cała warstwa
+     wizualna jest nasza: jeden krój, tokeny z DESIGN.md, siatka
+     linii zamiast cieni, gradientów i zaokrągleń. Figcaption
+     mówi to wprost — nikt nie ma prawa wziąć tego za cudzy
+     produkt, ani za nasz projekt.
+
+     Gęstość jest tu treścią, nie wadą. Ta ilustracja ma
+     przytłaczać, bo dokładnie o to chodzi w rozdziale 01:
+     pokazujemy problem, nie rozwiązanie.
+
+     Ikon nie rysujemy — oryginał jest ich pełen, ale ikona bez
+     znaczenia to dekoracja, a tych nie używamy. Zamiast nich
+     puste pola kontrolek: widać, że coś tam jest, i widać, że
+     nie wiadomo co. To uczciwszy opis tego ekranu niż ikonki.
+     ========================================================= */
+  .frame-scroll{
+    overflow-x:auto;
+    border:var(--border-width) solid var(--line-strong);
+    /* Pasek przewijania jest tu informacją: ekran się nie mieści
+       i nigdy się nie mieścił. Nie chowamy go. */
+  }
+  .pms{
+    min-width:1060px;
+    background:var(--bg); color:var(--text);
+    font-size:11px; line-height:1.35; letter-spacing:0;
+    font-variant-numeric:tabular-nums;
+    -webkit-user-select:none; user-select:none;
+  }
+  /* Puste pole kontrolki — zastępnik ikony, nie ikona. */
+  .pms .box{
+    display:inline-block; width:9px; height:9px;
+    border:1px solid currentColor; vertical-align:-1px;
+    margin-right:5px;
+  }
+  .pms .box.on{ background:currentColor; }
+
+  /* Pasek aplikacji — jedyne ciemne pole na ilustracji, tak jak
+     w oryginale jedyne kolorowe. Odwrócenie zamiast błękitu. */
+  .pms-app{
+    display:flex; align-items:center; gap:var(--space-5);
+    background:var(--surface-inverse); color:var(--text-inverse);
+    padding:7px var(--space-3);
+    /* Bez tego pozycje paska łamią się na dwie linie, gdy ramka jest
+       węższa od okna — a pasek ma zostać jedną linią i po prostu
+       wyjechać poza kadr, tak jak w oryginale. */
+    white-space:nowrap;
+  }
+  .pms-app b{ font-weight:700; letter-spacing:-.02em; font-size:12px; }
+  .pms-app .grp{ display:flex; gap:var(--space-4); flex-wrap:nowrap; }
+  .pms-app .right{ margin-left:auto; display:flex; gap:var(--space-4); }
+
+  /* Rząd narzędzi — same kontrolki, zero etykiet. W oryginale
+     dokładnie tak samo: dziewięć przycisków, żadnego podpisu. */
+  .pms-tools{
+    display:flex; align-items:center; gap:6px;
+    padding:5px var(--space-3);
+    background:var(--surface);
+    border-bottom:var(--border-width) solid var(--line);
+  }
+  .pms-tools .ctl{ width:17px; height:14px; border:1px solid var(--line-control); }
+  .pms-tools .field{
+    flex:1; max-width:360px; height:14px;
+    border:1px solid var(--line-control); background:var(--bg);
+  }
+  .pms-tools .right{
+    margin-left:auto; display:flex; align-items:center; gap:var(--space-4);
+    text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted);
+  }
+
+  /* Zakładki karty pacjenta. Aktywna dostaje limonkę — to jedyne
+     miejsce w tej ilustracji, gdzie akcent cokolwiek znaczy. */
+  .pms-tabs{ display:flex; background:var(--bg); border-bottom:var(--border-width) solid var(--line-strong); }
+  .pms-tabs span{
+    padding:7px 9px; white-space:nowrap; color:var(--text-soft);
+    border-right:var(--border-width) solid var(--line);
+  }
+  .pms-tabs .on{ background:var(--accent); color:var(--accent-ink); font-weight:700; }
+
+  .pms-title{
+    padding:6px var(--space-3); font-weight:700;
+    border-bottom:var(--border-width) solid var(--line);
+  }
+
+  /* Drugi poziom zakładek. Aktywna jest czarna, nie limonkowa:
+     dwa pola akcentu na jednym ekranie przestałyby cokolwiek
+     wskazywać, a hierarchia ma zostać czytelna. */
+  .pms-sub{
+    display:flex; align-items:center; gap:0;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .pms-sub span{
+    padding:6px 10px; white-space:nowrap; color:var(--text-soft);
+    border-right:var(--border-width) solid var(--line);
+  }
+  .pms-sub .on{ background:var(--surface-inverse); color:var(--text-inverse); font-weight:700; }
+  .pms-sub .right{
+    margin-left:auto; display:flex; align-items:center; gap:6px;
+    padding:0 var(--space-3); border-right:0;
+  }
+  /* Kontrolki obok wyszukiwarki muszą dostać wymiar osobno — reguła
+     z .pms-tools ich nie obejmuje, a bez niej zapadają się w kreskę. */
+  .pms-sub .ctl{ width:17px; height:14px; border:1px solid var(--line-control); }
+  .pms-sub .search{
+    width:150px; height:14px; padding:0 4px;
+    border:1px solid var(--line-control); background:var(--bg);
+    color:var(--text-muted); font-size:10px; line-height:14px;
+  }
+
+  /* Korpus przycięty twardo na dole — tak jak kadr, z którego to
+     przerysowaliśmy. Panel urwany w pół wiersza mówi o tym ekranie
+     więcej niż panel domknięty na siłę. */
+  .pms-body{
+    display:grid; grid-template-columns:136px 1fr;
+    /* Wysokość dobrana tak, żeby dolny rząd paneli był urwany w pół —
+       „Significant Events" i „Print" mają zostać przecięte, dokładnie
+       jak w kadrze, z którego to przerysowaliśmy. */
+    height:400px; overflow:hidden;
+  }
+  .pms-side{
+    border-right:var(--border-width) solid var(--line-strong);
+    background:var(--surface); padding:var(--space-3);
+  }
+  .pms-side .field{
+    height:15px; margin-bottom:var(--space-4);
+    border:1px solid var(--line-control); background:var(--bg);
+  }
+  .pms-side .k{
+    display:block; margin-top:var(--space-4);
+    font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .pms-side p{ margin:3px 0 0; color:var(--text); }
+  /* Wiersze, które w oryginale nie są etykietą, tylko wartością stojącą
+     samodzielnie — wersalików nie dostają, za to własne światło nad sobą. */
+  .pms-side p.gap{ margin-top:var(--space-4); }
+  .pms-side .who{ display:flex; gap:var(--space-2); align-items:flex-start; margin-top:var(--space-3); }
+  .pms-side .av{
+    flex:0 0 auto; width:24px; height:24px;
+    background:var(--surface-inverse);
+    border:var(--border-width) solid var(--line-strong);
+  }
+
+  .pms-main{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; padding:10px; align-content:start; }
+  .ecol{ min-width:0; }
+
+  /* Panel: ramka nośna, pasek tytułu, siatka odnośników.
+     Komórki mają równą wysokość i hairline między sobą —
+     to jedyny sposób, żeby ta gęstość dała się w ogóle czytać. */
+  .epanel{ border:var(--border-width) solid var(--line-strong); background:var(--bg); }
+  .epanel + .epanel{ margin-top:10px; }
+  .epanel > b{
+    display:block; padding:5px 8px; font-weight:700;
+    background:var(--surface);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .epanel ul{
+    list-style:none; margin:0; padding:0;
+    display:grid;
+    /* minmax(0,1fr), nie 1fr: ścieżka gridu ma domyślnie min-width:auto,
+       więc najdłuższe nierozdzielne słowo rozpycha kolumnę i ostatnie
+       pozycje panelu wyjeżdżają poza ramkę. Zero jako minimum zmusza
+       kolumny do równej szerokości, a łamanie zostawia tekstowi. */
+    grid-template-columns:repeat(var(--cols, 5), minmax(0, 1fr));
+  }
+  .epanel li{
+    padding:6px 6px; min-height:40px; font-size:10px; color:var(--text-soft);
+    border-right:var(--border-width) solid var(--line);
+    border-bottom:var(--border-width) solid var(--line);
+    /* Pięć kolumn w panelu daje komórkę na jakieś dziewięć znaków,
+       a monospace nie zwęża się tak jak krój oryginału — część etykiet
+       musi się złamać w środku słowa. Niech więc łamie się z dywizem:
+       break-word tnie dopiero, gdy słowo samo nie wchodzi, a hyphens
+       zostawia znak, że to podział, a nie literówka. */
+    overflow-wrap:break-word; hyphens:auto;
+  }
+
+  @media (max-width:880px){
+    main{ padding-top:var(--space-12); }
+    .case-head{ padding-bottom:var(--space-20); }
+    .case-meta{ grid-template-columns:repeat(2, 1fr); }
+    .case-meta > div:nth-child(odd){ border-left:0; padding-left:0; }
+    .case-meta > div:nth-child(n+3){ border-top:var(--border-width) solid var(--line); }
+    /* Liczby schodzą w kolumnę: na wąskim ekranie trzy obok siebie
+       łamałyby podpisy po jednym słowie w linii. */
+    .case-results{ grid-auto-flow:row; }
+    .case-results > div + div{
+      border-left:0; padding-left:0;
+      border-top:var(--border-width) solid var(--line);
+    }
+    .decisions{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  ============================================================
+  NOTATKI DO TEJ STRONY
+  ============================================================
+  Treść pochodzi z dwóch źródeł:
+  • agyle.health/carebridge — jak produkt opisuje sam siebie:
+    platforma „condition-agnostic", Smart Care Routines, alerty,
+    jeden rekord pacjenta, dashboardy. Strona nie podaje żadnych
+    liczb ani nazw skal — i my też ich stamtąd nie bierzemy.
+  • relacja Dawida (2026-11-02) — klinika w Anglii, porażenie
+    mózgowe, poprzedni PMS za miliony rocznie, cotygodniowe
+    spotkania z ordynatorem, faza 1 wdrożona, faza 2 planowana
+    na koniec 2026 i nieobejrzana.
+
+  Rekonstrukcja ekranu starego PMS w rozdziale 01 przepisuje
+  etykiety co do znaku — poza dwoma nazwiskami, które są
+  zmyślone celowo („Mercer, Alan Whitfield, MD", „June T."),
+  a nazwa dostawcy i jego brandowane nazwy funkcji zastąpione
+  opisowymi odpowiednikami.
+  Powód stoi w komentarzu przy samej figurze.
+
+  GMFCS, MACS, „Daily Life" i ocena 7/10 pochodzą ze zrzutu
+  w assets/carebridge/agyle-carebridge-card.png — to jedyne nazwy własne
+  interfejsu, których tu używamy.
+
+  DO UZUPEŁNIENIA:
+  • zrzut listy pacjentów z panelem ryzyk (sekcja 04)
+  • zrzuty aplikacji mobilnej: Daily Life i ocena (sekcja 05)
+  • .case-results są jakościowe. Klinika na pewno zna swoją
+    poprzednią fakturę za PMS — jeśli wolno ją podać choćby
+    rzędem wielkości, liczba bije strzałkę.
+  ============================================================
+-->
+<!-- Logotyp w brandmarku. Inline, bo zewnętrzny plik SVG nie doczytuje
+     się przy otwarciu strony z dysku; fill idzie z currentColor. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="l-brand" viewBox="0 0 727 104">
+    <path d="M726.812 90.8199H721.065C718.975 90.8199 717.146 90.4716 715.578 89.7749C714.011 89.0782 712.791 87.9461 711.921 86.3785C711.05 84.811 710.614 82.7209 710.614 80.1083V52.4151L710.353 49.4106C710.353 44.708 709.177 41.0503 706.826 38.4378C704.562 35.8252 700.861 34.5189 695.723 34.5189C691.02 34.5189 687.014 35.6946 683.705 38.0459C680.395 40.3972 677.914 43.3146 676.259 46.798L670.25 40.7891C671.556 38.6119 673.429 36.4348 675.867 34.2577C678.305 32.0805 681.266 30.2952 684.75 28.9019C688.233 27.5085 692.196 26.8118 696.637 26.8118C703.952 26.8118 709.482 28.8148 713.227 32.8207C716.972 36.7396 718.844 42.226 718.844 49.28V78.6714C718.844 80.3261 719.192 81.5017 719.889 82.1984C720.673 82.808 721.805 83.1128 723.285 83.1128H726.812V90.8199ZM687.885 92.1262C682.747 92.1262 678.741 90.8634 675.867 88.338C673.08 85.7254 671.687 82.329 671.687 78.1489C671.687 74.0559 673.08 70.6595 675.867 67.9599C678.654 65.1731 682.224 62.7783 686.579 60.7753L711.921 49.28L713.096 55.1583L690.236 66.0004C686.84 67.568 684.314 69.2226 682.66 70.9643C681.092 72.619 680.308 74.6219 680.308 76.9733C680.308 79.5858 681.179 81.5888 682.921 82.9822C684.75 84.2885 687.232 84.9416 690.367 84.9416C693.241 84.9416 695.897 84.4626 698.335 83.5047C700.861 82.4597 703.038 81.1098 704.867 79.4552C706.695 77.7135 708.089 75.8411 709.047 73.8382C710.092 71.7481 710.614 69.6145 710.614 67.4374L710.876 72.14C710.353 75.2751 709.09 78.4102 707.087 81.5453C705.171 84.5933 702.559 87.1188 699.25 89.1217C696.027 91.1247 692.239 92.1262 687.885 92.1262Z"/>
+    <path d="M631.541 90.8199H622.92V28.1181H631.541V90.8199ZM631.541 54.5051L630.758 50.325C631.019 47.3641 631.629 44.4902 632.586 41.7035C633.631 38.8297 635.025 36.2606 636.767 33.9964C638.508 31.7322 640.598 29.9469 643.037 28.6406C645.562 27.3343 648.393 26.6812 651.528 26.6812C655.185 26.6812 658.32 27.8568 660.933 30.2082C663.545 32.4724 664.852 35.7381 664.852 40.0053C664.852 42.2695 664.59 44.3596 664.068 46.2755C663.633 48.1914 663.11 49.6718 662.5 50.7169H653.226C654.097 49.6718 654.837 48.2785 655.446 46.5368C656.143 44.7079 656.491 42.8356 656.491 40.9197C656.491 38.9167 655.882 37.1315 654.663 35.5639C653.444 33.9964 651.353 33.2126 648.393 33.2126C645.345 33.2126 642.514 34.2576 639.902 36.3477C637.289 38.3507 635.243 41.0068 633.762 44.3161C632.282 47.5382 631.541 50.9346 631.541 54.5051Z"/>
+    <path d="M578.478 92.1262C572.817 92.1262 567.766 90.7764 563.325 88.0767C558.883 85.377 555.4 81.5888 552.874 76.712C550.436 71.7481 549.217 66.0004 549.217 59.469C549.217 52.7634 550.436 46.9722 552.874 42.0954C555.4 37.2186 558.883 33.4739 563.325 30.8613C567.766 28.1616 572.817 26.8118 578.478 26.8118C584.225 26.8118 589.32 28.1616 593.761 30.8613C598.203 33.4739 601.642 37.2186 604.081 42.0954C606.606 46.9722 607.869 52.7634 607.869 59.469C607.869 66.0004 606.606 71.7481 604.081 76.712C601.642 81.5888 598.203 85.377 593.761 88.0767C589.32 90.7764 584.225 92.1262 578.478 92.1262ZM578.478 84.811C582.658 84.811 586.272 83.853 589.32 81.9371C592.455 80.0213 594.893 77.191 596.635 73.4463C598.377 69.6145 599.248 64.9554 599.248 59.469C599.248 53.8955 598.377 49.2364 596.635 45.4917C594.893 41.6599 592.455 38.7861 589.32 36.8702C586.272 34.8673 582.658 33.8658 578.478 33.8658C574.472 33.8658 570.901 34.8673 567.766 36.8702C564.631 38.7861 562.193 41.6599 560.451 45.4917C558.709 49.2364 557.838 53.8955 557.838 59.469C557.838 64.9554 558.709 69.6145 560.451 73.4463C562.193 77.191 564.631 80.0213 567.766 81.9371C570.901 83.853 574.472 84.811 578.478 84.811Z"/>
+    <path d="M504.108 0.384613H514.157V10.433H504.108V0.384613ZM504.108 60.6748H514.157V70.7232H504.108V80.7715H494.06V10.433H504.108V60.6748ZM534.254 30.5297H544.302V40.5781H534.254V30.5297ZM524.205 40.5781H534.254V50.6264H524.205V40.5781ZM514.157 50.6264H524.205V60.6748H514.157V50.6264ZM524.205 60.6748H534.254V80.7715H524.205V60.6748ZM484.012 80.7715H494.06V90.8199H484.012V80.7715ZM504.108 80.7715H514.157V90.8199H504.108V80.7715ZM534.254 80.7715H544.302V90.8199H534.254V80.7715Z"/>
+    <path d="M464.813 16.884H456.191V3.29865H464.813V16.884ZM464.813 90.8199H456.191V28.1181H464.813V90.8199Z"/>
+    <path d="M412.332 91.9955C407.107 91.9955 402.012 91.2553 397.048 89.7749C392.172 88.2073 387.861 85.7689 384.116 82.4596C380.458 79.0633 377.672 74.6655 375.756 69.2661L382.418 63.5185C383.811 68.5695 386.119 72.5754 389.341 75.5363C392.651 78.4972 396.352 80.6744 400.445 82.0678C404.538 83.3741 408.5 84.0272 412.332 84.0272C415.902 84.0272 419.212 83.5047 422.26 82.4596C425.308 81.4146 427.746 79.76 429.575 77.4958C431.491 75.2315 432.449 72.2706 432.449 68.613C432.449 65.1296 431.665 62.3428 430.097 60.2528C428.53 58.0756 426.222 56.3339 423.174 55.0276C420.126 53.7213 416.381 52.5457 411.94 51.5006L402.404 49.4106C399.356 48.7139 396.395 47.7995 393.521 46.6674C390.648 45.5353 388.079 44.0983 385.814 42.3566C383.55 40.6149 381.721 38.3942 380.328 35.6946C379.022 32.9949 378.368 29.7292 378.368 25.8974C378.368 20.6723 379.675 16.318 382.287 12.8345C384.987 9.26401 388.47 6.60789 392.738 4.86617C397.092 3.03737 401.707 2.12297 406.584 2.12297C414.596 2.12297 421.476 3.86468 427.224 7.34811C433.058 10.8315 437.238 15.8825 439.764 22.5011L432.579 28.2487C430.576 22.0656 427.311 17.5372 422.782 14.6633C418.254 11.7024 412.811 10.222 406.454 10.222C402.883 10.222 399.661 10.8316 396.787 12.0508C394 13.27 391.736 14.9681 389.994 17.1453C388.253 19.3224 387.382 22.0221 387.382 25.2443C387.382 30.034 388.906 33.6045 391.954 35.9558C395.089 38.22 399.487 40.0489 405.147 41.4422L415.467 43.9242C418.776 44.7079 421.955 45.7094 425.003 46.9286C428.138 48.0607 430.881 49.5412 433.233 51.37C435.671 53.1988 437.587 55.5066 438.98 58.2933C440.374 60.993 441.07 64.3458 441.07 68.3517C441.07 73.4027 439.764 77.7135 437.151 81.284C434.626 84.7674 431.186 87.4235 426.832 89.2524C422.564 91.0812 417.731 91.9955 412.332 91.9955Z"/>
+    <path d="M302.106 92.2568C296.707 92.2568 292.048 90.907 288.129 88.2073C284.297 85.5077 281.293 81.7194 279.116 76.8426C277.026 71.8787 275.98 66.0875 275.98 59.469C275.98 52.8505 277.026 47.1028 279.116 42.226C281.293 37.3492 284.297 33.561 288.129 30.8613C292.048 28.1617 296.707 26.8118 302.106 26.8118C306.809 26.8118 310.684 27.9004 313.732 30.0775C316.867 32.1676 319.219 34.9543 320.786 38.4378C322.441 41.8341 323.399 45.4917 323.66 49.4106L323.137 53.5907C323.137 50.1073 322.484 46.8851 321.178 43.9242C319.872 40.9633 317.869 38.5684 315.169 36.7396C312.469 34.9108 308.986 33.9964 304.719 33.9964C299.058 33.9964 294.312 36.0429 290.48 40.136C286.648 44.229 284.733 50.6733 284.733 59.469C284.733 68.2647 286.648 74.7526 290.48 78.9327C294.312 83.0257 299.058 85.0722 304.719 85.0722C308.986 85.0722 312.469 84.1578 315.169 82.329C317.869 80.5002 319.872 78.1054 321.178 75.1445C322.484 72.0965 323.137 68.8307 323.137 65.3473L323.66 69.658C323.399 73.5769 322.441 77.2345 320.786 80.6309C319.219 84.0272 316.867 86.814 313.732 88.9911C310.684 91.1683 306.809 92.2568 302.106 92.2568ZM331.628 90.8199H323.137V3.29865H331.628V90.8199Z"/>
+    <path d="M261.342 16.884H252.721V3.29865H261.342V16.884ZM261.342 90.8199H252.721V28.1181H261.342V90.8199Z"/>
+    <path d="M153.201 30.5297H163.249V40.5781H153.201V30.5297ZM173.297 30.5297H193.394V40.5781H173.297V30.5297ZM203.443 30.5297H223.539V40.5781H203.443V30.5297ZM233.588 30.5297H243.636V40.5781H233.588V30.5297ZM143.152 40.5781H153.201V50.6264H143.152V40.5781ZM173.297 80.7715H163.249V40.5781H173.297V80.7715ZM203.443 80.7715H193.394V40.5781H203.443V80.7715ZM223.539 40.5781H233.588V80.7715H223.539V40.5781ZM153.201 80.7715H163.249V90.8199H153.201V80.7715ZM173.297 80.7715H193.394V90.8199H173.297V80.7715ZM203.443 80.7715H223.539V90.8199H203.443V80.7715Z"/>
+    <path d="M137.412 90.8199H131.664C129.574 90.8199 127.745 90.4716 126.178 89.7749C124.61 89.0782 123.391 87.9461 122.52 86.3785C121.649 84.811 121.214 82.7209 121.214 80.1083V52.4151L120.953 49.4106C120.953 44.708 119.777 41.0503 117.426 38.4378C115.161 35.8252 111.46 34.5189 106.322 34.5189C101.62 34.5189 97.6136 35.6946 94.3044 38.0459C90.9951 40.3972 88.5132 43.3146 86.8585 46.798L80.8496 40.7891C82.1559 38.6119 84.0282 36.4348 86.4666 34.2577C88.9051 32.0805 91.866 30.2952 95.3494 28.9019C98.8328 27.5085 102.795 26.8118 107.237 26.8118C114.552 26.8118 120.082 28.8148 123.826 32.8207C127.571 36.7396 129.444 42.226 129.444 49.28V78.6714C129.444 80.3261 129.792 81.5017 130.489 82.1984C131.272 82.808 132.404 83.1128 133.885 83.1128H137.412V90.8199ZM98.4845 92.1262C93.3464 92.1262 89.3405 90.8634 86.4666 88.338C83.6799 85.7254 82.2865 82.329 82.2865 78.1489C82.2865 74.0559 83.6799 70.6595 86.4666 67.9599C89.2534 65.1731 92.8239 62.7783 97.1782 60.7753L122.52 49.28L123.696 55.1583L100.836 66.0004C97.4395 67.568 94.914 69.2226 93.2593 70.9643C91.6918 72.619 90.908 74.6219 90.908 76.9733C90.908 79.5858 91.7789 81.5888 93.5206 82.9822C95.3494 84.2885 97.8314 84.9416 100.966 84.9416C103.84 84.9416 106.496 84.4626 108.935 83.5047C111.46 82.4597 113.637 81.1098 115.466 79.4552C117.295 77.7135 118.688 75.8411 119.646 73.8382C120.691 71.7481 121.214 69.6145 121.214 67.4374L121.475 72.14C120.953 75.2751 119.69 78.4102 117.687 81.5453C115.771 84.5933 113.158 87.1188 109.849 89.1217C106.627 91.1247 102.839 92.1262 98.4845 92.1262Z"/>
+    <path d="M28.869 90.8199H3.00446V83.2434H27.6933C34.9214 83.2434 41.0174 81.9807 45.9813 79.4552C50.9452 76.9297 54.7334 73.0109 57.346 67.6986C59.9586 62.3864 61.2649 55.5066 61.2649 47.0593C61.2649 38.612 59.9586 31.7322 57.346 26.4199C54.7334 21.1077 50.9452 17.1888 45.9813 14.6633C41.0174 12.1379 34.9214 10.8751 27.6933 10.8751H3.00446V3.29865H28.869C38.1001 3.29865 45.7636 5.04036 51.8596 8.52379C57.9556 11.9201 62.4841 16.884 65.445 23.4155C68.493 29.9469 70.017 37.8282 70.017 47.0593C70.017 56.2904 68.493 64.1716 65.445 70.7031C62.4841 77.2345 57.9556 82.242 51.8596 85.7254C45.7636 89.1217 38.1001 90.8199 28.869 90.8199ZM8.6215 90.8199H0V3.29865H8.6215V90.8199Z"/>
+  </symbol>
+</svg>
+
+<header class="bar">
+  <a class="brandmark" href="index.html">
+    <svg class="brandmark-logo" aria-hidden="true"><use href="#l-brand"/></svg>
+    <span class="brandmark-text">Dawid Sikora</span>
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#process">Process</a></li>
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-sm" href="mailto:dsikoradesign@gmail.com">Email me</a>
+</header>
+
+<main>
+
+  <!-- Powrót: startuje w treści, przy przewijaniu parkuje w pasku. -->
+  <div class="wrap backlink-row">
+    <a class="backlink" href="index.html#work">&larr; All work</a>
+  </div>
+
+  <!-- ===================== NAGŁÓWEK ===================== -->
+  <div class="wrap case-head">
+    <h1>A patient management system a small clinic could actually afford to use</h1>
+    <p class="lead">Agyle CareBridge is a condition-agnostic care platform: one system meant to carry many long-term pathways. This case study is about the first pathway we took all the way down &mdash; a small clinic in England treating cerebral palsy, which was paying enterprise money for a hospital-sized PMS that had never heard of the way CP care actually runs. The job was to build the dedicated one: minimal enough to afford, complete enough to run a clinic on.</p>
+
+    <dl class="case-meta">
+      <div><dt>My role</dt><dd>Senior UX/UI Designer</dd></div>
+      <div><dt>Timeline</dt><dd>2025&ndash;2026 &middot; phase 1 shipped</dd></div>
+      <div><dt>Team</dt><dd>Four designers, with the clinic&rsquo;s lead consultant in the room every week</dd></div>
+      <div><dt>Tools</dt><dd>Figma, FigJam</dd></div>
+    </dl>
+
+    <!-- Liczb z wdrożenia nie mam, więc stoją tu strzałki kierunku —
+         data-licznik="off" wyłącza animację licznika z count.js, która
+         próbowałaby policzyć znak Unicode. Podpisy są te same co na
+         kafelce w index.html; jak zmieniasz, zmieniaj w obu miejscach. -->
+    <dl class="case-results">
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Down">&#8600;</span></dt>
+        <dd>Cost of running the system &mdash; an enterprise PMS swapped for one built for a single pathway.</dd>
+      </div>
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Both ways">&#8596;</span></dt>
+        <dd>Direct contact with the patient &mdash; clinic and household on one record, between appointments.</dd>
+      </div>
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Up">&#8599;</span></dt>
+        <dd>Ease of use and training &mdash; a tool a four-person clinic can pick up in a morning.</dd>
+      </div>
+    </dl>
+
+    <figure class="figure">
+      <img class="ph ph-3x2 img-fit" src="assets/carebridge/agyle-carebridge-card.png"
+           alt="Agyle CareBridge na limonkowym tle. Na tablecie panel kliniki: po lewej lista klinik i kolekcji pacjentów, na środku tabela pacjentów z nazwiskiem, płcią, wiekiem, datą urodzenia oraz kolorowymi poziomami GMFCS i MACS, po prawej panel wybranego pacjenta z listą ryzyk w ramkach — każde z nazwą, poziomem i datą. Obok telefon z ekranem Daily Life: wykres przebiegu oceny w czasie, wynik 7/10, przycisk aktualizacji oceny i odnośnik do poprzednich wyników."
+           width="3980" height="2572" decoding="async">
+      <figcaption>Two ends of the same record: the clinic&rsquo;s patient list on the left, the household&rsquo;s Daily Life check-in on the right. The second one is where most of the week actually happens.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================== 01 — PROBLEM ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">01 &mdash; The problem</span>
+      <h2>Enterprise prices for a system that had never met this patient.</h2>
+      <div class="prose">
+        <p>A small clinic in England treats children and adults with cerebral palsy. To run it, they were licensing a full hospital-grade patient management system &mdash; the kind sold to NHS trusts, priced in the millions a year, and sized for a building with a hundred departments in it.</p>
+        <p>The money was the visible problem. The fit was the real one. CP isn&rsquo;t an episode that opens, gets treated and closes; it is a condition somebody lives in for decades, managed in small increments, with the household doing most of the work between appointments. None of that had a shape in a generic PMS. So the clinic paid a fortune for a system it then had to work around &mdash; spreadsheets beside it, notes outside it, the actual clinical picture assembled in somebody&rsquo;s head before each appointment.</p>
+        <p>The simple version of this tool did not exist on the market, because nobody builds enterprise software for a clinic of this size. That gap was the brief: a dedicated PMS, minimal but genuinely functional, covering every requirement of working with CP patients and nothing else.</p>
+      </div>
+
+      <!-- Rekonstrukcja, nie zrzut. Zasady i powód w komentarzu przy
+           CSS (.pms / .frame-scroll).
+
+           WYJĄTKI OD 1:1 — wszystkie celowe, nie „poprawiaj" ich
+           z powrotem do oryginału:
+
+           • Dwa nazwiska: lekarz w pasku bocznym i zalogowany
+             użytkownik. Nazwisko jest daną osobową nawet wtedy, gdy
+             pochodzi z cudzego środowiska demo, a portfolio nie jest
+             miejscem, żeby je nieść dalej.
+           • Nazwa dostawcy i jego nazwy własne funkcji: wordmark
+             w pasku, nazwa aplikacji przy użytkowniku oraz trzy
+             pozycje menu, które były brandowane. Zastąpione opisowymi
+             odpowiednikami tej samej długości. Ten rozdział nigdzie
+             nie nazywa dostawcy po imieniu — mówi „a full
+             hospital-grade PMS" — i ilustracja ma trzymać tę samą
+             linię. Pokazujemy klasę narzędzia, nie wytykamy firmy.
+           • Nazwy klas w CSS też są odbrandowane (.pms-*). Źródło
+             tej strony jest publiczne, więc selektor z nazwą
+             dostawcy zdradzałby dokładnie to, co chowamy w treści.
+
+           Cała reszta — zakładki, panele, pozycje list — jest
+           przepisana co do znaku, łącznie z ucięciami w zakładkach
+           („Intake/O...", „Charg..."); to one najlepiej opisują,
+           ile się tam nie mieściło.
+           aria-hidden na ramce: dla czytnika ekranu to obrazek, a nie
+           nawigacja, więc całość opisuje figcaption i tekst obok. -->
+      <figure class="figure">
+        <div class="frame-scroll">
+          <div class="pms" aria-hidden="true">
+
+            <div class="pms-app">
+              <b>Meridian</b>
+              <span class="grp">
+                <span><i class="box on"></i>Patient Lookup</span>
+                <span><i class="box"></i>OR Cases</span>
+                <span><i class="box"></i>House Census</span>
+                <span><i class="box"></i>Clinical Reference</span>
+                <span><i class="box"></i>Transfer Center</span>
+                <span><i class="box"></i>Staffed Beds</span>
+                <span><i class="box"></i>Mobile RN</span>
+                <span><i class="box"></i>Cohort Explorer</span>
+                <span>Reports</span>
+              </span>
+              <span class="right">
+                <span><i class="box"></i>Print</span>
+                <span><i class="box"></i>Log Out</span>
+              </span>
+            </div>
+
+            <div class="pms-tools">
+              <span class="ctl"></span><span class="ctl"></span><span class="ctl"></span>
+              <span class="ctl"></span><span class="ctl"></span>
+              <span class="field"></span>
+              <span class="right">
+                <span>June T.</span>
+                <span>MeridianCare</span>
+              </span>
+            </div>
+
+            <div class="pms-tabs">
+              <span class="on">Summary</span>
+              <span>Chart Review</span>
+              <span>Results</span>
+              <span>Work List</span>
+              <span>MAR</span>
+              <span>Flowsheets</span>
+              <span>Intake/O...</span>
+              <span>Notes</span>
+              <span>Education</span>
+              <span>Care Plan</span>
+              <span>Orders</span>
+              <span>Charg...</span>
+              <span>Navigators</span>
+              <span>DC Info</span>
+            </div>
+
+            <div class="pms-title">Summary</div>
+
+            <div class="pms-sub">
+              <span>Overview</span>
+              <span class="on">Index</span>
+              <span>SBAR Handoff</span>
+              <span>Comp Flowsheet</span>
+              <span>Cosign</span>
+              <span>Active Orders</span>
+              <span>FIM Assessment</span>
+              <span class="right">
+                <span class="ctl"></span><span class="ctl"></span>
+                <span class="search">Index</span>
+              </span>
+            </div>
+
+            <div class="pms-body">
+
+              <div class="pms-side">
+                <div class="field"></div>
+                <span class="k">Precautions</span>
+                <p>Fall precautions</p>
+                <p class="gap">Organism: None</p>
+                <div class="who">
+                  <span class="av"></span>
+                  <p>Mercer, Alan Whitfield, MD<br>Attending</p>
+                </div>
+                <span class="k">Allergies</span>
+                <p>Codeine, Penicillins</p>
+                <p class="gap">Pharmacy: Yes - Hover for Details</p>
+                <p>Yes</p>
+              </div>
+
+              <div class="pms-main">
+
+                <div class="ecol">
+                  <div class="epanel">
+                    <b>Quick View</b>
+                    <ul>
+                      <li>Comprehensive Flowsheet</li>
+                      <li>SBAR Handoff</li>
+                      <li>Overview</li>
+                      <li>Patient Care Snapshot</li>
+                      <li>ED Encounter Summary</li>
+                      <li>ED Patient Care Timeline</li>
+                      <li>Shift Assessment</li>
+                      <li>Medical Surgical, Social and Family History</li>
+                      <li>Care Plan and Patient Education</li>
+                      <li>Restraints</li>
+                      <li>Discharge</li>
+                      <li>Code Summary (for printing)</li>
+                      <li>Blood Transfusion</li>
+                      <li></li>
+                      <li></li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Therapy</b>
+                    <ul>
+                      <li>Therapy Flowsheet</li>
+                      <li>PT Overview</li>
+                      <li>OT Overview</li>
+                      <li>SLP Overview</li>
+                      <li>Rehab Nursing Flowsheet</li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Significant Events</b>
+                    <ul>
+                      <li>Code</li>
+                      <li>Code Data</li>
+                      <li>Sedation</li>
+                      <li>Sedation</li>
+                      <li>Blood</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="ecol">
+                  <div class="epanel">
+                    <b>Orders</b>
+                    <ul style="--cols:3">
+                      <li>Active Orders</li>
+                      <li>Medication Administration</li>
+                      <li>Cancel Individual Lab Collections</li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Medications</b>
+                    <ul>
+                      <li>Current Meds</li>
+                      <li>Medication History</li>
+                      <li>Anti-Coagulation Dosing</li>
+                      <li>Fever/Antibiotic Dosing</li>
+                      <li>Glucose Monitoring</li>
+                      <li>Pain Monitoring</li>
+                      <li></li>
+                      <li></li>
+                      <li></li>
+                      <li></li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Results</b>
+                    <ul>
+                      <li>Labs - Last 72 Hours</li>
+                      <li>Labs - Entire Admission</li>
+                      <li>Labs - Unresulted</li>
+                      <li>Microbiology Results</li>
+                      <li>Radiology Results</li>
+                      <li>PPD Results</li>
+                      <li></li>
+                      <li></li>
+                      <li></li>
+                      <li></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="ecol">
+                  <div class="epanel">
+                    <b>Perinatal</b>
+                    <ul>
+                      <li>Current Pregnancy Summary</li>
+                      <li>Labor Assessment</li>
+                      <li>L&amp;D Timeline</li>
+                      <li>Delivery Summary</li>
+                      <li>NST Results</li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Pediatric/Neonatology</b>
+                    <ul>
+                      <li>Pediatric Comprehensive Flowsheet</li>
+                      <li>Delivery Data</li>
+                      <li>Apnea/Bradycardia</li>
+                      <li>TPN History</li>
+                      <li>NICU Nutrition</li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Infection Control Reports</b>
+                    <ul>
+                      <li>VAP</li>
+                      <li>Central Line Infection</li>
+                      <li>Device UTI</li>
+                      <li>MDRO/C Diff</li>
+                      <li>Surgical Site Infection</li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Oncology</b>
+                    <ul style="--cols:3">
+                      <li>Oncology Summary</li>
+                      <li>Treatment &amp; Support Plan</li>
+                      <li>Infusion Summary</li>
+                    </ul>
+                  </div>
+
+                  <div class="epanel">
+                    <b>Print</b>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>The index screen of the enterprise PMS, redrawn in this site&rsquo;s own visual language &mdash; a stylised reconstruction, not a screenshot. The layout and the labels are as they were; the vendor&rsquo;s name, its branded feature names and the two staff names are not, and have been replaced. Eleven panels and roughly sixty entry points, before anyone has looked at a patient. For a clinic treating one condition, almost none of this was reachable work.</figcaption>
+      </figure>
+
+      <div class="pull">
+        <p>Minimal wasn&rsquo;t the aesthetic. It was the price of entry &mdash; the clinic couldn&rsquo;t afford a system it needed a department to operate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 — PLATFORMA I ŚCIEŻKA ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">02 &mdash; The platform and the pathway</span>
+      <h2>CareBridge is condition-agnostic. We designed it through one condition anyway.</h2>
+      <div class="prose">
+        <p>CareBridge is sold as condition-agnostic: one platform carrying neurodisability, frailty, musculoskeletal and mental health on the same rails. That&rsquo;s a sales shape, not a design shape. &bdquo;Works for any condition" is earned by making it work completely for one &mdash; generic-first fits nothing in particular and gets configured into a mess on arrival.</p>
+        <p>So cerebral palsy became the reference pathway. Every pattern had to survive a real caseload before it earned a place in the platform, and we logged which decisions were CP&rsquo;s and which were everyone&rsquo;s. The first pathway writes the rules for every pathway after it.</p>
+      </div>
+
+      <!-- Bez .ph i bez .img-fit: ten PNG ma prawdziwy kanał alfa (sprawdzone
+           — narożniki mają alfę 0), więc ma siedzieć wprost na tle sekcji,
+           a nie w wypełnionej ramce. Globalne img w style.css nie daje ani
+           tła, ani obramowania, więc wystarczy nie dokładać klas.
+           Plik to kopia „assets/zrodla/CareBridge - Flow.png" pod nazwą bez spacji
+           w ścieżce — tak samo jak przy kafelce w index.html.
+           Pełna szerokość, nie kolumna obok tekstu: w ekranach telefonów
+           siedzi czytelny UI, który w kadrze 560 px zrobiłby się plamą. -->
+      <figure class="figure figure-bare">
+        <img src="assets/carebridge/carebridge-flow.png"
+             alt="Trzy ekrany aplikacji CareBridge połączone limonkowymi strzałkami. Po lewej telefon z ekranem Daily Life, sekcja Mobility: kot w dymku pyta „Over the last 6 months", pod spodem pytanie „My ability to walk up and down stairs has been?" i cztery odpowiedzi z buźkami — Better, Unchanged, Slightly Worse, Much Worse — oraz przycisk Next (3/8). Na środku lista domen z wynikami w kółkach: Mental Health &amp; Behaviour 8/10 i Developmental Issues 9/10 na czerwono ze spadkami −2.00 i −3.00, niżej Functional Issues 2/10, Medical Comorbidities 7/10, Pain 1/10 i Sleep 0/10 z datami i zmianą punktową. Po prawej widok kliniczny: karty Pain, Sleep i Medical Comorbidities, każda z nazwiskiem lekarza, specjalizacją, licznikiem uwag i wyróżnioną odpowiedzią pacjenta — Much Worse na czerwono, Slightly Worse na pomarańczowo."
+             width="2506" height="1691" loading="lazy" decoding="async">
+        <figcaption>One loop, end to end: the household answers a plain question about the last six months, it lands as a scored domain the clinic can rank, and it reaches a named clinician as something to act on. The domains are cerebral palsy&rsquo;s. The loop is the platform&rsquo;s &mdash; and it is the part that was meant to carry the next condition.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 03 — JAK TO SZŁO ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">03 &mdash; How the work ran</span>
+      <h2>One consultant, every week, from the first sticky note to the last screen.</h2>
+      <div class="prose">
+        <p>Four designers on the project, and a standing weekly session with the clinic&rsquo;s lead consultant. Not a sign-off meeting at the end of a phase &mdash; the same conversation at every stage, from the opening brainstorms through flows and wireframes to the final UI. We brought what we had, he said where it broke against a real Tuesday, and we took it back.</p>
+        <p>In healthcare that access is the whole game, and it is usually the thing you don&rsquo;t get. On the <a class="lnk" href="case-study-agyle.html">NHS patient record work I led before this</a>, validation ran through strategists and consultants who came back with consolidated feedback &mdash; useful, but it tells you what the organisation concluded, not where somebody hesitated. Here the hesitation happened in front of us, weekly, and it cost one meeting to fix instead of one release.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 — WIDOK LECZENIA ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">04 &mdash; The treatment view</span>
+      <h2>Treatment was a tab. We made it a view onto one condition.</h2>
+      <div class="prose">
+        <p>In the old PMS, treatment was a page of its own: a plan written months ago, with everything that happened since scattered across other tabs &mdash; appointments in one, medications in another, the family&rsquo;s answers nowhere at all.</p>
+        <p>Here a treatment <em>is</em> a condition, and opening one pulls everything attached to it into a single view. Hydrocephalus carries its own related factors &mdash; the self-assessment domains that moved with it, scored and dated &mdash; its own appointments, each with the clinician, the document to bring and the recommendations left last time, and its own medications.</p>
+        <p>It is contextual rather than complete, which is the point. The same patient has other conditions; this view refuses to show them. Ask how the hydrocephalus is going and you get an answer about hydrocephalus, not a record to sift.</p>
+      </div>
+
+      <figure class="figure figure-shot">
+        <img src="assets/carebridge/carebridge-treatment.png"
+             alt="Zakładka Treatment w panelu kliniki CareBridge. U góry pasek pacjenta z numerem NHS, datą urodzenia, rozpoznaniem głównym i poziomem GMFCS, pod nim rząd zakładek: Timeline, Treatment (aktywna), Appointments, Surgeries, Referrals, Documents, Medication, Care Team. Treść otwarta na leczeniu Hydrocephalus ze statusem In Progress, datą, lekarzem prowadzącym i notatkami. Niżej sekcja Related Factors z trzema kartami ocen pacjenta: Functional Issues 2/10, Medical Comorbidities 7/10 i Pain 1/10, każda z datą i zmianą punktową. Pod nimi sekcja Appointments z trzema kartami wizyt — data, godzina, nazwa „Mobility Training" z fazą, specjalizacja, lekarz, załączony dokument PDF oraz lista ostatnich zaleceń z odhaczonymi i nieodhaczonymi pozycjami, w tym nagraniem ćwiczeń. Po prawej pionowa szyna kart domen z wynikami: Mental Health &amp; Behaviour 8/10 i Developmental Issues 9/10 na czerwono, dalej Functional Issues 2/10, Medical Comorbidities 7/10, Pain 1/10 i Sleep 0/10."
+             width="2388" height="1668" loading="lazy" decoding="async">
+        <figcaption>One condition, with the self-assessment domains that moved with it and the appointments that acted on it &mdash; including what was recommended last time and whether it got done. The rest of the patient is one tab away and deliberately not here.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 05 — STRONA KLINIKI ===================== -->
+  <section>
+    <div class="wrap">
+      <!-- Rozdział idzie pełną szerokością, bez .split: całą jego treścią
+           jest jeden ekran, a na nim liczy się wykres razem z prawą szyną
+           obok niego. W kadrze 560 px obok tekstu oba stałyby się plamą. -->
+      <span class="eyebrow">05 &mdash; The clinic side</span>
+      <h2>One timeline, and a score you can open.</h2>
+      <div class="prose">
+        <p>The clinic works in a browser: patients, messaging and documentation in one place, instead of one system plus the workarounds that grew around it. This is the screen a clinician opens before an appointment.</p>
+        <p>Comorbidities don&rsquo;t take turns. They move together, and reading them one at a time reads as noise &mdash; so everything the clinic tracks sits on a single timeline instead of in separate views.</p>
+        <p>Every score on it can be opened. The numbers come from what families fill in between appointments, so a clinician can go from a summary straight to the answers behind it. Instead of &ldquo;how has it been?&rdquo;, the question becomes what happened in a particular week &mdash; and the record answers.</p>
+      </div>
+
+      <!-- .figure-shot, nie .figure-bare: ten PNG jest w 100% nieprzezroczysty
+           (sprawdzone — narożniki to biel i #F6F8FA), więc bez ramki jego tło
+           rozlałoby się w tło sekcji i zrzut zgubiłby krawędź.
+           Plik to kopia „assets/zrodla/CareBridge - Self Managment.png" pod nazwą
+           bez spacji i bez literówki w ścieżce. -->
+      <figure class="figure figure-shot">
+        <img src="assets/carebridge/carebridge-self-management.png"
+             alt="Ekran Self Management Overview w panelu kliniki CareBridge. U góry pasek pacjenta: nazwisko, numer NHS, data urodzenia, rozpoznanie główne Quadriplegia i poziom GMFCS. Poniżej wykres liniowy z trzema przebiegami — Sleep Levels, Pain i Medical Comorbidities — wybieranymi filtrami nad wykresem; na osi dni od 28 czerwca do 8 lipca, pod wykresem pasek dat z ikonami zdarzeń. Na jednym z punktów otwarty dymek z datą 3 July 2024, wynikiem 3/10, zmianą −1.00 i odnośnikami „View Responses" osobno dla Pain i dla Sleep. Po prawej pionowa szyna kart domen z wynikami w kółkach: Mental Health &amp; Behaviour 8/10 i Developmental Issues 9/10 na czerwono, dalej Functional Issues 2/10, Medical Comorbidities 7/10, Pain 1/10 i Sleep 0/10, każda z datą i zmianą punktową. Na dole sekcja Risks z kartami Pain, Sleep i Medical Comorbidities, każda z lekarzem prowadzącym i listą uwag."
+             width="2388" height="1668" loading="lazy" decoding="async">
+        <figcaption>Picking a domain on the right re-reads the whole timeline through it. The score is never the end of the screen &mdash; it is a question with the answers still attached.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 06 — STRONA PACJENTA ===================== -->
+  <section class="bg-soft section-bleed">
+    <div class="wrap">
+      <span class="eyebrow">06 &mdash; The patient and family side</span>
+      <h2>Assessments, specialists and paperwork, without the drive.</h2>
+      <div class="prose">
+        <p>The second half of the system is a mobile app for parents, and sometimes for the patient alone &mdash; which is what set the target sizes and the one-decision-per-screen rhythm.</p>
+        <p>It carries the family&rsquo;s half of the record: assessments between appointments, medication, the calendar, paperwork, and a direct line to the care team without going through reception.</p>
+        <p>That&rsquo;s where the time came back. Much of the old flow was a journey that only moved paper &mdash; a drive across the county for something that was never clinical in the first place.</p>
+      </div>
+
+      <!-- Karuzela, nie siatka: dziewięć ekranów w jednym pasie 5464×1143.
+           Komponent .reel przeniesiony z case-study.html (Fikołki) razem
+           ze skryptem ciągnięcia myszą na dole strony — dotyk i gładzik
+           przewijają natywnie, mysz bez skryptu umie tu tylko kółko.
+           Kadr urywa się na krawędzi okna i to jest komunikat: dalej
+           jest więcej. Plik to kopia „assets/zrodla/carebridge - carousel.png"
+           pod nazwą bez spacji w ścieżce.
+           tabindex i role="region" — karuzelę trzeba dać się przewinąć
+           także z klawiatury, bo inaczej połowa ekranów jest nieosiągalna. -->
+      <figure class="figure">
+        <div class="reel" tabindex="0" role="region" aria-label="Screens from the patient app &mdash; drag or scroll sideways">
+          <img src="assets/carebridge/carebridge-carousel.png"
+               alt="Dziewięć ekranów aplikacji pacjenckiej CareBridge w makietach telefonów, obok siebie. Kolejno: ekran główny z kafelkami Patient Status, Self Assessments, My Documents i Care Team, każdy z licznikiem; profil pacjentki z imieniem, datą urodzenia, numerem NHS i szpitalnym oraz kodem QR do zaproszenia członka zespołu opiekuńczego; ekran „Share with…" z listą lekarzy do zaznaczenia i gotowymi wiadomościami — „Can you Check this document?", „Asking for Help", „Sending document as requested"; czat z asystentem, w którym po prośbie o umówienie wizyty pojawiają się do wyboru General Practitioner, Neurologist, Surgeon i Other; tygodniowy kalendarz wizyt z pozycjami Mobility Rehab i Mental Check, każda z godziną, miejscem, etykietą wizyty domowej lub w klinice i lekarzem prowadzącym; lista leków z dawkowaniem, zaleceniem i porami przyjęcia; ekran Daily Life z wynikiem 7/10, przyciskiem Update Assessment i listą obszarów; ekran postępu oceny — 1 z 31 odpowiedzi, 3 procent, obszary od Mobility po My senses; oraz samo pytanie oceny z kotem i czterema odpowiedziami — Better, Unchanged, Slightly Worse, Much Worse."
+               width="5464" height="1143" loading="lazy" decoding="async">
+        </div>
+        <figcaption>The family&rsquo;s half of the system, left to right: what needs doing, who to ask, when to be somewhere, what to take, and the assessment itself. Drag sideways.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 07 — DECYZJE ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">07 &mdash; Decisions</span>
+      <h2>Three decisions, and what each one cost.</h2>
+      <div class="prose">
+        <p>Each one was a trade, and I&rsquo;d make all three again.</p>
+      </div>
+
+      <div class="decisions">
+        <div class="decision">
+          <h3>Search carries the navigation, not a menu tree</h3>
+          <span class="label">Why</span>
+          <p>A minimal system can&rsquo;t afford deep menus, and a four-person clinic has nobody to learn one. So we put the effort into a contextual global search instead: one field that knows which patient is open and which part of the record you&rsquo;re in, and reaches a document, an assessment or a medication without a path to memorise.</p>
+          <span class="label">The trade-off</span>
+          <p>Search is excellent for returning to something and poor for discovering it. Anything people would never think to look for has to stay visible on screen anyway &mdash; and the ranking wants tuning against real use we only had from one clinic.</p>
+        </div>
+        <div class="decision">
+          <h3>Minimal by subtraction, agreed every week</h3>
+          <span class="label">Why</span>
+          <p>Each feature had to survive one question from the consultant: does this get used on a real Tuesday? Anything that only survived on &bdquo;it would be nice" got cut, which is how the system stayed cheap to run and quick to learn.</p>
+          <span class="label">The trade-off</span>
+          <p>We shipped a tool with visible edges. Some genuinely useful things were deferred, and phase 2 inherited a backlog of them rather than a blank sheet.</p>
+        </div>
+        <div class="decision">
+          <h3>The family app is a data source, not a courtesy portal</h3>
+          <span class="label">Why</span>
+          <p>A clinic cannot observe a patient between appointments; the household can. Feeding routines and check-ins into the same record is what turns the app from a nice extra into the thing the clinical picture is built from.</p>
+          <span class="label">The trade-off</span>
+          <p>The record is only as good as the logging habit, and a mobile screen now carries clinical weight it would never carry in a consumer app. A missed week is a gap in the data, not a lapsed streak.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 08 — GDZIE TO DOSZŁO ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">08 &mdash; Where it got to</span>
+      <h2>Phase 1 went in. I didn&rsquo;t get to see phase 2.</h2>
+      <div class="prose">
+        <p>The clinic went live on phase 1: the patient management core, the clinic workspace and the family app, replacing a system that had been costing them more in a year than this one will cost in several. Phase 2 &mdash; deeper clinical tooling and the wider rollout &mdash; was scoped for the end of 2026. I left the company at the start of Q2 2026, so I handed this over rather than shipped it, and I am not going to claim outcomes I wasn&rsquo;t there to measure.</p>
+        <p>What I can claim is the shape of what went in: a clinic this size now runs on software it chose, instead of software it tolerated and paid enterprise rates for.</p>
+      </div>
+
+      <div class="prose aside-note">
+        <p><strong>What I&rsquo;d do differently.</strong> One thing. I would have put the family app in front of actual parents far earlier &mdash; we had excellent weekly access to a clinician and almost none to the people doing the daily logging, which is exactly backwards for the half of the product that lives in a household.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NASTĘPNY CASE STUDY ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">Next case study</span>
+      <a class="story" href="case-study-agyle.html">
+        <span class="story-media ph ph-3x2">
+          <img class="img-fit" src="assets/agyle/agyle-ed-card.png"
+               alt="Moduł Whiteboard systemu Agyle na tablecie, pokazany na limonkowym tle: ciemna mapa oddziału ratunkowego złożona ze stref i kafelków łóżek z nazwiskiem pacjenta, rozpoznaniem i czasem oczekiwania, obok otwarty panel akcji globalnych."
+               width="3980" height="2572" loading="lazy" decoding="async">
+          <span class="px-frame" aria-hidden="true"></span>
+        </span>
+        <div>
+          <span class="story-meta">Healthcare &middot; 2022&ndash;2026</span>
+          <h3>A huge, data-heavy healthcare ecosystem &mdash; for people who are counting seconds</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">NHS hospitals running a modular patient record while still working off paper, on interactions a nurse repeats hundreds of times a shift.</span></li>
+            <li><span class="label">What I did</span><span class="value">Led UX/UI across five modules &mdash; an ED Whiteboard legible from six metres, a two-site operational dashboard &mdash; and the design system underneath them.</span></li>
+            <li><span class="label">Result</span><span class="value">Five separately-built modules that read as one system, and seconds taken off the interactions that repeat all shift.</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== KONTAKT ===================== -->
+  <section id="contact">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">dsikoradesign@gmail.com</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:dsikoradesign@gmail.com">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a class="lnk" href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:dsikoradesign@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     PASEK PO ODERWANIU — logotyp ustępuje miejsca powrotowi
+     Klasa leci dopiero po ruszeniu strony w dół; na samej górze
+     pasek wygląda tak samo jak na stronie głównej.
+     ========================================================= -->
+<script>
+(() => {
+  const bar = document.querySelector('.bar');
+  const row = document.querySelector('.backlink-row');
+  if (!bar) return;
+
+  // 8px zapasu: gumowe odbicie przy krawędzi nie ma migać logotypem
+  const ustaw = () => bar.classList.toggle('is-stuck', window.scrollY > 8);
+  addEventListener('scroll', ustaw, { passive: true });
+  ustaw();                       // wejście z zakładki albo z kotwicy
+
+  // Wysokości paska i linku zależą od kroju i szerokości okna, więc
+  // pozycji parkowania nie da się wpisać w CSS na sztywno. Liczymy ją:
+  // połowa różnicy = równy odstęp nad linkiem i pod nim.
+  if (!row) return;
+  const srodkuj = () => {
+    const gora = Math.round((bar.offsetHeight - row.offsetHeight) / 2);
+    document.documentElement.style.setProperty('--backlink-top', gora + 'px');
+  };
+  addEventListener('resize', srodkuj);
+  addEventListener('load', srodkuj);   // po doczytaniu kroju wysokości się zmienią
+  srodkuj();
+})();
+</script>
+
+<!-- =========================================================
+     KARUZELA — ciągnięcie myszą
+     Palec i gładzik przewijają natywnie; brakuje tylko myszy, która
+     bez tego umie tu tylko kółko. Pointer Events, więc jedna ścieżka
+     dla wszystkiego, co ma kursor.
+     ========================================================= -->
+<script>
+(() => {
+  document.querySelectorAll('.reel').forEach(reel => {
+    let startX = 0, startScroll = 0, ciagnie = false;
+
+    reel.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'touch') return;   // dotyk ma własne przewijanie
+      ciagnie = true;
+      startX = e.clientX;
+      startScroll = reel.scrollLeft;
+      reel.setPointerCapture(e.pointerId);
+      reel.classList.add('is-dragging');
+    });
+
+    reel.addEventListener('pointermove', e => {
+      if (!ciagnie) return;
+      e.preventDefault();
+      reel.scrollLeft = startScroll - (e.clientX - startX);
+    });
+
+    const koniec = e => {
+      if (!ciagnie) return;
+      ciagnie = false;
+      reel.classList.remove('is-dragging');
+      if (reel.hasPointerCapture(e.pointerId)) reel.releasePointerCapture(e.pointerId);
+    };
+    reel.addEventListener('pointerup', koniec);
+    reel.addEventListener('pointercancel', koniec);
+  });
+})();
+</script>
+
+<script src="reveal.js"></script>
+<script src="count.js"></script>
+
+</body>
+</html>

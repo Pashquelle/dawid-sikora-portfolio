@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitemap - Profesjonalny Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 60px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 40px;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .canvas {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            padding: 80px 60px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Bloki */
+        .sitemap-box {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sitemap-box:hover rect {
+            filter: brightness(0.95);
+        }
+
+        .sitemap-box text {
+            pointer-events: none;
+        }
+
+        /* Legend i Info */
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-left: 4px solid #0066cc;
+        }
+
+        .info-card h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-card li {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.8;
+            padding: 6px 0;
+        }
+
+        .info-card.legend {
+            border-left-color: #f59e0b;
+        }
+
+        .info-card.actions {
+            border-left-color: #059669;
+        }
+
+        .info-card.nav {
+            border-left-color: #6a1b9a;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .color-home { background: #0066cc; }
+        .color-unique { background: #6a1b9a; }
+        .color-template { background: #f59e0b; }
+        .color-cta { background: #059669; }
+
+        .mobile-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 40px;
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .mobile-note strong {
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 Sitemap</h1>
+            <p>Architektura informacji – Portfolio Dawida Sikory</p>
+        </div>
+
+        <div class="canvas">
+            <svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+                <!-- DEFINICJE -->
+                <defs>
+                    <!-- Gradient dla strzałek -->
+                    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="#999" />
+                    </marker>
+                </defs>
+
+                <!-- STRZAŁKI NAWIGACJI (linie) -->
+                <!-- Od HOME do stron głównych -->
+                <line x1="700" y1="120" x2="280" y2="250" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line x1="700" y1="120" x2="700" y2="250" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line x1="700" y1="120" x2="1120" y2="250" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+
+                <!-- Od PROJECTS do TEMPLATE -->
+                <line x1="700" y1="330" x2="700" y2="450" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+
+                <!-- Od TEMPLATE do instancji -->
+                <line x1="700" y1="550" x2="300" y2="680" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line x1="700" y1="550" x2="700" y2="680" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line x1="700" y1="550" x2="1100" y2="680" stroke="#ddd" stroke-width="2" marker-end="url(#arrowhead)" />
+
+                <!-- Strzałki zwrotne (back navigation) -->
+                <line x1="200" y1="245" x2="620" y2="125" stroke="#ccc" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)" opacity="0.6" />
+                <line x1="780" y1="245" x2="780" y2="125" stroke="#ccc" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)" opacity="0.6" />
+                <line x1="1200" y1="245" x2="780" y2="125" stroke="#ccc" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)" opacity="0.6" />
+
+                <!-- LEVEL 1: HOME (ROOT) -->
+                <g class="sitemap-box">
+                    <rect x="580" y="20" width="240" height="100" rx="8" fill="#0066cc" stroke="#004a99" stroke-width="2" />
+                    <text x="700" y="55" font-size="18" font-weight="bold" fill="white" text-anchor="middle">HOME</text>
+                    <text x="700" y="80" font-size="13" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/ (Root)</text>
+                    <text x="700" y="105" font-size="11" fill="rgba(255,255,255,0.8)" text-anchor="middle">Entry Point</text>
+                </g>
+
+                <!-- LEVEL 2: STRONY GŁÓWNE -->
+
+                <!-- ABOUT -->
+                <g class="sitemap-box">
+                    <rect x="120" y="250" width="160" height="80" rx="8" fill="#6a1b9a" stroke="#4a0e78" stroke-width="2" />
+                    <text x="200" y="280" font-size="15" font-weight="bold" fill="white" text-anchor="middle">ABOUT</text>
+                    <text x="200" y="302" font-size="12" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/about</text>
+                    <text x="200" y="320" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Unique Page</text>
+                </g>
+
+                <!-- PROJECTS (CONTAINER) -->
+                <g class="sitemap-box">
+                    <rect x="580" y="250" width="240" height="80" rx="8" fill="#f59e0b" stroke="#d97706" stroke-width="2" />
+                    <text x="700" y="280" font-size="15" font-weight="bold" fill="white" text-anchor="middle">PROJECTS</text>
+                    <text x="700" y="302" font-size="12" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/projects</text>
+                    <text x="700" y="320" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Container</text>
+                </g>
+
+                <!-- CONTACT -->
+                <g class="sitemap-box">
+                    <rect x="1040" y="250" width="160" height="80" rx="8" fill="#059669" stroke="#047857" stroke-width="2" />
+                    <text x="1120" y="280" font-size="15" font-weight="bold" fill="white" text-anchor="middle">CONTACT</text>
+                    <text x="1120" y="302" font-size="12" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/contact</text>
+                    <text x="1120" y="320" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">CTA Primary</text>
+                </g>
+
+                <!-- LEVEL 3: TEMPLATE -->
+                <g class="sitemap-box">
+                    <rect x="540" y="450" width="320" height="100" rx="8" fill="#f59e0b" stroke="#d97706" stroke-width="3" stroke-dasharray="8,4" />
+                    <text x="700" y="485" font-size="16" font-weight="bold" fill="white" text-anchor="middle">PROJECT TEMPLATE</text>
+                    <text x="700" y="510" font-size="12" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/projects/[project-slug]</text>
+                    <text x="700" y="533" font-size="11" fill="rgba(255,255,255,0.8)" text-anchor="middle">Template – Reusable Pattern</text>
+                </g>
+
+                <!-- LEVEL 4: INSTANCJE TEMPLATE'U -->
+
+                <!-- Project 1 -->
+                <g class="sitemap-box">
+                    <rect x="180" y="680" width="140" height="60" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="2" opacity="0.8" />
+                    <text x="250" y="708" font-size="13" font-weight="bold" fill="white" text-anchor="middle">PROJECT 1</text>
+                    <text x="250" y="728" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/projects/...</text>
+                </g>
+
+                <!-- Project 2 -->
+                <g class="sitemap-box">
+                    <rect x="630" y="680" width="140" height="60" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="2" opacity="0.8" />
+                    <text x="700" y="708" font-size="13" font-weight="bold" fill="white" text-anchor="middle">PROJECT 2</text>
+                    <text x="700" y="728" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/projects/...</text>
+                </g>
+
+                <!-- Project N -->
+                <g class="sitemap-box">
+                    <rect x="1080" y="680" width="140" height="60" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="2" opacity="0.8" />
+                    <text x="1150" y="708" font-size="13" font-weight="bold" fill="white" text-anchor="middle">PROJECT N</text>
+                    <text x="1150" y="728" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-family="monospace">/projects/...</text>
+                </g>
+
+                <!-- Etykiety poziomów -->
+                <text x="30" y="70" font-size="12" font-weight="bold" fill="#666" opacity="0.6">LEVEL 1</text>
+                <text x="30" y="295" font-size="12" font-weight="bold" fill="#666" opacity="0.6">LEVEL 2</text>
+                <text x="30" y="500" font-size="12" font-weight="bold" fill="#666" opacity="0.6">LEVEL 3</text>
+                <text x="30" y="710" font-size="12" font-weight="bold" fill="#666" opacity="0.6">LEVEL 4</text>
+            </svg>
+        </div>
+
+        <!-- LEGENDA I INFORMACJE -->
+        <div class="info-section">
+            <!-- LEGENDA KOLORÓW -->
+            <div class="info-card legend">
+                <h3>🎨 Typy stron</h3>
+                <div class="legend-item">
+                    <div class="legend-color color-home"></div>
+                    <span><strong>Home/Root</strong> – Strona główna, entry point</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color color-unique"></div>
+                    <span><strong>Unique Page</strong> – Strona unikalna (About)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color color-template"></div>
+                    <span><strong>Template</strong> – Szablon powtarzalny (Projects)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color color-cta"></div>
+                    <span><strong>CTA Primary</strong> – Główna akcja konwersji</span>
+                </div>
+            </div>
+
+            <!-- GŁÓWNE AKCJE -->
+            <div class="info-card actions">
+                <h3>🎯 Główne konwersje (CTA)</h3>
+                <ul>
+                    <li><strong>①</strong> Kliknięcie na projekt → /projects/[slug]</li>
+                    <li><strong>②</strong> Kliknięcie na email → Formularz/Link na /contact</li>
+                    <li><strong>Tracking:</strong> Views per project + Email clicks</li>
+                </ul>
+            </div>
+
+            <!-- NAWIGACJA -->
+            <div class="info-card nav">
+                <h3>🔗 Nawigacja & Linki</h3>
+                <ul>
+                    <li><strong>Header Nav:</strong> Home → Projects → About → Contact</li>
+                    <li><strong>Footer:</strong> Email, LinkedIn, GitHub</li>
+                    <li><strong>Back links:</strong> Z każdej podstrony do Home</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- NOTATKA -->
+        <div class="mobile-note">
+            <strong>💡 Ważne:</strong> Diagram pokazuje hierarchię nawigacji (linie pełne) i możliwość powrotu (linie przerywane). Template /projects/[slug] jest linią przerywaną, co oznacza że każdy projekt ma tę samą strukturę. Instancje projektów (Project 1, 2, N) są generowane z tego szablonu.
+        </div>
+    </div>
+</body>
+</html>

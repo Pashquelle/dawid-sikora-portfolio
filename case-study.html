@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fikołki — a family membership app built from nothing — Dawid Sikora</title>
+<meta name="description" content="Case study: designing the Fikołki app for a new business model — QR gates, three subscription tiers, a family tree and on-site points, from an empty canvas.">
+
+<!--
+  ============================================================
+  Dawid Sikora — case study
+  ============================================================
+  Kierunek wizualny: „Panel danych" — context/reference.html
+  Tokeny i reguły:   DESIGN.md
+  Treść i struktura: context/case-study.html (wireframe)
+
+  System wizualny siedzi w style.css, wspólnym z index.html.
+  Tutaj zostają wyłącznie komponenty istniejące tylko na tej
+  podstronie: nagłówek case study, rozdziały, ustalenia, decyzje
+  i wynik.
+
+  Miejsca [DO UZUPEŁNIENIA — …] pochodzą z wireframe'u i czekają
+  na prawdziwe dane. Lorem ipsum nie używamy (DESIGN.md §7).
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+  /* =========================================================
+     PASEK PRZYKLEJONY — tylko na case study
+     ---------------------------------------------------------
+     Na podstronie czytanej od góry do dołu powrót do prac musi być
+     pod ręką przez całą lekturę, nie tylko na starcie. Pasek ma
+     własne tło i linię nośną, więc treść pod nim nie prześwituje.
+     z-index wyżej niż dymki cech w hero (te mają 2).
+     ========================================================= */
+  .bar{ position:sticky; top:0; z-index:30; }
+
+  /* Po oderwaniu się od góry strony logotyp znika, a powrót zajmuje
+     jego miejsce w lewym rogu. Klasę dokłada skrypt na dole strony;
+     bez niego pasek po prostu zostaje z logotypem. Przełączenie jest
+     twarde, bez przenikania — tak jak reszta tej strony. */
+  .bar.is-stuck .brandmark{ display:none; }
+
+  /* =========================================================
+     POWRÓT DO PRAC — jedzie z treścią i parkuje w pasku
+     ---------------------------------------------------------
+     Link zostaje tam, gdzie stoi w wireframie: w kolumnie treści,
+     nad tytułem. Przy przewijaniu przykleja się do góry i wjeżdża
+     w pasek — bez przeskoku w bok, bo przez cały czas siedzi w .wrap,
+     więc trzyma ten sam margines co H1 pod nim.
+
+     padding-top rzędu = górny padding paska, dzięki czemu po
+     zaparkowaniu link siada równo w linii linków nawigacji.
+
+     pointer-events: rząd jest szeroki na całą stronę i po zaparkowaniu
+     leży na pasku — bez tego zjadałby kliknięcia w nawigację i w CTA.
+     ========================================================= */
+  /* Górny oddech strony bierze <main>, nie ten rząd: padding rodzica
+     nie rusza pozycji parkowania, a margines na samym rzędzie owszem —
+     przykleiłby się o tyle niżej, bo sticky liczy się od marginesu. */
+  main{ padding-top:var(--space-16); }
+  .backlink-row{
+    /* display:flex, żeby wysokość rzędu równała się wysokości linku —
+       przy inline-block doszedłby jeszcze luz pod linią bazową i środek
+       wypadłby za nisko */
+    display:flex; align-items:center;
+    /* --backlink-top liczy skrypt na dole strony: połowa różnicy między
+       wysokością paska a wysokością linku, czyli równo góra i dół.
+       Zapas 16px działa, gdyby skryptu zabrakło. */
+    position:sticky; top:var(--backlink-top, var(--space-4)); z-index:31;
+    margin-bottom:var(--space-8);
+    pointer-events:none;
+  }
+  .backlink{
+    pointer-events:auto;
+    display:inline-block; text-decoration:none; white-space:nowrap;
+    padding:var(--space-1);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .backlink:hover{ background:var(--accent); color:var(--accent-ink); }
+
+  /* Powrót dostaje tę samą rozsypkę co przyciski i linki tertiary —
+     limonka przybywa pikselami, nie od razu. Sprite i geometria wspólne
+     z systemem (style.css), stąd gotowe klatki btn-dissolve.
+     Skrót `background` wyżej zeruje podwłasności tła, więc sprite,
+     rozmiar i powtarzanie muszą stać tutaj komplenie. */
+  @media (prefers-reduced-motion:no-preference){
+    .backlink:hover{
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+      /* napis ciemnieje, gdy limonki jest już dość pod spodem */
+      transition:color 0s .3s;
+    }
+  }
+
+  /* =========================================================
+     NAGŁÓWEK CASE STUDY
+     ---------------------------------------------------------
+     Zamiast hero z dwiema komórkami: tytuł, zajawka i pasek
+     metadanych. Pasek to ta sama tabela co w hero, tylko rozłożona
+     w poziomie — cztery kolumny rozdzielone linią porządkującą.
+     ========================================================= */
+  /* padding-bottom, nie skrót: .case-head siedzi na tym samym elemencie
+     co .wrap, a skrót wyzerowałby jego boczny --gutter i cały nagłówek
+     stałby o jedno wcięcie na lewo od reszty strony */
+  .case-head{ padding-bottom:var(--space-24); }
+  .case-head h1{ margin:0 0 var(--space-8); }
+  .case-head .lead{ max-width:68ch; }
+
+  .case-meta{
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    margin:var(--space-16) 0 0;   /* dl ma własny margines domyślny */
+    border-top:var(--border-width) solid var(--line-strong);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-meta > div{ padding:var(--space-4) var(--space-6) var(--space-4) 0; }
+  .case-meta > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-meta dt{
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted); margin-bottom:var(--space-2);
+  }
+  .case-meta dd{ margin:0; font-size:var(--text-small); font-weight:500; }
+
+  /* =========================================================
+     WYNIK NA GÓRZE — do trzech liczb pod paskiem metadanych
+     ---------------------------------------------------------
+     Rekruter skanuje i w większości nie dojedzie do sekcji 05.
+     Ten pasek podaje twarde liczby od razu; pełny kontekst,
+     koszty decyzji i „co zrobiłbym inaczej" zostają na dole —
+     to powtórzenie, nie przeniesienie.
+
+     Bez własnego border-top: pasek dokleja się do dolnej linii
+     .case-meta, więc obie tabele czytają się jak jeden blok.
+     Liczby są mniejsze niż w .outcome (h3, nie h2) — na górze
+     mają wspierać nagłówek, a nie z nim konkurować.
+
+     Trzy kafelki to sufit, nie cel. Przy dwóch zostaw dwa:
+     grid-auto-columns trzyma równą szerokość niezależnie od
+     liczby elementów, więc nic się nie rozjedzie.
+     ========================================================= */
+  .case-results{
+    display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+    margin:0;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-results > div{ padding:var(--space-6) var(--space-6) var(--space-6) 0; }
+  .case-results > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-results dt{
+    font-size:var(--text-h3); font-weight:700; line-height:1.25;
+    letter-spacing:-.02em; margin-bottom:var(--space-2);
+  }
+  .case-results dd{
+    margin:0; font-size:var(--text-small); color:var(--text-soft);
+    max-width:32ch;
+  }
+
+  /* =========================================================
+     ROZDZIAŁY
+     ---------------------------------------------------------
+     Padding sekcji i linię zamykającą biorą z <section> w style.css,
+     odstęp H2 do treści też. Tutaj tylko wnętrze rozdziału.
+     ========================================================= */
+  .prose{ max-width:68ch; }            /* DESIGN.md §3: maks. długość wiersza */
+  .prose p{ color:var(--text-soft); }
+  .prose p + p{ margin-top:var(--space-8); }
+
+  /* Cytat: pole akcentu nad tekstem, jak pasek w dymkach cech.
+     Akcent jest wypełnieniem, nigdy kolorem liter (DESIGN.md §2). */
+  .pull{ margin:var(--space-16) 0 0; max-width:44ch; }
+  .pull::before{
+    content:''; display:block; width:80px; height:10px;
+    margin-bottom:var(--space-5);
+    background:var(--accent);
+    border:var(--border-width) solid var(--line-strong);
+  }
+  .pull p{
+    margin:0; font-size:var(--text-h3); font-weight:400; line-height:1.45;
+    color:var(--text);
+  }
+  .pull-source{
+    display:block; margin-top:var(--space-4);
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+
+  .figure{ margin:var(--space-16) 0 0; }
+  .figure figcaption{
+    margin-top:var(--space-3);
+    font-size:var(--text-label); color:var(--text-muted);
+  }
+
+  /* =========================================================
+     KARUZELA MAKIET
+     ---------------------------------------------------------
+     Rząd ekranów wychodzi poza kolumnę tekstu i urywa się na krawędzi
+     okna. Ucięcie jest tu komunikatem: dalej jest więcej, da się
+     przeciągnąć. Marginesy procentowe liczą się od szerokości .wrap,
+     więc (50% − 50vw) to dokładnie dystans od prawej krawędzi kolumny
+     do krawędzi ekranu — przy każdej szerokości, też powyżej 1280px.
+     ========================================================= */
+  .reel{
+    margin-right:calc(50% - 50vw);
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    cursor:grab;
+    scrollbar-width:none;                 /* pasek zastępuje sam kadr */
+  }
+  .reel::-webkit-scrollbar{ display:none; }
+  .reel:focus-visible{ outline:var(--border-width) solid var(--line-strong); outline-offset:4px; }
+  .reel.is-dragging{ cursor:grabbing; }
+  .reel img{
+    display:block; width:auto; max-width:none;
+    height:clamp(300px, 38vw, 480px);
+    user-select:none; -webkit-user-drag:none;
+  }
+  /* W trakcie ciągnięcia kursor nie ma łapać tekstu ani obrazka. */
+  .reel.is-dragging img{ pointer-events:none; }
+
+  /* Wątek po ilustracji zaczyna się od nowa, więc dostaje pełny odstęp
+     rozdziału, nie światło międzyakapitowe. */
+  .figure + .prose, .figure + .subhead{ margin-top:var(--space-20); }
+
+  /* Podtytuł wewnątrz rozdziału. Bez kreski: rozdziały są już zamknięte
+     liniami sekcji, kolejny separator tylko siekałby stronę. */
+  .subhead{
+    margin:var(--space-16) 0 var(--space-8);
+    max-width:68ch;
+  }
+  .subhead + .prose{ margin-top:0; }
+
+  /* Ustalenia z badań — wiersz po wierszu, jak .facts w kartach prac. */
+  /* ol nie jest objęte resetem ul w style.css — stąd padding i margin tutaj */
+  .findings{ list-style:none; padding:0; counter-reset:f; margin:var(--space-16) 0 0; }
+  .findings li{
+    counter-increment:f;
+    display:grid; grid-template-columns:4rem 1fr; gap:var(--space-6);
+    padding:var(--space-6) 0;
+    border-top:var(--border-width) solid var(--line);
+  }
+  .findings li:last-child{ border-bottom:var(--border-width) solid var(--line); }
+  .findings li::before{
+    content:counter(f, decimal-leading-zero);
+    font-size:var(--text-h3); font-weight:700; color:var(--text-muted);
+  }
+  .findings h3{ margin-bottom:var(--space-3); }
+  .findings p{ font-size:var(--text-body); color:var(--text-soft); }
+
+
+  /* Zakres prac — trzy fazy w jednym rzędzie.
+     Bez ramek i zaokrągleń: fazę zamyka linia nośna u góry,
+     a pozycje w środku rozdziela --line, tak jak wiersze .facts.
+     Strzałka siedzi na pionowej linii i przebija ją tłem, więc
+     kierunek czyta się bez dodatkowej grafiki. */
+  .scope{ list-style:none; padding:0; display:grid; grid-template-columns:repeat(3, 1fr); margin:var(--space-16) 0 0; }
+  .scope-phase{
+    position:relative;
+    border-top:var(--border-width) solid var(--line-strong);
+    padding:var(--space-5) var(--space-6) 0 0;
+  }
+  .scope-phase + .scope-phase{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  /* Strzałka między fazami. Rysowana z CSS, więc nie trafia do drzewa
+     dostępności — kolejność faz niesie sama struktura listy. */
+  .scope-phase + .scope-phase::before{
+    content:"\2192";
+    position:absolute; left:0; top:var(--space-10);
+    transform:translate(-50%, -50%);
+    background:var(--bg); color:var(--text-muted);
+    padding:var(--space-2) var(--space-1);
+    font-size:var(--text-small); line-height:1;
+  }
+  .scope-no{
+    display:block; font-size:var(--text-micro); font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted);
+    margin-bottom:var(--space-2);
+  }
+  .scope-phase h3{ margin:0 0 var(--space-5); }
+  .scope-phase ul{ list-style:none; margin:0; padding:0; }
+  .scope-phase li{
+    font-size:var(--text-small); color:var(--text-soft);
+    padding:var(--space-3) 0;
+    border-top:var(--border-width) solid var(--line);
+  }
+  .scope-phase li:last-child{ border-bottom:var(--border-width) solid var(--line); }
+
+  /* Decyzje — trzy kolumny otwarte linią nośną, jak kroki procesu. */
+  .decisions{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-12);
+    margin-top:var(--space-16);
+  }
+  /* Subgrid: pięć wierszy karty (tytuł, WHY, treść, TRADE-OFF, treść)
+     dzieli wysokości między kolumnami. Bez tego dwuwierszowy tytuł
+     w jednej kolumnie zsuwa jej podnagłówki w dół i rząd się rozjeżdża.
+     Rytm pionowy robi teraz row-gap, nie marginesy między blokami —
+     każdy wiersz jest wysoki na najwyższą ze swoich trzech komórek. */
+  .decision{
+    display:grid; grid-template-rows:subgrid; grid-row:span 5;
+    row-gap:var(--space-2);
+    border-top:var(--border-width) solid var(--line-strong); padding-top:var(--space-6);
+  }
+  .decision h3{ margin:0; }
+  .decision .label{
+    /* Gap trzyma etykietę blisko jej akapitu (8px); margines dokłada
+       światło nad nią, żeby para odklejała się od poprzedniego bloku.
+       Margines jest w każdej kolumnie ten sam, więc wiersz pozostaje równy. */
+    display:block; margin:var(--space-4) 0 0;
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .decision p{ font-size:var(--text-body); color:var(--text-soft); }
+
+  /* Wynik — liczby są tu treścią, więc dostają rangę nagłówka. */
+  .outcome{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-12);
+    margin-top:var(--space-16);
+  }
+  .outcome .num{
+    display:block; font-size:var(--text-h2); font-weight:700; line-height:1.25;
+    letter-spacing:-.03em;
+    padding-bottom:var(--space-4); margin-bottom:var(--space-4);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .outcome p{ font-size:var(--text-body); color:var(--text-soft); }
+
+  .aside-note{ margin-top:var(--space-16); }
+  .aside-note strong{ font-weight:700; color:var(--text); }
+
+  @media (max-width:880px){
+    main{ padding-top:var(--space-12); }
+    .case-head{ padding-bottom:var(--space-20); }
+    .case-meta{ grid-template-columns:repeat(2, 1fr); }
+    .case-meta > div:nth-child(odd){ border-left:0; padding-left:0; }
+    .case-meta > div:nth-child(n+3){ border-top:var(--border-width) solid var(--line); }
+    /* Liczby schodzą w kolumnę: na wąskim ekranie trzy obok siebie
+       łamałyby podpisy po jednym słowie w linii. */
+    .case-results{ grid-auto-flow:row; }
+    .case-results > div + div{
+      border-left:0; padding-left:0;
+      border-top:var(--border-width) solid var(--line);
+    }
+    .decisions, .outcome{ grid-template-columns:1fr; }
+    .findings li{ grid-template-columns:1fr; gap:var(--space-2); }
+
+    /* Fazy schodzą w kolumnę, strzałka obraca się w dół i przenosi
+       na poziomą krawędź, bo pionowa linia między fazami tu znika. */
+    .scope{ grid-template-columns:1fr; }
+    .scope-phase{ padding-right:0; }
+    .scope-phase + .scope-phase{
+      border-left:0; padding-left:0;
+      margin-top:var(--space-12);
+    }
+    .scope-phase + .scope-phase::before{
+      content:"\2193";
+      left:var(--space-6); top:0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Logotyp w brandmarku. Inline, bo zewnętrzny plik SVG nie doczytuje
+     się przy otwarciu strony z dysku; fill idzie z currentColor. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="l-brand" viewBox="0 0 727 104">
+    <path d="M726.812 90.8199H721.065C718.975 90.8199 717.146 90.4716 715.578 89.7749C714.011 89.0782 712.791 87.9461 711.921 86.3785C711.05 84.811 710.614 82.7209 710.614 80.1083V52.4151L710.353 49.4106C710.353 44.708 709.177 41.0503 706.826 38.4378C704.562 35.8252 700.861 34.5189 695.723 34.5189C691.02 34.5189 687.014 35.6946 683.705 38.0459C680.395 40.3972 677.914 43.3146 676.259 46.798L670.25 40.7891C671.556 38.6119 673.429 36.4348 675.867 34.2577C678.305 32.0805 681.266 30.2952 684.75 28.9019C688.233 27.5085 692.196 26.8118 696.637 26.8118C703.952 26.8118 709.482 28.8148 713.227 32.8207C716.972 36.7396 718.844 42.226 718.844 49.28V78.6714C718.844 80.3261 719.192 81.5017 719.889 82.1984C720.673 82.808 721.805 83.1128 723.285 83.1128H726.812V90.8199ZM687.885 92.1262C682.747 92.1262 678.741 90.8634 675.867 88.338C673.08 85.7254 671.687 82.329 671.687 78.1489C671.687 74.0559 673.08 70.6595 675.867 67.9599C678.654 65.1731 682.224 62.7783 686.579 60.7753L711.921 49.28L713.096 55.1583L690.236 66.0004C686.84 67.568 684.314 69.2226 682.66 70.9643C681.092 72.619 680.308 74.6219 680.308 76.9733C680.308 79.5858 681.179 81.5888 682.921 82.9822C684.75 84.2885 687.232 84.9416 690.367 84.9416C693.241 84.9416 695.897 84.4626 698.335 83.5047C700.861 82.4597 703.038 81.1098 704.867 79.4552C706.695 77.7135 708.089 75.8411 709.047 73.8382C710.092 71.7481 710.614 69.6145 710.614 67.4374L710.876 72.14C710.353 75.2751 709.09 78.4102 707.087 81.5453C705.171 84.5933 702.559 87.1188 699.25 89.1217C696.027 91.1247 692.239 92.1262 687.885 92.1262Z"/>
+    <path d="M631.541 90.8199H622.92V28.1181H631.541V90.8199ZM631.541 54.5051L630.758 50.325C631.019 47.3641 631.629 44.4902 632.586 41.7035C633.631 38.8297 635.025 36.2606 636.767 33.9964C638.508 31.7322 640.598 29.9469 643.037 28.6406C645.562 27.3343 648.393 26.6812 651.528 26.6812C655.185 26.6812 658.32 27.8568 660.933 30.2082C663.545 32.4724 664.852 35.7381 664.852 40.0053C664.852 42.2695 664.59 44.3596 664.068 46.2755C663.633 48.1914 663.11 49.6718 662.5 50.7169H653.226C654.097 49.6718 654.837 48.2785 655.446 46.5368C656.143 44.7079 656.491 42.8356 656.491 40.9197C656.491 38.9167 655.882 37.1315 654.663 35.5639C653.444 33.9964 651.353 33.2126 648.393 33.2126C645.345 33.2126 642.514 34.2576 639.902 36.3477C637.289 38.3507 635.243 41.0068 633.762 44.3161C632.282 47.5382 631.541 50.9346 631.541 54.5051Z"/>
+    <path d="M578.478 92.1262C572.817 92.1262 567.766 90.7764 563.325 88.0767C558.883 85.377 555.4 81.5888 552.874 76.712C550.436 71.7481 549.217 66.0004 549.217 59.469C549.217 52.7634 550.436 46.9722 552.874 42.0954C555.4 37.2186 558.883 33.4739 563.325 30.8613C567.766 28.1616 572.817 26.8118 578.478 26.8118C584.225 26.8118 589.32 28.1616 593.761 30.8613C598.203 33.4739 601.642 37.2186 604.081 42.0954C606.606 46.9722 607.869 52.7634 607.869 59.469C607.869 66.0004 606.606 71.7481 604.081 76.712C601.642 81.5888 598.203 85.377 593.761 88.0767C589.32 90.7764 584.225 92.1262 578.478 92.1262ZM578.478 84.811C582.658 84.811 586.272 83.853 589.32 81.9371C592.455 80.0213 594.893 77.191 596.635 73.4463C598.377 69.6145 599.248 64.9554 599.248 59.469C599.248 53.8955 598.377 49.2364 596.635 45.4917C594.893 41.6599 592.455 38.7861 589.32 36.8702C586.272 34.8673 582.658 33.8658 578.478 33.8658C574.472 33.8658 570.901 34.8673 567.766 36.8702C564.631 38.7861 562.193 41.6599 560.451 45.4917C558.709 49.2364 557.838 53.8955 557.838 59.469C557.838 64.9554 558.709 69.6145 560.451 73.4463C562.193 77.191 564.631 80.0213 567.766 81.9371C570.901 83.853 574.472 84.811 578.478 84.811Z"/>
+    <path d="M504.108 0.384613H514.157V10.433H504.108V0.384613ZM504.108 60.6748H514.157V70.7232H504.108V80.7715H494.06V10.433H504.108V60.6748ZM534.254 30.5297H544.302V40.5781H534.254V30.5297ZM524.205 40.5781H534.254V50.6264H524.205V40.5781ZM514.157 50.6264H524.205V60.6748H514.157V50.6264ZM524.205 60.6748H534.254V80.7715H524.205V60.6748ZM484.012 80.7715H494.06V90.8199H484.012V80.7715ZM504.108 80.7715H514.157V90.8199H504.108V80.7715ZM534.254 80.7715H544.302V90.8199H534.254V80.7715Z"/>
+    <path d="M464.813 16.884H456.191V3.29865H464.813V16.884ZM464.813 90.8199H456.191V28.1181H464.813V90.8199Z"/>
+    <path d="M412.332 91.9955C407.107 91.9955 402.012 91.2553 397.048 89.7749C392.172 88.2073 387.861 85.7689 384.116 82.4596C380.458 79.0633 377.672 74.6655 375.756 69.2661L382.418 63.5185C383.811 68.5695 386.119 72.5754 389.341 75.5363C392.651 78.4972 396.352 80.6744 400.445 82.0678C404.538 83.3741 408.5 84.0272 412.332 84.0272C415.902 84.0272 419.212 83.5047 422.26 82.4596C425.308 81.4146 427.746 79.76 429.575 77.4958C431.491 75.2315 432.449 72.2706 432.449 68.613C432.449 65.1296 431.665 62.3428 430.097 60.2528C428.53 58.0756 426.222 56.3339 423.174 55.0276C420.126 53.7213 416.381 52.5457 411.94 51.5006L402.404 49.4106C399.356 48.7139 396.395 47.7995 393.521 46.6674C390.648 45.5353 388.079 44.0983 385.814 42.3566C383.55 40.6149 381.721 38.3942 380.328 35.6946C379.022 32.9949 378.368 29.7292 378.368 25.8974C378.368 20.6723 379.675 16.318 382.287 12.8345C384.987 9.26401 388.47 6.60789 392.738 4.86617C397.092 3.03737 401.707 2.12297 406.584 2.12297C414.596 2.12297 421.476 3.86468 427.224 7.34811C433.058 10.8315 437.238 15.8825 439.764 22.5011L432.579 28.2487C430.576 22.0656 427.311 17.5372 422.782 14.6633C418.254 11.7024 412.811 10.222 406.454 10.222C402.883 10.222 399.661 10.8316 396.787 12.0508C394 13.27 391.736 14.9681 389.994 17.1453C388.253 19.3224 387.382 22.0221 387.382 25.2443C387.382 30.034 388.906 33.6045 391.954 35.9558C395.089 38.22 399.487 40.0489 405.147 41.4422L415.467 43.9242C418.776 44.7079 421.955 45.7094 425.003 46.9286C428.138 48.0607 430.881 49.5412 433.233 51.37C435.671 53.1988 437.587 55.5066 438.98 58.2933C440.374 60.993 441.07 64.3458 441.07 68.3517C441.07 73.4027 439.764 77.7135 437.151 81.284C434.626 84.7674 431.186 87.4235 426.832 89.2524C422.564 91.0812 417.731 91.9955 412.332 91.9955Z"/>
+    <path d="M302.106 92.2568C296.707 92.2568 292.048 90.907 288.129 88.2073C284.297 85.5077 281.293 81.7194 279.116 76.8426C277.026 71.8787 275.98 66.0875 275.98 59.469C275.98 52.8505 277.026 47.1028 279.116 42.226C281.293 37.3492 284.297 33.561 288.129 30.8613C292.048 28.1617 296.707 26.8118 302.106 26.8118C306.809 26.8118 310.684 27.9004 313.732 30.0775C316.867 32.1676 319.219 34.9543 320.786 38.4378C322.441 41.8341 323.399 45.4917 323.66 49.4106L323.137 53.5907C323.137 50.1073 322.484 46.8851 321.178 43.9242C319.872 40.9633 317.869 38.5684 315.169 36.7396C312.469 34.9108 308.986 33.9964 304.719 33.9964C299.058 33.9964 294.312 36.0429 290.48 40.136C286.648 44.229 284.733 50.6733 284.733 59.469C284.733 68.2647 286.648 74.7526 290.48 78.9327C294.312 83.0257 299.058 85.0722 304.719 85.0722C308.986 85.0722 312.469 84.1578 315.169 82.329C317.869 80.5002 319.872 78.1054 321.178 75.1445C322.484 72.0965 323.137 68.8307 323.137 65.3473L323.66 69.658C323.399 73.5769 322.441 77.2345 320.786 80.6309C319.219 84.0272 316.867 86.814 313.732 88.9911C310.684 91.1683 306.809 92.2568 302.106 92.2568ZM331.628 90.8199H323.137V3.29865H331.628V90.8199Z"/>
+    <path d="M261.342 16.884H252.721V3.29865H261.342V16.884ZM261.342 90.8199H252.721V28.1181H261.342V90.8199Z"/>
+    <path d="M153.201 30.5297H163.249V40.5781H153.201V30.5297ZM173.297 30.5297H193.394V40.5781H173.297V30.5297ZM203.443 30.5297H223.539V40.5781H203.443V30.5297ZM233.588 30.5297H243.636V40.5781H233.588V30.5297ZM143.152 40.5781H153.201V50.6264H143.152V40.5781ZM173.297 80.7715H163.249V40.5781H173.297V80.7715ZM203.443 80.7715H193.394V40.5781H203.443V80.7715ZM223.539 40.5781H233.588V80.7715H223.539V40.5781ZM153.201 80.7715H163.249V90.8199H153.201V80.7715ZM173.297 80.7715H193.394V90.8199H173.297V80.7715ZM203.443 80.7715H223.539V90.8199H203.443V80.7715Z"/>
+    <path d="M137.412 90.8199H131.664C129.574 90.8199 127.745 90.4716 126.178 89.7749C124.61 89.0782 123.391 87.9461 122.52 86.3785C121.649 84.811 121.214 82.7209 121.214 80.1083V52.4151L120.953 49.4106C120.953 44.708 119.777 41.0503 117.426 38.4378C115.161 35.8252 111.46 34.5189 106.322 34.5189C101.62 34.5189 97.6136 35.6946 94.3044 38.0459C90.9951 40.3972 88.5132 43.3146 86.8585 46.798L80.8496 40.7891C82.1559 38.6119 84.0282 36.4348 86.4666 34.2577C88.9051 32.0805 91.866 30.2952 95.3494 28.9019C98.8328 27.5085 102.795 26.8118 107.237 26.8118C114.552 26.8118 120.082 28.8148 123.826 32.8207C127.571 36.7396 129.444 42.226 129.444 49.28V78.6714C129.444 80.3261 129.792 81.5017 130.489 82.1984C131.272 82.808 132.404 83.1128 133.885 83.1128H137.412V90.8199ZM98.4845 92.1262C93.3464 92.1262 89.3405 90.8634 86.4666 88.338C83.6799 85.7254 82.2865 82.329 82.2865 78.1489C82.2865 74.0559 83.6799 70.6595 86.4666 67.9599C89.2534 65.1731 92.8239 62.7783 97.1782 60.7753L122.52 49.28L123.696 55.1583L100.836 66.0004C97.4395 67.568 94.914 69.2226 93.2593 70.9643C91.6918 72.619 90.908 74.6219 90.908 76.9733C90.908 79.5858 91.7789 81.5888 93.5206 82.9822C95.3494 84.2885 97.8314 84.9416 100.966 84.9416C103.84 84.9416 106.496 84.4626 108.935 83.5047C111.46 82.4597 113.637 81.1098 115.466 79.4552C117.295 77.7135 118.688 75.8411 119.646 73.8382C120.691 71.7481 121.214 69.6145 121.214 67.4374L121.475 72.14C120.953 75.2751 119.69 78.4102 117.687 81.5453C115.771 84.5933 113.158 87.1188 109.849 89.1217C106.627 91.1247 102.839 92.1262 98.4845 92.1262Z"/>
+    <path d="M28.869 90.8199H3.00446V83.2434H27.6933C34.9214 83.2434 41.0174 81.9807 45.9813 79.4552C50.9452 76.9297 54.7334 73.0109 57.346 67.6986C59.9586 62.3864 61.2649 55.5066 61.2649 47.0593C61.2649 38.612 59.9586 31.7322 57.346 26.4199C54.7334 21.1077 50.9452 17.1888 45.9813 14.6633C41.0174 12.1379 34.9214 10.8751 27.6933 10.8751H3.00446V3.29865H28.869C38.1001 3.29865 45.7636 5.04036 51.8596 8.52379C57.9556 11.9201 62.4841 16.884 65.445 23.4155C68.493 29.9469 70.017 37.8282 70.017 47.0593C70.017 56.2904 68.493 64.1716 65.445 70.7031C62.4841 77.2345 57.9556 82.242 51.8596 85.7254C45.7636 89.1217 38.1001 90.8199 28.869 90.8199ZM8.6215 90.8199H0V3.29865H8.6215V90.8199Z"/>
+  </symbol>
+</svg>
+
+<header class="bar">
+  <a class="brandmark" href="index.html">
+    <svg class="brandmark-logo" aria-hidden="true"><use href="#l-brand"/></svg>
+    <span class="brandmark-text">Dawid Sikora</span>
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#process">Process</a></li>
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-sm" href="mailto:dsikoradesign@gmail.com">Email me</a>
+</header>
+
+<main>
+
+  <!-- Powrót: startuje w treści, przy przewijaniu parkuje w pasku. -->
+  <div class="wrap backlink-row">
+    <a class="backlink" href="index.html#work">&larr; All work</a>
+  </div>
+
+  <!-- ===================== NAGŁÓWEK ===================== -->
+  <div class="wrap case-head">
+    <h1>Four new business mechanics, and no app to run them on</h1>
+    <p class="lead">Fikołki was changing how its play centres make money: QR gates at the entrance instead of a queue at the desk, three subscription tiers instead of single tickets, a family tree so one parent can hold every kid in one place, and points earned on entry and spent at the counter. Four mechanics, shipping together, and no app to carry any of them. I started from an empty canvas.</p>
+
+    <dl class="case-meta">
+      <div><dt>My role</dt><dd>UX/UI Designer, 0&ndash;1</dd></div>
+      <div><dt>Timeline</dt><dd>2025 &middot; 1 month</dd></div>
+      <div><dt>Team</dt><dd>2 designers</dd></div>
+      <div><dt>Tools</dt><dd>Figma, FigJam</dd></div>
+    </dl>
+
+    <!-- Maksymalnie trzy. Czwarta liczba nie dokłada dowodu, tylko
+         rozcieńcza trzy pierwsze. Kafelka bez prawdziwej liczby
+         nie zostawiaj — pusty wynik na górze szkodzi bardziej niż
+         jego brak; wtedy po prostu usuń <div>. -->
+    <dl class="case-results">
+      <div>
+        <dt>10.5k</dt>
+        <dd>Subscriptions sold through the app.</dd>
+      </div>
+      <div>
+        <dt>&minus;47%</dt>
+        <dd>Fewer enquiries to reception about organising a birthday party.</dd>
+      </div>
+      <div>
+        <dt>+13%</dt>
+        <dd>Event sales.</dd>
+      </div>
+    </dl>
+
+    <figure class="figure">
+      <img class="ph ph-3x2 img-fit" src="assets/fikolki/fikolki.png"
+           alt="Fikołki — ekran główny aplikacji: powitanie rodziny, Karta Malucha Premium z kodem QR, licznik punktów i lista nadchodzących wydarzeń."
+           width="2114" height="1585" decoding="async">
+      <figcaption>The home screen, where the whole product had to fit. The story of how it got here starts below.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================== 01 — PROBLEM ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">01 — The problem</span>
+      <h2>The model changed first. The product had to catch up.</h2>
+      <div class="prose">
+        <p>The client came to us mid&ndash;pivot. Fikołki was moving its play centres off single tickets and onto subscriptions &mdash; three tiers &mdash; and taking the load off the front desk with QR gates you open by scanning a code from your phone. On top of that: a family tree, so one account holds every child, and points collected on site and spent on site. The decisions were already made. What was missing was the surface families would meet them on.</p>
+        <p>A 0&ndash;1 brief comes with no interface to fix and no analytics to argue with. This one came with something harder: a business model that existed in a spreadsheet and nowhere else. Gates were going in whether or not anyone had figured out how a parent holding one shoe and two coats gets a code on screen in time. That part was mine.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 — ZAKRES PRAC ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">02 — Scope of work</span>
+      <h2>What the job actually covered.</h2>
+      <div class="prose">
+        <p>Three phases, and everything that came out of each. No discovery sprint, no research budget &mdash; the inputs were the client&rsquo;s document and the people who run the building. The list below is what I delivered, in the order it was delivered.</p>
+      </div>
+
+      <ol class="scope">
+        <li class="scope-phase">
+          <span class="scope-no">Phase 01</span>
+          <h3>Research</h3>
+          <ul>
+            <li>Desk Research</li>
+            <li>Stakeholder Interviews</li>
+            <li>Employee Interviews</li>
+            <li>Protopersonas</li>
+            <li>User Stories</li>
+          </ul>
+        </li>
+        <li class="scope-phase">
+          <span class="scope-no">Phase 02</span>
+          <h3>UX Design</h3>
+          <ul>
+            <li>User Flows</li>
+            <li>User Journeys</li>
+            <li>Wireframes</li>
+            <li>Information Architecture</li>
+            <li>Prototype</li>
+          </ul>
+        </li>
+        <li class="scope-phase">
+          <span class="scope-no">Phase 03</span>
+          <h3>UI Design</h3>
+          <ul>
+            <li>UI Kit</li>
+            <li>Style Guide</li>
+            <li>Interaction Design</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== 02 — CO BYŁO NA WEJŚCIU ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">03 — What I had to go on</span>
+      <h2>Nobody was paying to talk to parents. So I went to the people who watch them every weekend.</h2>
+      <div class="prose">
+        <p>There was no budget for user research and no product in the wild to measure. What I had was the client&rsquo;s document describing each new revenue model end to end, desk research on what other play centres had already tried, and the two groups I could actually get in a room: stakeholders on one side, the staff working the door and the counter on the other. Out of that came protopersonas and user stories &mdash; protopersonas being the honest name for personas assembled from second-hand knowledge instead of from the people they describe.</p>
+        <p>Three things came out of it that shaped every screen after. All three are inferences &mdash; drawn from the model and from staff who watch the queue every Saturday, not from parents. I labelled them as assumptions in handover, because that is what they were.</p>
+      </div>
+
+      <ol class="findings">
+        <li>
+          <div>
+            <h3>A family is not a user</h3>
+            <p>One adult pays, several children use it, and each child has a different card and a different expiry date. Model it as one person with one subscription and the product breaks on the second kid.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>The gate is where the app gets judged</h3>
+            <p>Whatever else the app does, the verdict gets passed by a parent holding a coat, a scooter and a toddler, trying to prove they&rsquo;ve paid before the queue behind them notices.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Three tiers only work if you can tell them apart</h3>
+            <p>Three subscriptions mean three sets of entitlements arriving at the same gate. If the app can&rsquo;t say which one you hold and what it buys you, sorting that out lands back on the receptionist &mdash; and taking that load off the desk was half the point of the gates.</p>
+          </div>
+        </li>
+      </ol>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/protopersonas.png"
+             alt="Two overlapping protopersona boards, Anna and Magda. Each card carries a photo, two quotes and columns for motivations, problems, goals, the criteria that decide whether they buy, the devices they use and a usage scenario. Anna: 29, married, one child aged 6. Magda: 36, quality controller, married, two children aged 7 and 11."
+             width="1227" height="594" loading="lazy" decoding="async">
+        <figcaption>Protopersonas &mdash; assembled from the client&rsquo;s document, desk research and what the staff described, not from interviews with parents. Named as such so nobody downstream mistakes them for the real thing.</figcaption>
+      </figure>
+
+      <h3 class="subhead">From protopersonas to something you can build</h3>
+
+      <div class="prose">
+        <p>A protopersona on its own is a poster. To get anything buildable out of it, I wrote user stories for each one, split across three levels: what the parent wants out of the play centre at all, what they want out of the membership, and what they want out of the app and the website specifically.</p>
+        <p>Every story went on a card. Cards sort, and that was the point &mdash; the client could read them, argue with them and rank them without reading a document, and I could take the top of the pile straight into requirements.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/user-stories-magda.jpg"
+             alt="User stories for the Magda protopersona, written on cards and grouped into three boards: level I in purple, level II in blue and level III &mdash; app and website usage &mdash; in yellow. Each card is one sentence in the form &bdquo;I want to… so that…&rdquo;, from finding transparent pricing to tracking a child&rsquo;s progress between classes."
+             width="1050" height="484" loading="lazy" decoding="async">
+        <figcaption>User stories for Magda, on three levels. Level I is the visit, level II the membership, level III the app and the website. The yellow board is the one that turned into screens.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 03 — SYSTEM ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">04 — The system underneath</span>
+      <h2>Before the layout, I mapped a family.</h2>
+      <div class="prose">
+        <p>One account holds several children. Each child holds a card, each card holds a tier and an expiry date, and each card unlocks a different set of entitlements at the door. Points sit on the account, not the card, and they buy things at the counter rather than at the gate. None of that is visible on screen, and all of it decides what the screen can say.</p>
+        <p>I drew that model first &mdash; profiles, cards, tiers, entitlements, points &mdash; and only then started on views. It's the reason the home screen can show one card and still be honest about the other two.</p>
+        <p>Out of the model came the information architecture: every screen the app would need and what sits under what. Drawing it whole, before any screen existed, is how you find out what is buried too deep.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/info-architecture.jpg"
+             alt="Information architecture for the Fikołki app, drawn as a flow diagram. On the right, onboarding: log in or register, pick a city, pick a home club, open a parent account or a child account, then a summary screen listing the data each one needs. In the centre, the home screen branching into My cards, My location, My account, Class schedule, Passes, My bookings, Party planning, Contact the club, FAQ and Log out. On the left, the account branch expanding into profile editing, payments and cards, the family tree with Add a fourth family member, invoices, consents, language, security and connected social accounts. Bottom right, Party planning opening into birthdays, tournaments and camps, company events, and schools and groups."
+             width="948" height="812" loading="lazy" decoding="async">
+        <figcaption>The whole app on one board, down to the fields each account type has to collect. Actions that change state &mdash; add a pass, edit a profile, pick a club, log out &mdash; are marked, so the destructive and the irreversible are visible before anything gets designed.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 04 — DECYZJE ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">05 — The calls I made</span>
+      <h2>Three decisions, and what each one cost.</h2>
+      <div class="prose">
+        <p>Each one was a trade, and I&rsquo;d make all three again.</p>
+      </div>
+
+      <div class="decisions">
+        <div class="decision">
+          <h3>The card is the home screen</h3>
+          <span class="label">Why</span>
+          <p>The door is where the app either earns its place or doesn't. Opening it has to put a scannable code one tap away, before anything else loads.</p>
+          <span class="label">The trade-off</span>
+          <p>The most valuable strip of screen goes to a thing most people use for four seconds a week. Everything else moves down.</p>
+        </div>
+        <div class="decision">
+          <h3>One card at a time, with the others one swipe away</h3>
+          <span class="label">Why</span>
+          <p>Showing three children's cards at once turns a two-second action into a decision. Showing one and letting you swipe keeps it a reflex.</p>
+          <span class="label">The trade-off</span>
+          <p>The second and third child are hidden behind a gesture, which needs a visible hint to survive first use.</p>
+        </div>
+        <div class="decision">
+          <h3>Points name their reward, not their balance</h3>
+          <span class="label">Why</span>
+          <p>&bdquo;You have 340 points" means nothing. &bdquo;90 more and the next entry is free" is a reason to come back on Saturday.</p>
+          <span class="label">The trade-off</span>
+          <p>The copy has to be generated per account and per campaign, which is more work for whoever runs promotions.</p>
+        </div>
+      </div>
+
+      <figure class="figure">
+        <div class="reel" tabindex="0" role="region" aria-label="Wireframes — drag or scroll sideways">
+          <img src="assets/fikolki/wireframes-phone.png"
+               alt="Nine wireframe screens in phone mockups, side by side: the class schedule with a week strip and bookable slots, an empty state when no offer matches the filters, the registration reward screen counting out ten points, the home screen with a points balance and a card, the family account upsell, a membership card with a QR button and upcoming events, the bookings list split into active, past and cancelled, a club detail view with a map, and settings for a FLEX membership with freeze and cancel."
+               width="4098" height="858" loading="lazy" decoding="async">
+        </div>
+        <figcaption>Wireframes, at the stage where the argument is still about what goes on the screen, not how it looks. Drag sideways.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 06 — EKRANY ===================== -->
+  <!-- Każdy ekran to para: podtytuł + figura. Kolejne dokładaj w tym
+       samym rytmie, nie zbiorczą galerią — opis ma stać przy swoim
+       ekranem, nie pod ścianą obrazków. -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">06 — Example of screens</span>
+      <h2>What the decisions look like once they're a product.</h2>
+
+      <h3 class="subhead">Home</h3>
+      <div class="prose">
+        <p>The home page gives a quick overview of each child&rsquo;s subscription, showing active entries at a glance, with the QR code one tap from the card. Everything that isn&rsquo;t the card &mdash; events, coupons, the rest of the offer &mdash; sits in a bottom sheet you pull up, so it&rsquo;s one gesture away without competing with the thing a parent opens the app for at the door.</p>
+        <p>The points system gets the same treatment: not a balance, but progress toward the next reward, stated in the number of points still missing. It&rsquo;s the one element on the screen whose job is to bring somebody back on Saturday.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/screen-home.png"
+             alt="Three phone screens of the Fikołki app. Left: the home page greeting Anna, the Karta Malucha Premium card marked active with a Generate QR code button, shortcuts to promotions, schedule and settings, a points prompt reading &bdquo;collect 500 points and use exclusive promotions&rdquo;, and the start of an upcoming events list. Centre: the same screen with the bottom sheet pulled up, the events carousel now filling it. Right: the generated QR code, large and centred, under the card name and its expiry date, with a countdown of 00:29:39 and a Refresh QR code button."
+             width="1245" height="752" loading="lazy" decoding="async">
+        <figcaption>Home, the bottom sheet pulled up, and the code itself. The countdown on the third screen is the gate&rsquo;s rule, not a design flourish &mdash; a code that never expires is a code that gets screenshotted and passed around the car park.</figcaption>
+      </figure>
+
+      <h3 class="subhead">Family tree</h3>
+      <div class="prose">
+        <p>This is where &bdquo;a family is not a user" stops being a research note and becomes a screen. One parent holds the whole account: add a family member, remove one, fix somebody&rsquo;s details, change how the family works. A household isn&rsquo;t fixed &mdash; a second child arrives, a grandmother starts doing the Tuesday pickup &mdash; so managing it had to be a place you go, not a setting you dig for.</p>
+        <p>Open any member and you get three tabs: their details, their bookings and their spendings. Grouping it per person rather than per account is the difference between &bdquo;we spent a lot last month" and &bdquo;this is what the older one&rsquo;s swimming costs."</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/screen-family-tree.png"
+             alt="Three phone screens of the family tree. Left: My families, listing the Kowalski family and its members with their roles &mdash; Agnieszka the child, Jan the dad, Renata and Milena the grandmothers &mdash; with an Add family member button at the bottom. Centre: one member&rsquo;s view with tabs for Details, Bookings and Spending; the Details tab holds a photo with options to add one from the gallery or take one, fields for first name, surname and date of birth, and links to add a phone number and an e-mail. A delete icon sits in the top corner. Right: family settings with two toggles &mdash; linking the account with the second parent, on, and permission to collect a child, off."
+             width="1868" height="1131" loading="lazy" decoding="async">
+        <figcaption>The list, one member, and the permissions. Roles are on the list for a reason &mdash; &bdquo;Grandma" next to a name is what tells a parent at a glance who can actually walk out of the building with their child.</figcaption>
+      </figure>
+
+      <h3 class="subhead">Event search</h3>
+      <div class="prose">
+        <p>Fikołki keeps opening venues &mdash; several in Warsaw alone &mdash; so search had to be built for a list that grows, not for the handful of centres that existed when we started. It defaults to the family&rsquo;s home location and lets you change it in one tap, because the honest guess about where a parent is looking is &bdquo;the same place as last time."</p>
+        <p>The child gets picked at the start, not at checkout. Every event has an age bracket, so choosing the child first means the results are already the ones they can attend &mdash; no filling in a booking and finding out at the end that your five-year-old is two years short.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/screen-event-search.png"
+             alt="Three phone screens of event search. Left: the search form with city, venue and date range, a &bdquo;Who for?&rdquo; section where two children are ticked, an activity filter, and a confirm button that already carries the result count &mdash; 16 results. Centre: the results list, 18 results, each a card with a photo, the venue as a tag, the event name, date, price, and a badge counting places left, 2 of 7 in red and 12 of 16 in green. Right: one event, FikoLaborki, with its price, and a row of facts &mdash; date, time, age range 5 to 8, duration 120 minutes &mdash; above tabs for description and gallery and a Book button."
+             width="1868" height="1128" loading="lazy" decoding="async">
+        <figcaption>Search, results, one event. The confirm button counts the results before you tap it, so narrowing the filters is a conversation rather than a guess.</figcaption>
+      </figure>
+
+      <h3 class="subhead">My reservations</h3>
+      <div class="prose">
+        <p>One place for everything booked, split into active, past and cancelled, and filterable by child &mdash; because a parent with two kids in different classes is managing two schedules, not one list.</p>
+        <p>Cancelling happens in the app. That one change is the whole point of the screen: it used to mean ringing the centre, which cost the parent a phone call and the front desk a job. Spending is on the same screen for the same reason &mdash; events and subscriptions in one view, so the question &bdquo;what are we actually paying for here" has an answer that doesn&rsquo;t involve asking anyone.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/screen-reservations.png"
+             alt="Three phone screens of the bookings area. Left: My reservations with tabs for active, past and cancelled, chips filtering by child, a row of subscription cards each with a Generate QR code link, and the start of an upcoming bookings list. Centre: one booking, Agnieszka&rsquo;s birthday, marked active, with three actions side by side &mdash; QR code, change, cancel &mdash; above the date, time, location and participant count. Right: a finished event marked completed, with tabs for description, gallery and rating; the gallery holds photos taken during the event."
+             width="1868" height="1128" loading="lazy" decoding="async">
+        <figcaption>Cancel sits next to QR code and change, in red and in the open. Hiding the exit is how you get a phone call instead of a cancellation.</figcaption>
+      </figure>
+
+      <h3 class="subhead">Birthday booking</h3>
+      <div class="prose">
+        <p>The old flow was fewer, denser screens &mdash; which sounds efficient until you watch somebody abandon one. We cut the number of steps and broke the heavy screens into smaller ones, so the path is shorter overall and no single screen asks for everything at once.</p>
+        <p>It opens by asking what matters to you: the location, the date, or the kind of party. Booking a birthday is a negotiation between those three and you can rarely have all of them, so the flow asks which one you won&rsquo;t move on and sorts the results around it. At the end, once the price is on screen and the parent can see what a party costs, the app makes the case for a subscription &mdash; the one moment in the product where that argument is made of arithmetic rather than marketing.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/screen-birthday.png"
+             alt="Three phone screens of the birthday wizard. Left: &bdquo;What matters to you?&rdquo; with three options &mdash; location, type of party, date &mdash; two of them ticked, and a Next button. Centre: results on a map of Warsaw with venue pins, a bottom sheet listing 18 results as cards carrying the venue, date, party types and the hours still free. Right: the booking summary with the party type, the child, the location, the date, a total of 949.50 PLN and a Pay button, with a prompt above it offering more benefits at a better price if the parent upgrades their subscription."
+             width="1868" height="1128" loading="lazy" decoding="async">
+        <figcaption>Preferences, results on a map, the summary. The subscription prompt waits until the total is visible, which is the only point at which it is an argument instead of an interruption.</figcaption>
+      </figure>
+
+      <h3 class="subhead">Subscriptions</h3>
+      <div class="prose">
+        <p>The offer was a long list of passes with overlapping rules, which is a pricing table, not a product. We grouped them into named packages &mdash; Silver, Gold, Premium &mdash; each one stating its age range, how many workshops it includes and what entry it buys, so two tiers can be compared by reading rather than by deduction. Contract type comes after the package, as a second, smaller choice: open-ended with notice, or annual.</p>
+      </div>
+
+      <div class="prose aside-note">
+        <p><strong>The one I pushed back on.</strong> Marketing consent lowered the price of the package, and the client asked for the box to arrive pre-ticked. That is a dark pattern, and under Polish and EU law it isn&rsquo;t one you can argue about &mdash; consent has to be voluntary, specific, informed and unambiguous, and a box somebody didn&rsquo;t tick is none of those. It would also have cost the brand far more when a parent noticed than the discount ever earned it. So I proposed the opposite: the box starts empty, the discount it unlocks is stated in money next to it, the terms are one tap away, and the consent for marketing is separated from the consent required to start the service early. The client took it. It cost a few percent of conversion on paper and removed the only genuine liability in the flow.</p>
+      </div>
+
+      <figure class="figure">
+        <img class="img-fit" src="assets/fikolki/screen-subscriptions.png"
+             alt="Three phone screens of the subscription purchase. Left: club cards in a carousel &mdash; Silver marked as the most frequently bought &mdash; with a price from 89 zł a month, the child&rsquo;s age range, the number of workshops included, unlimited entry, and a green panel offering 30 zł off a month for activating marketing consent. Centre: the two contract plans for the chosen card, FLEX open-ended with notice and an annual plan showing a crossed-out 1068 zł next to 979 zł. Right: the consent step, where the marketing consent box is empty and unticked, with its terms link beside it, separated from the ticked consent to begin the service before the fourteen-day withdrawal period ends."
+             width="1868" height="1128" loading="lazy" decoding="async">
+        <figcaption>Packages, contract types, consents. On the third screen the marketing box is empty &mdash; the discount is still offered, in money, but the parent has to reach for it.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== 07 — WYNIK ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">07 — The result</span>
+      <h2>The subscriptions sold, and the front desk stopped being the place you ask about birthdays.</h2>
+
+      <div class="outcome">
+        <div>
+          <span class="num">10.5k</span>
+          <p>Subscriptions sold through the app &mdash; the model the whole pivot was built on.</p>
+        </div>
+        <div>
+          <span class="num">&minus;47%</span>
+          <p>Fewer enquiries to reception about organising a birthday party. The information moved into the app, so the question stopped reaching the desk.</p>
+        </div>
+        <div>
+          <span class="num">+13%</span>
+          <p>Event sales &mdash; bookings people used to make by asking at the counter, now made from the home screen.</p>
+        </div>
+      </div>
+
+      <div class="prose aside-note">
+        <p><strong>What I'd do differently.</strong> I'd have pushed the client harder on a round of plain usability testing once the wireframes were done. Not a research programme &mdash; four tasks, the four that carry the business: buy a subscription, buy a pass, get through the QR gate, book a birthday party. A handful of parents, an afternoon. We skipped it because there was no budget line for it and the wireframes read fine to everyone in the room. The flaws surfaced anyway, just after launch, and got fixed then &mdash; at the price fixing things costs once they're live. Same corrections, worse moment, and I was the person in the room whose job it was to say so.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NASTĘPNY CASE STUDY ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">Next case study</span>
+      <a class="story" href="case-study-bajecznewakacje.html">
+        <span class="story-media ph ph-3x2">
+          <img src="assets/bajecznewakacje/bajecznewakacje-hero.png"
+               alt="BajeczneWakacje.pl — strona główna serwisu po przebudowie, pokazana na limonkowym tle: fioletowy pasek nawigacji, wyszukiwarka w białej karcie na zdjęciu tarasów ryżowych, pod nią kafelki okazji z oceną, datami i ceną za osobę."
+               width="1990" height="1286" loading="lazy" decoding="async">
+          <span class="px-frame" aria-hidden="true"></span>
+        </span>
+        <div>
+          <span class="story-meta">UX/UI Design &middot; 2023</span>
+          <h3>A holiday booking flow that survives the fifth step</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">The site could sell a holiday and then couldn&rsquo;t take payment for it &mdash; you reserved and waited for a call back. And when a sale landed, it was often a resold trip, because the agency&rsquo;s own offers were invisible on its own site.</span></li>
+            <li><span class="label">What I did</span><span class="value">Solo, end to end: an audit of the live site, then the whole path &mdash; search, results in the list instead of behind a pop-up, an online checkout where there had been none, and the states nobody screenshots.</span></li>
+            <li><span class="label">Result</span><span class="value">A booking that ends in a payment instead of a phone call, and the agency&rsquo;s own trips finally visible on the pages where people choose.</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== KONTAKT ===================== -->
+  <section id="contact">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">dsikoradesign@gmail.com</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:dsikoradesign@gmail.com">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a class="lnk" href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:dsikoradesign@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     PASEK PO ODERWANIU — logotyp ustępuje miejsca powrotowi
+     Klasa leci dopiero po ruszeniu strony w dół; na samej górze
+     pasek wygląda tak samo jak na stronie głównej.
+     ========================================================= -->
+<script>
+(() => {
+  const bar = document.querySelector('.bar');
+  const row = document.querySelector('.backlink-row');
+  if (!bar) return;
+
+  // 8px zapasu: gumowe odbicie przy krawędzi nie ma migać logotypem
+  const ustaw = () => bar.classList.toggle('is-stuck', window.scrollY > 8);
+  addEventListener('scroll', ustaw, { passive: true });
+  ustaw();                       // wejście z zakładki albo z kotwicy
+
+  // Wysokości paska i linku zależą od kroju i szerokości okna, więc
+  // pozycji parkowania nie da się wpisać w CSS na sztywno. Liczymy ją:
+  // połowa różnicy = równy odstęp nad linkiem i pod nim.
+  if (!row) return;
+  const srodkuj = () => {
+    const gora = Math.round((bar.offsetHeight - row.offsetHeight) / 2);
+    document.documentElement.style.setProperty('--backlink-top', gora + 'px');
+  };
+  addEventListener('resize', srodkuj);
+  addEventListener('load', srodkuj);   // po doczytaniu kroju wysokości się zmienią
+  srodkuj();
+})();
+</script>
+
+<!-- =========================================================
+     KARUZELA — ciągnięcie myszą
+     Palec i gładzik przewijają natywnie; brakuje tylko myszy, która
+     bez tego umie tu tylko kółko. Pointer Events, więc jedna ścieżka
+     dla wszystkiego, co ma kursor.
+     ========================================================= -->
+<script>
+(() => {
+  document.querySelectorAll('.reel').forEach(reel => {
+    let startX = 0, startScroll = 0, ciagnie = false;
+
+    reel.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'touch') return;   // dotyk ma własne przewijanie
+      ciagnie = true;
+      startX = e.clientX;
+      startScroll = reel.scrollLeft;
+      reel.setPointerCapture(e.pointerId);
+      reel.classList.add('is-dragging');
+    });
+
+    reel.addEventListener('pointermove', e => {
+      if (!ciagnie) return;
+      e.preventDefault();
+      reel.scrollLeft = startScroll - (e.clientX - startX);
+    });
+
+    const koniec = e => {
+      if (!ciagnie) return;
+      ciagnie = false;
+      reel.classList.remove('is-dragging');
+      if (reel.hasPointerCapture(e.pointerId)) reel.releasePointerCapture(e.pointerId);
+    };
+    reel.addEventListener('pointerup', koniec);
+    reel.addEventListener('pointercancel', koniec);
+  });
+})();
+</script>
+
+<script src="reveal.js"></script>
+<script src="count.js"></script>
+
+</body>
+</html>

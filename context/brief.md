@@ -4,30 +4,38 @@
 
 ## Po co jest ta strona
 
-<!-- Jeden cel główny. Unikaj dodawania na początku więcej niz 1 celu. Dodatkowo: „żeby być w internecie" to nie jest konkret, daj jasno znać co ma się dzięki niej wydarzyć. -->
+Pokazać najlepsze prace z UX/UI Design i Product Design, aby znaleźć pracę
 
 ## Dla kogo
 
-<!-- Kto wchodzi, skąd przychodzi (Google? Instagram? polecenie?), w jakim momencie i z jakim pytaniem w głowie. -->
+- Rekruterzy
+- Head of UX/UI
+- Design Team Leaderzy
 
 ## Cele
 
-<!-- Mierzalne. Wysłany formularz, telefon, zapis, sprzedaż. Coś, co da się policzyć. -->
+- Liczba viewerów (strona główna + podstrony projektów)
+- Liczba kliknięć na przycisk kontaktu/mejla
 
 ## Główna akcja
 
-<!-- Jedna rzecz, którą ta osoba ma zrobić. Jeśli masz dwie, wybierz ważniejszą. -->
+- Kliknięcie na email
+- Kliknięcie na każdy projekt
 
 ## Czego strona nie robi
 
-<!-- Zakres negatywny — najbardziej niedoceniana sekcja briefu.
-     Np. nie ma sklepu, nie ma wersji angielskiej, nie ma logowania.
-     To ona zatrzymuje AI przed dokładaniem rzeczy, o które nie prosiłeś. -->
+- Case Studies tylko ze screenami UI
+- Nadmierna ilość tekstu per projekt
+- Czysto sprzedażowe nastawienie
+- Nadmierna formalność
 
 ## Punkty odniesienia
 
-<!-- Strony, które Ci się podobają albo z którymi się porównujesz. Podaj adresy i napisz, co konkretnie z każdej bierzesz. -->
+- **sanvithi.com** — układ kafelków projektów, animacje na hover
+- **chaachiedesigns.framer.website/newrestore** — storytelling dla każdego projektu
+- **kristianphoenix.com** — duże ikony toolsów z animacją hover
 
 ## Ograniczenia
 
-<!-- Termin, budżet, materiały, które masz na dziś (zdjęcia? teksty? logo?). Czego nie masz i skąd to weźmiesz. -->
+- Bardzo mały budżet
+- Brak umiejętności w animacje

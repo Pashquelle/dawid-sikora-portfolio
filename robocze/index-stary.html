@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dawid Sikora — UX/UI &amp; Product Designer</title>
+<meta name="description" content="Product Designer. Flexible, systems-first, at home in data-heavy products.">
+
+<!--
+  ============================================================
+  Dawid Sikora — strona główna
+  ============================================================
+  Kierunek wizualny: „Panel danych" — context/reference.html
+  Tokeny i reguły:   DESIGN.md
+  Treść i struktura: context/wireframe-dawid-sikora.html
+
+  Nie zaglądano do context/archiwum/ (zakaz w CLAUDE.md).
+
+  Miejsca oznaczone [DO UZUPEŁNIENIA — …] pochodzą z wireframe'u
+  i czekają na prawdziwe dane. Lorem ipsum nie używamy (DESIGN.md §7).
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* =========================================================
+     TOKENY — 1:1 z DESIGN.md
+     ========================================================= */
+  :root{
+    --bg:               #EBE8E0;
+    --surface:          #E3DFD5;
+    --surface-inverse:  #171713;
+
+    --text:             #171713;
+    --text-soft:        #4A4A3F;
+    --text-muted:       #63604F;
+    --text-inverse:     #EBE8E0;
+
+    --line-strong:      #171713;
+    --line:             #C9C5B8;
+    --line-control:     #85806D;
+
+    --accent:           #D8F23A;
+    --accent-ink:       #171713;
+    --status-ok:        #1F6F3E;
+
+    --font: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --text-display: clamp(1.8rem, 3.9vw, 3.1rem);
+    --text-h2:      clamp(1.5rem, 2.6vw, 2.1rem);
+    --text-h3:      1.125rem;
+    --text-lead:    1rem;
+    --text-body:    0.9375rem;
+    --text-small:   0.8125rem;
+    --text-label:   0.75rem;
+    --text-micro:   0.6875rem;
+
+    --space-1:4px;   --space-2:8px;   --space-3:12px;  --space-4:16px;
+    --space-5:20px;  --space-6:24px;  --space-8:32px;  --space-10:40px;
+    --space-12:48px; --space-16:64px; --space-20:80px; --space-24:96px;
+    --space-32:128px;
+
+    --radius:       0;
+    --shadow:       none;
+    --border-width: 1px;
+
+    /* gutter wg DESIGN.md: 4vw, min --space-5, max --space-24 */
+    --gutter: clamp(var(--space-5), 4vw, var(--space-24));
+  }
+
+  /* =========================================================
+     PODSTAWA
+     ========================================================= */
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    font-size:var(--text-body);
+    line-height:1.6;
+    font-variant-numeric:tabular-nums;
+  }
+  a{ color:inherit; }
+  img{ max-width:100%; display:block; }
+
+  :focus-visible{ outline:2px solid var(--text); outline-offset:2px; }
+
+  .wrap{ max-width:1280px; margin:0 auto; padding:0 var(--gutter); }
+
+  h1,h2,h3,p,ul{ margin:0; }
+  ul{ list-style:none; padding:0; }
+
+  /* --- typografia systemu --- */
+  h1{ font-size:var(--text-display); font-weight:700; line-height:1.22; letter-spacing:-.045em; max-width:21ch; }
+  h2{ font-size:var(--text-h2);      font-weight:700; line-height:1.25; letter-spacing:-.03em;  max-width:22ch; }
+  h3{ font-size:var(--text-h3);      font-weight:700; line-height:1.35; letter-spacing:-.01em; }
+
+  .lead{ font-size:var(--text-lead); max-width:68ch; }
+  .body{ font-size:var(--text-body); max-width:68ch; color:var(--text-soft); }
+
+  .eyebrow{
+    display:block;
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+    margin-bottom:var(--space-4);
+  }
+
+  /* =========================================================
+     PASEK NAWIGACJI — otwiera siatkę linią nośną
+     ========================================================= */
+  .bar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:var(--space-4); flex-wrap:wrap;
+    padding:var(--space-3) var(--gutter);
+    border-top:var(--border-width) solid var(--line-strong);
+    border-bottom:var(--border-width) solid var(--line);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    background:var(--bg);
+  }
+  .brandmark{ text-decoration:none; font-weight:500; }
+  .bar nav ul{ display:flex; gap:var(--space-5); }
+  .bar nav a{ text-decoration:none; padding:var(--space-1) var(--space-1); }
+  .bar nav a:hover{ background:var(--accent); }
+
+  .status{ display:inline-flex; align-items:center; }
+  .status i{ display:inline-block; width:8px; height:8px; background:var(--status-ok); margin-right:var(--space-2); }
+
+  /* =========================================================
+     PRZYCISKI I LINKI
+     ========================================================= */
+  .btn{
+    display:inline-block; text-decoration:none; cursor:pointer;
+    font-family:var(--font);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    padding:var(--space-3) var(--space-6);
+    border:var(--border-width) solid var(--line-strong);
+    border-radius:var(--radius);
+    background:var(--accent); color:var(--accent-ink);
+    transition:background .25s ease, color .25s ease;
+  }
+  .btn:hover{ background:var(--surface-inverse); color:var(--accent); }
+
+  .btn-ghost{
+    background:transparent; color:var(--text);
+  }
+  .btn-ghost:hover{ background:var(--surface-inverse); color:var(--text-inverse); }
+
+  .btn-sm{ padding:var(--space-2) var(--space-4); }
+
+  .lnk{
+    color:var(--text);
+    text-decoration:underline;
+    text-underline-offset:3px;
+    text-decoration-thickness:var(--border-width);
+  }
+  .lnk:hover{ background:var(--accent); }
+
+  /* =========================================================
+     HERO — dwie komórki: wypowiedź po lewej, dane po prawej
+     ========================================================= */
+  .hero{
+    position:relative;
+    display:grid; grid-template-columns:1.45fr 1fr;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .hero .cell{ padding:var(--space-24) var(--gutter); }
+  .hero .cell + .cell{ position:relative; border-left:var(--border-width) solid var(--line); }
+
+  .hero .status{ margin-bottom:var(--space-8); }
+
+  /* mechanika .trait — z context/reference.html
+     Hover na całym nagłówku gasi wszystkie pola i przygasza słowa;
+     hover na jednej cesze przywraca ją do pełni. */
+  .trait{
+    /* inline-block, bo transform nie działa na elementach inline */
+    display:inline-block;
+    background:var(--accent); padding:0 .16em;
+    transition:background .25s ease, opacity .25s ease;
+  }
+  h1:hover .trait{ background:transparent; opacity:.4; }
+  h1 .trait:hover{
+    background:var(--accent); opacity:1;
+    animation:headShake 1s ease-in-out;
+  }
+  /* klatki 1:1 z animate.css (MIT) — bez ładowania całej biblioteki */
+  @keyframes headShake{
+    0%    { transform:translateX(0); }
+    6.5%  { transform:translateX(-6px) rotateY(-9deg); }
+    18.5% { transform:translateX(5px)  rotateY(7deg); }
+    31.5% { transform:translateX(-3px) rotateY(-5deg); }
+    43.5% { transform:translateX(2px)  rotateY(3deg); }
+    50%   { transform:translateX(0); }
+  }
+
+  .hero-cta{ margin-top:var(--space-10); }
+
+  /* tabela metadanych — nośnik treści, nie dekoracja */
+  .meta{ width:100%; border-collapse:collapse; font-size:var(--text-small); }
+  .meta th{
+    text-align:left; font-weight:400; color:var(--text-muted);
+    text-transform:uppercase; letter-spacing:.1em; font-size:var(--text-label);
+    padding:var(--space-3) 0; border-bottom:var(--border-width) solid var(--line); width:46%;
+  }
+  .meta td{
+    padding:var(--space-3) 0; border-bottom:var(--border-width) solid var(--line);
+    font-weight:500;
+  }
+
+  /* =========================================================
+     SEKCJE
+     ========================================================= */
+  section{ padding:var(--space-24) 0; border-bottom:var(--border-width) solid var(--line-strong); }
+  .bg-soft{ background:var(--surface); }
+
+  section > .wrap > h2{ margin-bottom:var(--space-16); }
+
+  /* --- proces: trzy kroki --- */
+  .steps{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    border-top:var(--border-width) solid var(--line);
+  }
+  .step{
+    padding:var(--space-8) var(--space-6) var(--space-8) 0;
+    border-bottom:var(--border-width) solid var(--line);
+  }
+  .step + .step{ border-left:var(--border-width) solid var(--line); padding-left:var(--space-6); }
+  .step-no{
+    display:block; font-size:var(--text-label); letter-spacing:.1em;
+    color:var(--text-muted); margin-bottom:var(--space-4);
+  }
+  .step h3{ margin-bottom:var(--space-4); }
+  .step p{ color:var(--text-soft); }
+
+  /* --- miejsca na obraz --- */
+  .ph{ display:block; background:var(--surface); border:var(--border-width) solid var(--line); }
+  .bg-soft .ph{ background:var(--bg); }
+  .ph-3x2{ aspect-ratio:3/2; }
+  .ph-1x1{ aspect-ratio:1/1; }
+
+  /* --- karty projektów --- */
+  .story{
+    display:grid; grid-template-columns:1fr 1.25fr; gap:var(--space-12);
+    text-decoration:none;
+    padding:var(--space-12) 0;
+    border-top:var(--border-width) solid var(--line-strong);
+    align-items:start;
+  }
+  .story:hover .story-link{ background:var(--accent); }
+  .story-meta{
+    display:block; font-size:var(--text-label); letter-spacing:.1em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:var(--space-3);
+  }
+  .story h3{ margin-bottom:var(--space-8); }
+
+  .facts li{
+    display:grid; grid-template-columns:150px 1fr; gap:var(--space-6);
+    padding:var(--space-3) 0;
+    border-bottom:var(--border-width) solid var(--line);
+    font-size:var(--text-small);
+  }
+  .facts li:first-child{ border-top:var(--border-width) solid var(--line); }
+  .facts .label{
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .facts .value{ color:var(--text-soft); font-weight:400; }
+
+  .story-link{
+    display:inline-block; margin-top:var(--space-8);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    text-decoration:underline; text-underline-offset:3px;
+    text-decoration-thickness:var(--border-width);
+    padding:var(--space-1) var(--space-1);
+    transition:background .25s ease;
+  }
+
+  .work-more{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:var(--space-8); flex-wrap:wrap;
+    padding:var(--space-8) 0 0 0;
+    border-top:var(--border-width) solid var(--line-strong);
+  }
+  .work-more p{ color:var(--text-soft); max-width:68ch; font-size:var(--text-small); margin:0; }
+
+  /* --- narzędzia --- */
+  .tools{
+    display:grid; grid-template-columns:repeat(6,1fr);
+    border-top:var(--border-width) solid var(--line);
+    border-left:var(--border-width) solid var(--line);
+  }
+  .tool{
+    padding:var(--space-6);
+    border-bottom:var(--border-width) solid var(--line);
+    border-right:var(--border-width) solid var(--line);
+    display:flex; flex-direction:column; gap:var(--space-4);
+    align-items:center; text-align:center;
+  }
+  .tool span:last-child{
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+  }
+  .tool-logo{
+    display:block; width:75%; height:auto; aspect-ratio:1/1;
+    fill:var(--text);
+    transition:fill .15s linear;
+  }
+  /* hover: kafelek się odwraca — bez nowych kolorów w palecie */
+  .tool{ transition:background-color .15s linear, color .15s linear; }
+  .tool:hover{ background:var(--surface-inverse); color:var(--text-inverse); }
+  .tool:hover .tool-logo{ fill:var(--bg); }
+
+  /* --- about --- */
+  .about{ display:grid; grid-template-columns:1.45fr 1fr; gap:var(--space-16); align-items:start; }
+  .about h2{ margin-bottom:var(--space-8); }
+  .about p{ color:var(--text-soft); max-width:68ch; }
+  .about p + p{ margin-top:var(--space-8); }
+  .about-link{ display:inline-block; margin-top:var(--space-10); }
+
+  /* --- kontakt --- */
+  .contact{ display:grid; grid-template-columns:1.45fr 1fr; gap:var(--space-16); align-items:start; }
+  .contact > div:first-child p{ color:var(--text-soft); margin-top:var(--space-8); max-width:68ch; }
+
+  .mail-box{ border-top:var(--border-width) solid var(--line-strong); padding-top:var(--space-6); }
+  .mail-label{
+    display:block; font-size:var(--text-label); letter-spacing:.1em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:var(--space-2);
+  }
+  .mail-address{ display:block; font-size:var(--text-small); font-weight:500; }
+  .contact-actions{ display:flex; gap:var(--space-4); flex-wrap:wrap; margin-top:var(--space-8); }
+  .alt-channel{
+    margin-top:var(--space-8); font-size:var(--text-small); color:var(--text-soft);
+    padding-top:var(--space-6); border-top:var(--border-width) solid var(--line);
+  }
+
+  /* =========================================================
+     STOPKA
+     ========================================================= */
+  .foot{
+    display:flex; justify-content:space-between; gap:var(--space-4); flex-wrap:wrap;
+    padding-top:var(--space-8); padding-bottom:var(--space-8);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .foot-links{ display:flex; gap:var(--space-5); }
+  .foot-links a{ text-decoration:none; padding:var(--space-1); }
+  .foot-links a:hover{ background:var(--accent); color:var(--accent-ink); }
+
+  /* =========================================================
+     ŁAMANIE — [BRAK W DESIGN.md] progi ustalone roboczo
+     ========================================================= */
+  @media (max-width:1024px){
+    .tools{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width:880px){
+    .hero{ grid-template-columns:1fr; }
+    .hero .cell{ padding:var(--space-16) var(--gutter); }
+    .hero .cell + .cell{ border-left:0; border-top:var(--border-width) solid var(--line); }
+    .steps{ grid-template-columns:1fr; }
+    .step + .step{ border-left:0; padding-left:0; }
+    .story{ grid-template-columns:1fr; gap:var(--space-8); }
+    .about, .contact{ grid-template-columns:1fr; gap:var(--space-12); }
+    .bar nav{ display:none; }
+    section{ padding:var(--space-20) 0; }
+  }
+  @media (max-width:560px){
+    .tools{ grid-template-columns:repeat(2,1fr); }
+    .facts li{ grid-template-columns:1fr; gap:var(--space-1); }
+  }
+
+/* =========================================================
+     ODSŁONA MASKĄ — nagłówki wycierają się twardą krawędzią
+     ---------------------------------------------------------
+     Prostokątna maska jedzie w prawo. Bez 3D, bez rozmycia,
+     bez cienia — ta sama logika co linie siatki.
+     Tekst NIE jest cięty na znaki: clip-path działa na całym
+     elemencie, więc DOM i czytniki ekranu zostają nietknięte.
+     Klasę dokłada JS, więc bez skryptu nagłówki po prostu stoją.
+     Wyłączenie: usuń <script> „ODSŁONA" na końcu <body>.
+     ========================================================= */
+  .wipe{ clip-path:inset(0 100% 0 0); }
+  .wipe.is-open{
+    clip-path:inset(0 0 0 0);
+    /* easeInOutCubic — zdecydowane, bez odbicia */
+    transition:clip-path .65s cubic-bezier(.65,0,.35,1);
+  }
+  h1.wipe.is-open{ transition-duration:.85s; }
+
+/* =========================================================
+     DYMEK „FLEXIBLE" — prawy górny róg hero
+     ---------------------------------------------------------
+     Wyzwalany najechaniem na słowo „Flexible" w H1. Tabela
+     metadanych przygasa, żeby dymek nie walczył z danymi —
+     ta sama mechanika, co hover na H1 gaszący pozostałe cechy.
+     Selektor :has() — bez niego dymek po prostu się nie pokaże.
+     ========================================================= */
+  .trait-note{
+    position:absolute; z-index:2;
+    /* rozpięty na szerokość kolumny danych — te same krawędzie,
+       na których stoi tabela, więc wyrównanie trzyma na każdej szerokości */
+    top:var(--space-10); left:var(--gutter); right:var(--gutter);
+    background:var(--bg);
+    padding:var(--space-4) 0 var(--space-6);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, visibility 0s .2s;
+  }
+  /* pasek poziomy — wjeżdża od lewej, raz, bez pętli */
+  .trait-note-bar{
+    display:block; width:80px; height:10px;
+    margin-bottom:var(--space-5);
+    background:var(--accent);
+    border:var(--border-width) solid var(--line-strong);
+    transform:scaleX(0); transform-origin:left center;
+    transition:transform .45s cubic-bezier(.65,0,.35,1) .05s;
+  }
+  .trait-note-label{
+    display:block; margin-bottom:var(--space-3);
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .trait-note p{
+    /* --text-h3 (18px), ale waga 400 i luźniejsza interlinia:
+       to wypowiedź do czytania, nie nagłówek. */
+    font-size:var(--text-h3); font-weight:400;
+    line-height:1.55; color:var(--text);
+  }
+
+  /* Odsłona maską — ta sama mechanika i krzywa co nagłówki H1/H2,
+     tyle że wyzwalana najechaniem, nie przewijaniem. */
+  .trait-note-label,
+  .trait-note p{ clip-path:inset(0 100% 0 0); }
+
+  /* Każda cecha odsłania swój blok. Selektory grupowane, żeby reguły
+     odsłony istniały raz, a nie po komplecie na każdy blok. */
+  .hero:has(.trait--flex:hover)    .note--flex,
+  .hero:has(.trait--systems:hover) .note--systems,
+  .hero:has(.trait--data:hover)    .note--data{
+    opacity:1; visibility:visible;
+    transition:opacity .2s ease;
+  }
+  .hero:has(.trait--flex:hover)    .note--flex    .trait-note-label,
+  .hero:has(.trait--systems:hover) .note--systems .trait-note-label,
+  .hero:has(.trait--data:hover)    .note--data    .trait-note-label{
+    clip-path:inset(0 0 0 0);
+    transition:clip-path .5s cubic-bezier(.65,0,.35,1) .12s;
+  }
+  .hero:has(.trait--flex:hover)    .note--flex    p,
+  .hero:has(.trait--systems:hover) .note--systems p,
+  .hero:has(.trait--data:hover)    .note--data    p{
+    clip-path:inset(0 0 0 0);
+    transition:clip-path .65s cubic-bezier(.65,0,.35,1) .2s;
+  }
+  .hero:has(.trait--flex:hover)    .note--flex    .trait-note-bar,
+  .hero:has(.trait--systems:hover) .note--systems .trait-note-bar,
+  .hero:has(.trait--data:hover)    .note--data    .trait-note-bar{ transform:scaleX(1); }
+
+  /* Tabela ustępuje przy dowolnej z trzech cech. */
+  .meta{ transition:opacity .28s ease; }
+  .hero:has(.trait:hover) .meta{ opacity:0; }
+
+  /* Na wąskich ekranach hero jest jednokolumnowe, a dotyk nie ma hovera. */
+  @media (max-width:900px), (hover:none){
+    .trait-note{ display:none; }
+    .hero:has(.trait--flex:hover) .meta{ opacity:1; }
+  }
+
+  /* Sekcja 8 DESIGN.md (animacje) jest jeszcze pusta.
+     Do czasu jej ustalenia szanujemy preferencję systemową. */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{ transition:none !important; animation:none !important; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Logotypy narzędzi. Źródło: Simple Icons (CC0), pliki w assets/logos/.
+     Sprite, żeby nie powtarzać ścieżek przy każdym kafelku. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="l-figma"  viewBox="0 0 24 24"><path d="M15.852 8.981h-4.588V0h4.588c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.491-4.49 4.491zM12.735 7.51h3.117c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-3.117V7.51zm0 1.471H8.148c-2.476 0-4.49-2.014-4.49-4.49S5.672 0 8.148 0h4.588v8.981zm-4.587-7.51c-1.665 0-3.019 1.355-3.019 3.019s1.354 3.02 3.019 3.02h3.117V1.471H8.148zm4.587 15.019H8.148c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h4.588v8.98zM8.148 8.981c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h3.117V8.981H8.148zM8.172 24c-2.489 0-4.515-2.014-4.515-4.49s2.014-4.49 4.49-4.49h4.588v4.441c0 2.503-2.047 4.539-4.563 4.539zm-.024-7.51a3.023 3.023 0 0 0-3.019 3.019c0 1.665 1.365 3.019 3.044 3.019 1.705 0 3.093-1.376 3.093-3.068v-2.97H8.148zm7.704 0h-.098c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h.098c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.49-4.49 4.49zm-.097-7.509c-1.665 0-3.019 1.355-3.019 3.019s1.355 3.019 3.019 3.019h.098c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-.098z"/></symbol>
+  <symbol id="l-claude" viewBox="0 0 24 24"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></symbol>
+  <symbol id="l-cursor" viewBox="0 0 24 24"><path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></symbol>
+  <symbol id="l-miro"   viewBox="0 0 24 24"><path d="M17.392 0H13.9L17 4.808 10.444 0H6.949l3.102 6.3L3.494 0H0l3.05 8.131L0 24h3.494L10.05 6.985 6.949 24h3.494L17 5.494 13.899 24h3.493L24 3.672 17.392 0z"/></symbol>
+  <symbol id="l-adobe"  viewBox="0 0 24 24"><path d="M14.782 3.153c-.231.02-.472.04-.703.07a8.453 8.453 0 0 0-2.832.834 8.951 8.951 0 0 0-2.46 1.777c-.03.04-.09.06-.141.05a7.44 7.44 0 0 0-1.496-.07 7.424 7.424 0 0 0-2.932.763c-1.768.884-3.013 2.26-3.736 4.108a7.089 7.089 0 0 0-.462 2.139c0 .05-.01.09-.02.13v.773c.02.201.05.392.07.593.1.813.332 1.596.703 2.33.824 1.646 2.089 2.851 3.786 3.594a7.127 7.127 0 0 0 2.45.593c.032 0 .06.004.086.01h8.576c.183-.017.362-.035.547-.06a8.344 8.344 0 0 0 2.811-.834 8.836 8.836 0 0 0 3.646-3.304 8.187 8.187 0 0 0 1.184-3.093c.05-.34.08-.692.121-1.034 0-.05.01-.09.02-.13v-.794c-.02-.23-.05-.452-.05-.662a8.345 8.345 0 0 0-.834-2.812 8.952 8.952 0 0 0-3.324-3.645 8.245 8.245 0 0 0-3.072-1.175c-.362-.06-.713-.09-1.075-.13-.05 0-.09-.01-.14-.02zm.369 1.693c2.126.005 3.93.826 5.395 2.455a6.93 6.93 0 0 1 1.616 3.323c.15.764.181 1.547.07 2.32-.19 1.346-.702 2.55-1.576 3.605a7.082 7.082 0 0 1-3.997 2.45 7.297 7.297 0 0 1-2.56.1c-1.095-.14-2.099-.501-3.003-1.154a5.2 5.2 0 0 1-.672-.573c-1.226-1.205-2.44-2.42-3.666-3.625-.301-.3-.321-.632-.18-.934a.822.822 0 0 1 .863-.472c.21.02.372.141.522.292 1.105 1.114 2.2 2.209 3.304 3.324a5.263 5.263 0 0 0 3.093 1.536c1.948.261 3.605-.341 4.92-1.798.713-.793 1.145-1.747 1.326-2.811.26-1.587-.11-3.013-1.095-4.268-.873-1.115-2.018-1.808-3.404-2.059-1.416-.25-2.751.02-3.966.794-.03.02-.1.03-.131.01a9.04 9.04 0 0 0-1.406-.854s-.01-.01-.02-.03a6.603 6.603 0 0 1 1.255-.823 6.646 6.646 0 0 1 2.641-.784 8.45 8.45 0 0 1 .67-.024zM7.546 7.509c1.455-.024 2.791.525 3.982 1.63.854.802 1.637 1.636 2.46 2.47.231.23.281.522.171.833-.11.311-.362.462-.683.512a.722.722 0 0 1-.632-.23c-.784-.784-1.567-1.557-2.34-2.35-.633-.653-1.386-1.025-2.27-1.186-1.958-.351-3.936.784-4.639 2.641-.904 2.36.522 5.031 2.982 5.594.482.11.995.11 1.497.1.14-.01.22.04.32.13.483.473.995.945 1.497 1.416.03.03.07.06.1.09-.06 0-.1.01-.14.01h-2.3a5.833 5.833 0 0 1-5.693-4.568c-.653-2.942 1.034-5.925 3.926-6.798a6.33 6.33 0 0 1 1.762-.294Z"/></symbol>
+</svg>
+
+
+<header class="bar">
+  <a class="brandmark" href="/">Dawid Sikora</a>
+  <nav>
+    <ul>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-sm" href="#contact">Email me</a>
+</header>
+
+<main>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" style="padding:0; border-bottom:var(--border-width) solid var(--line-strong);">
+    <div class="cell">
+      <p class="status"><i></i>Open to new roles</p>
+      <h1>Product Designer. <span class="trait trait--flex">Flexible</span>, <span class="trait trait--systems">systems&#8209;first</span>, at home in <span class="trait trait--data">data&#8209;heavy</span> products.</h1>
+      <div class="hero-cta">
+        <a class="btn" href="#work">Go straight to the work</a>
+      </div>
+    </div>
+
+    <div class="cell">
+      <table class="meta">
+        <tr><th>role</th><td>UX/UI &amp; Product Designer</td></tr>
+        <tr><th>domain</th><td>data-heavy systems</td></tr>
+        <tr><th>industries</th><td>healthcare, traveltech, SaaS</td></tr>
+        <tr><th>scope</th><td>research → UX → UI</td></tr>
+        <tr><th>experience</th><td>5+ years</td></tr>
+        <tr><th>status</th><td>open to new roles</td></tr>
+      </table>
+
+    <!-- Dymki cech — każdy wywoływany najechaniem na swoje słowo w H1.
+         Leżą na tabeli metadanych, która na ten czas znika. -->
+    <aside class="trait-note note--flex">
+      <span class="trait-note-bar"></span>
+      <span class="trait-note-label">Flexible</span>
+      <p>Two-week startup sprints or a change board with three sign-offs. I adapt to the workflow you already run, not the one I'd prefer.</p>
+    </aside>
+
+    <aside class="trait-note note--systems">
+      <span class="trait-note-bar"></span>
+      <span class="trait-note-label">Systems-first</span>
+      <p>A product is layers, not screens: what the user sees, what their manager reads above them, what the admin controls behind both. I design the whole ecosystem.</p>
+    </aside>
+
+    <aside class="trait-note note--data">
+      <span class="trait-note-bar"></span>
+      <span class="trait-note-label">Data-heavy</span>
+      <p>Four years on advanced digital tools for hospitals. Dense clinical data, hard constraints, and a user with no time to hunt for a number.</p>
+    </aside>
+    </div>
+
+  </section>
+
+  <!-- ===================== PROCES ===================== -->
+  <section id="process" class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">How I work</span>
+      <h2>You'll know how I think before you ever hire me.</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-no">01</span>
+          <h3>I take the system apart first</h3>
+          <p>Data, roles, flows, technical limits, budget. Before I draw a single frame, I want to know what I'm actually dealing with.</p>
+        </div>
+        <div class="step">
+          <span class="step-no">02</span>
+          <h3>Every screen has one job</h3>
+          <p>Someone opens a screen with a question already in their head. My job is to answer it fast. Whatever doesn't help with that answer gets cut.</p>
+        </div>
+        <div class="step">
+          <span class="step-no">03</span>
+          <h3>I stay until it's live</h3>
+          <p>Design that dies in handover isn't design. I sit with your developers through implementation, answer the edge cases nobody drew, and check the build against the intent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRACE ===================== -->
+  <section id="work">
+    <div class="wrap">
+      <span class="eyebrow">Selected work</span>
+      <h2>Three messy problems, and how I untangled them.</h2>
+
+      <a class="story" href="case-study.html">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">Web app · [DO UZUPEŁNIENIA — rok]</span>
+          <h3>An analytics dashboard an ops team can actually read</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">More data than screen. People hunted for a single number for five minutes straight.</span></li>
+            <li><span class="label">What I did</span><span class="value">Rebuilt the information hierarchy and the decision paths around the job to be done — not around the shape of the database.</span></li>
+            <li><span class="label">Result</span><span class="value">One consistent layout the team keeps extending without asking me about every detail. [DO UZUPEŁNIENIA — twardy wynik, jeśli masz]</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <a class="story" href="case-study.html">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">Design system · [DO UZUPEŁNIENIA — rok]</span>
+          <h3>A component system that stopped the drift</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Every view looked like a different person had designed it. That's because one had.</span></li>
+            <li><span class="label">What I did</span><span class="value">Pulled the repeating patterns into one system, with usage rules and documentation developers actually open.</span></li>
+            <li><span class="label">Result</span><span class="value">New screens ship faster and look like the rest of the product on their own. [DO UZUPEŁNIENIA — twardy wynik, jeśli masz]</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <a class="story" href="case-study.html">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">Research and design · [DO UZUPEŁNIENIA — rok]</span>
+          <h3>A sign-up flow rebuilt on evidence, not opinions</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Users dropped out halfway through. The team had three competing theories about why.</span></li>
+            <li><span class="label">What I did</span><span class="value">Found where people actually stall, before anyone started drawing new screens.</span></li>
+            <li><span class="label">Result</span><span class="value">Design decisions built on what people do, not on what the room assumes. [DO UZUPEŁNIENIA — twardy wynik, jeśli masz]</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+
+      <div class="work-more">
+        <p>These three are picked for the thinking, not for the prettiest pixels. The rest is one click away.</p>
+        <a class="btn btn-ghost" href="/projects">See all work</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NARZĘDZIA ===================== -->
+  <section id="tools">
+    <div class="wrap">
+      <span class="eyebrow">What I work in</span>
+      <div class="tools">
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-figma"/></svg><span>Figma</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-claude"/></svg><span>Claude Code</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-cursor"/></svg><span>Cursor</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-miro"/></svg><span>Miro</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-figma"/></svg><span>FigJam</span></div>
+        <div class="tool"><svg class="tool-logo" aria-hidden="true"><use href="#l-adobe"/></svg><span>Adobe CC</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== O MNIE ===================== -->
+  <section id="about" class="bg-soft">
+    <div class="wrap about">
+      <div>
+        <span class="eyebrow">About</span>
+        <h2>I came into design through systems. It shows.</h2>
+        <p>I read a product as a set of dependencies, not a stack of screens waiting to be painted. Give me a lot of data and very little room for it, and I'm in my element.</p>
+        <p>After hours I play board games and video games. Right now I'm reading about UX in games — there the interface has to be invisible and lead the player by the hand at the same time. A lot of that carries over to products that aren't games.</p>
+        <a class="about-link lnk" href="about.html">More about me</a>
+      </div>
+      <span class="ph ph-1x1"></span>
+    </div>
+  </section>
+
+  <!-- ===================== KONTAKT ===================== -->
+  <section id="contact">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">[DO UZUPEŁNIENIA — adres e-mail]</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:[DO UZUPEŁNIENIA — adres e-mail]">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a class="lnk" href="[DO UZUPEŁNIENIA — link do LinkedIna]">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:[DO UZUPEŁNIENIA — adres e-mail]">Email</a>
+      <a href="[DO UZUPEŁNIENIA — link do LinkedIna]">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     ODSŁONA — maska zjeżdża z nagłówków przy wejściu w ekran
+     Raz na element. Bez JS-a nagłówki są normalnie widoczne.
+     ========================================================= -->
+<script>
+(() => {
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+
+  const cele = [...document.querySelectorAll('h1, h2')];
+  cele.forEach(el => el.classList.add('wipe'));
+
+  const obs = new IntersectionObserver((wpisy) => {
+    for (const w of wpisy) {
+      if (!w.isIntersecting) continue;
+      w.target.classList.add('is-open');
+      obs.unobserve(w.target);        // raz i koniec
+    }
+    // Próg musi być 0: clip-path przycina element do zerowej
+    // powierzchni, więc intersectionRatio zawsze wynosi 0 i każdy
+    // wyższy próg blokuje odsłonę na zawsze.
+  }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+
+  cele.forEach(el => obs.observe(el));
+})();
+</script>
+
+</body>
+</html>

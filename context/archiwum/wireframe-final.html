@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dawid Sikora — UX/UI &amp; Product Designer</title>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    font-family: Georgia, "Times New Roman", serif;
+    color:#111; background:#fff; line-height:1.6;
+  }
+
+  .wrap{ width:100%; max-width:1080px; margin:0 auto; padding:0 28px; }
+  a{ color:inherit; }
+
+  h1{ font-size:clamp(2.8rem, 7vw, 5.4rem); line-height:1.02; letter-spacing:-0.028em; font-weight:400; }
+  h2{ font-size:clamp(1.9rem, 3.6vw, 2.9rem); line-height:1.14; letter-spacing:-0.015em; font-weight:400; }
+  h3{ font-size:1.4rem; line-height:1.25; font-weight:400; }
+  p { font-size:1.0625rem; color:#4f4f4f; }
+  .lead{ font-size:1.3rem; color:#3a3a3a; line-height:1.5; }
+
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:#767676; margin-bottom:28px; display:block;
+  }
+
+  header{ border-bottom:1px solid #e4e4e4; position:sticky; top:0; background:#fff; z-index:20; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:22px 0; gap:24px; }
+  .brandmark{ font-size:1.0625rem; letter-spacing:-0.01em; text-decoration:none; }
+  .nav-links{ display:flex; align-items:center; gap:30px; list-style:none; }
+  .nav-links a{ font-size:0.95rem; color:#4f4f4f; text-decoration:none; }
+  .nav-links a:hover{ color:#111; }
+
+  .btn{
+    display:inline-block; padding:15px 28px; font-size:0.95rem; font-family:inherit;
+    border:1px solid #111; background:#111; color:#fff; text-decoration:none;
+    border-radius:2px; cursor:pointer;
+  }
+  .btn:hover{ background:#3a3a3a; border-color:#3a3a3a; }
+  .btn-ghost{ background:transparent; color:#111; }
+  .btn-ghost:hover{ background:#f0f0f0; }
+  .btn-sm{ padding:10px 18px; font-size:0.875rem; }
+
+  section{ padding:120px 0; }
+  .divider{ border-top:1px solid #e4e4e4; }
+  .bg-soft{ background:#f6f6f6; }
+
+  .ph{ background:#e6e6e6; border:1px solid #d7d7d7; width:100%; display:block; }
+  .ph-3x2{ aspect-ratio:3/2; }
+  .ph-1x1{ aspect-ratio:1/1; }
+
+  /* --- hero --- */
+  .hero{ padding:130px 0 116px; }
+  .hero h1{ max-width:15ch; }
+  .hero .lead{ margin-top:36px; max-width:56ch; }
+  .hero-cta{ margin-top:48px; display:flex; gap:16px; flex-wrap:wrap; }
+
+  .status{
+    display:inline-flex; align-items:center; gap:12px; margin-bottom:34px;
+    font-size:0.9rem; color:#4f4f4f; border:1px solid #d7d7d7;
+    border-radius:999px; padding:9px 20px 9px 14px;
+  }
+  .lamp{
+    width:9px; height:9px; border-radius:50%; background:#111;
+    border:4px solid #dcdcdc; box-sizing:content-box; display:inline-block;
+  }
+
+  /* --- domknięcie sekcji prac --- */
+  .work-more{
+    margin-top:80px; padding-top:40px; border-top:1px solid #e4e4e4;
+    display:flex; justify-content:space-between; align-items:center; gap:28px; flex-wrap:wrap;
+  }
+  .work-more p{ max-width:46ch; }
+
+  /* --- proces --- */
+  .steps{ display:grid; grid-template-columns:repeat(3, 1fr); gap:56px 48px; margin-top:12px; }
+  .step-no{
+    font-size:3.4rem; line-height:1; color:#c4c4c4; display:block; margin-bottom:22px;
+    padding-bottom:22px; border-bottom:1px solid #d3d3d3;
+  }
+  .step h3{ margin-bottom:14px; }
+
+  /* --- prace --- */
+  .story{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center; text-decoration:none; }
+  .story + .story{ margin-top:96px; padding-top:96px; border-top:1px solid #e4e4e4; }
+  .story:hover .ph{ background:#dcdcdc; }
+  .story-meta{ font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; margin-bottom:12px; display:block; }
+  .story h3{ font-size:1.9rem; margin-bottom:24px; }
+  .facts{ list-style:none; }
+  .facts li{ padding:14px 0; border-top:1px solid #e4e4e4; display:grid; grid-template-columns:110px 1fr; gap:20px; }
+  .facts li:last-child{ border-bottom:1px solid #e4e4e4; }
+  .facts .label{ font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; padding-top:3px; }
+  .facts .value{ font-size:1rem; color:#4f4f4f; }
+  .story-link{ display:inline-block; margin-top:26px; font-size:0.95rem; border-bottom:1px solid #111; padding-bottom:2px; }
+
+  /* --- narzędzia --- */
+  .tools{ display:grid; grid-template-columns:repeat(6, 1fr); gap:28px; }
+  .tool{ text-align:center; }
+  .tool .ph{ margin-bottom:14px; }
+  .tool span{ font-size:0.85rem; color:#5a5a5a; }
+
+  /* --- o mnie --- */
+  .about{ display:grid; grid-template-columns:1fr 340px; gap:64px; align-items:start; }
+  .about p + p{ margin-top:20px; }
+  .about-link{ display:inline-block; margin-top:22px; font-size:0.95rem; border-bottom:1px solid #111; padding-bottom:2px; text-decoration:none; }
+
+  /* --- kontakt --- */
+  .contact{ display:grid; grid-template-columns:1fr 440px; gap:56px; align-items:center; }
+  .contact h2{ max-width:18ch; margin-bottom:18px; }
+  .contact p{ max-width:46ch; }
+
+  .mail-box{ border:1px solid #d7d7d7; border-radius:2px; padding:30px; }
+  .mail-label{ font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase; color:#7a7a7a; margin-bottom:12px; display:block; }
+  .mail-address{
+    font-size:clamp(1.15rem, 2.2vw, 1.5rem); color:#111; display:block;
+    margin-bottom:26px; word-break:break-all; user-select:all; cursor:text;
+  }
+  .contact-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+  .alt-channel{ margin-top:26px; padding-top:22px; border-top:1px solid #e4e4e4; font-size:0.95rem; }
+  .alt-channel a{ color:#111; border-bottom:1px solid #111; padding-bottom:2px; text-decoration:none; }
+
+  footer{ border-top:1px solid #e4e4e4; padding:40px 0; }
+  .foot{ display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
+  .foot a, .foot span{ font-size:0.9rem; color:#6b6b6b; text-decoration:none; }
+  .foot-links{ display:flex; gap:26px; }
+  .foot a:hover{ color:#111; }
+
+  @media (max-width:880px){
+    .nav-links{ display:none; }
+    section{ padding:80px 0; }
+    .hero{ padding:72px 0 64px; }
+    .hero .lead{ margin-top:28px; }
+    .hero-cta{ margin-top:36px; }
+    .steps{ grid-template-columns:1fr; gap:40px; }
+    .story{ grid-template-columns:1fr; gap:28px; }
+    .story + .story{ margin-top:64px; padding-top:64px; }
+    .facts li{ grid-template-columns:1fr; gap:6px; }
+    .tools{ grid-template-columns:repeat(3, 1fr); gap:24px; }
+    .about{ grid-template-columns:1fr; gap:32px; }
+    .about .ph-1x1{ max-width:240px; }
+    .contact{ grid-template-columns:1fr; gap:32px; }
+    .work-more{ margin-top:56px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brandmark" href="/">Dawid Sikora</a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#proces">Proces</a></li>
+        <li><a href="#prace">Prace</a></li>
+        <li><a href="#o-mnie">O mnie</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-sm" href="#kontakt">Napisz do mnie</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="wrap hero">
+    <p class="status"><span class="lamp"></span> Otwarty na propozycje pracy</p>
+    <h1>Ładny ekran to wynik. Nie punkt wyjścia.</h1>
+    <p class="lead">Projektuję produkty cyfrowe od strony systemu: danych, ról i ograniczeń. Na tej stronie pokazuję cały tok myślenia, a nie wyłącznie efekt końcowy w ramce telefonu.</p>
+    <div class="hero-cta">
+      <a class="btn" href="#proces">Zobacz, jak pracuję</a>
+      <a class="btn btn-ghost" href="#prace">Przejdź do prac</a>
+    </div>
+  </div>
+
+  <section id="proces" class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">Jak pracuję</span>
+      <h2>Trzy kroki, które powtarzam w każdym projekcie.</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-no">01</span>
+          <h3>Rozkładam system na części</h3>
+          <p>Dane, role, przepływy, ograniczenia techniczne i budżet. Zanim cokolwiek narysuję, chcę wiedzieć, z czym naprawdę mam do czynienia.</p>
+        </div>
+        <div class="step">
+          <span class="step-no">02</span>
+          <h3>Projektuję decyzje, nie widoki</h3>
+          <p>Każdy ekran odpowiada na pytanie, które ktoś sobie właśnie zadaje. Elementy, które na nic nie odpowiadają, wylatują.</p>
+        </div>
+        <div class="step">
+          <span class="step-no">03</span>
+          <h3>Zostawiam coś, co się utrzyma</h3>
+          <p>Komponenty, zasady i dokumentacja. Zespół ma iść dalej beze mnie i nie zbudować przy okazji szóstej wersji tego samego przycisku.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="prace" class="divider">
+    <div class="wrap">
+      <span class="eyebrow">Prace</span>
+      <h2 style="margin-bottom:64px; max-width:22ch;">Trzy przykłady tego, jak to wygląda w praktyce.</h2>
+
+      <a class="story" href="/projects/panel-analityczny">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">UX/UI Designer · Aplikacja webowa · 2024</span>
+          <h3>Panel analityczny dla zespołu operacyjnego</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Danych było więcej niż miejsca na ekranie, a użytkownicy szukali jednej liczby po pięć minut.</span></li>
+            <li><span class="label">Co zrobiłem</span><span class="value">Przebudowałem hierarchię informacji i ścieżki decyzyjne wokół zadań, a nie wokół struktury bazy danych.</span></li>
+            <li><span class="label">Efekt</span><span class="value">Spójny układ, który zespół rozwija dalej bez pytania mnie o każdy detal.</span></li>
+          </ul>
+          <span class="story-link">Przeczytaj case study</span>
+        </div>
+      </a>
+
+      <a class="story" href="/projects/system-komponentow">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">Product Designer · Design system · 2023</span>
+          <h3>System komponentów dla produktu webowego</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Każdy widok wyglądał, jakby projektował go ktoś inny. Bo tak właśnie było.</span></li>
+            <li><span class="label">Co zrobiłem</span><span class="value">Zebrałem powtarzalne wzorce w jeden system z zasadami użycia i dokumentacją dla deweloperów.</span></li>
+            <li><span class="label">Efekt</span><span class="value">Nowe ekrany powstają szybciej i same z siebie wyglądają jak reszta produktu.</span></li>
+          </ul>
+          <span class="story-link">Przeczytaj case study</span>
+        </div>
+      </a>
+
+      <a class="story" href="/projects/proces-rejestracji">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">UX Designer · Badania i projekt · 2023</span>
+          <h3>Przebudowa procesu rejestracji</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Użytkownicy odpadali w połowie procesu, a zespół miał trzy różne teorie dlaczego.</span></li>
+            <li><span class="label">Co zrobiłem</span><span class="value">Sprawdziłem, w którym miejscu się zatrzymują, zanim ktokolwiek zaczął rysować nowe ekrany.</span></li>
+            <li><span class="label">Efekt</span><span class="value">Decyzje projektowe oparte na tym, co robią ludzie, a nie na tym, co nam się wydaje.</span></li>
+          </ul>
+          <span class="story-link">Przeczytaj case study</span>
+        </div>
+      </a>
+      <div class="work-more">
+        <p>To trzy przykłady wybrane pod kątem procesu. Pełny katalog prac jest pod jednym kliknięciem.</p>
+        <a class="btn btn-ghost" href="/projects">Zobacz wszystkie prace</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="narzedzia" class="divider">
+    <div class="wrap">
+      <span class="eyebrow">Narzędzia</span>
+      <div class="tools">
+        <div class="tool"><span class="ph ph-1x1"></span><span>Figma</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>FigJam</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Miro</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Notion</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Maze</span></div>
+        <div class="tool"><span class="ph ph-1x1"></span><span>Illustrator</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="o-mnie" class="bg-soft">
+    <div class="wrap about">
+      <div>
+        <span class="eyebrow">O mnie</span>
+        <h2>Do projektowania wszedłem od strony systemów.</h2>
+        <p>Dlatego produkt widzę jako układ zależności, a nie zestaw ekranów do pomalowania. Najlepiej czuję się tam, gdzie danych jest dużo, a miejsca na nie mało.</p>
+        <p>Po godzinach gram w planszówki i gry wideo. Ostatnio czytam o UX w grach — bo tam interfejs ma być niewidzialny i jednocześnie prowadzić gracza za rękę. Sporo z tego da się przenieść do produktów, które grami nie są.</p>
+        <a class="about-link" href="/about">Więcej o mnie</a>
+      </div>
+      <span class="ph ph-1x1"></span>
+    </div>
+  </section>
+
+  <section id="kontakt" class="divider">
+    <div class="wrap contact">
+      <div>
+        <h2>Szukasz kogoś, kto ogarnie skomplikowany produkt?</h2>
+        <p>Napisz w dwóch zdaniach, z czym się mierzycie. Odpiszę konkretnie: co bym zrobił i w jakiej kolejności.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Adres e-mail</span>
+        <span class="mail-address">czesc@dawidsikora.pl</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:czesc@dawidsikora.pl">Napisz wiadomość</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Pobierz CV</a>
+        </div>
+        <p class="alt-channel">Wolisz inny kanał? Jestem też na <a href="#">LinkedInie</a> i odpisuję tam równie szybko.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:czesc@dawidsikora.pl">E-mail</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">CV</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

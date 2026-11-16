@@ -1,0 +1,981 @@
+/* ============================================================
+   Dawid Sikora — system wizualny strony
+   ============================================================
+   Wspólny dla index.html i case-study.html. Tokeny 1:1 z DESIGN.md.
+   Leży w katalogu głównym, nie w assets/, bo adresy url() w środku
+   wskazują na assets/ — przeniesienie pliku zepsułoby je wszystkie.
+   ============================================================ */
+/* =========================================================
+     TOKENY — 1:1 z DESIGN.md
+     ========================================================= */
+  :root{
+    --bg:               #EBE8E0;
+    --surface:          #E3DFD5;
+    --surface-inverse:  #171713;
+
+    --text:             #171713;
+    --text-soft:        #4A4A3F;
+    --text-muted:       #63604F;
+    --text-inverse:     #EBE8E0;
+
+    --line-strong:      #171713;
+    --line:             #C9C5B8;
+    --line-control:     #85806D;
+
+    --accent:           #D8F23A;
+    --accent-ink:       #171713;
+    --status-ok:        #1F6F3E;
+
+    --font: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --text-display: clamp(1.8rem, 3.9vw, 3.1rem);
+    --text-h2:      clamp(1.5rem, 2.6vw, 2.1rem);
+    --text-h3:      1.125rem;
+    --text-lead:    1rem;
+    --text-body:    0.9375rem;
+    --text-small:   0.8125rem;
+    --text-label:   0.75rem;
+    --text-micro:   0.6875rem;
+
+    --space-1:4px;   --space-2:8px;   --space-3:12px;  --space-4:16px;
+    --space-5:20px;  --space-6:24px;  --space-8:32px;  --space-10:40px;
+    --space-12:48px; --space-16:64px; --space-20:80px; --space-24:96px;
+    --space-32:128px;
+
+    --radius:       0;
+    --shadow:       none;
+    --border-width: 1px;
+
+    /* gutter wg DESIGN.md: 4vw, min --space-5, max --space-24 */
+    --gutter: clamp(var(--space-5), 4vw, var(--space-24));
+  }
+
+  /* =========================================================
+     PODSTAWA
+     ========================================================= */
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    font-size:var(--text-body);
+    line-height:1.6;
+    font-variant-numeric:tabular-nums;
+  }
+  a{ color:inherit; }
+  img{ max-width:100%; display:block; }
+
+  :focus-visible{ outline:2px solid var(--text); outline-offset:2px; }
+
+  .wrap{ max-width:1280px; margin:0 auto; padding:0 var(--gutter); }
+
+  h1,h2,h3,p,ul{ margin:0; }
+  ul{ list-style:none; padding:0; }
+
+  /* --- typografia systemu --- */
+  h1{ font-size:var(--text-display); font-weight:700; line-height:1.22; letter-spacing:-.045em; max-width:21ch; }
+  h2{ font-size:var(--text-h2);      font-weight:700; line-height:1.25; letter-spacing:-.03em;  max-width:22ch; }
+  h3{ font-size:var(--text-h3);      font-weight:700; line-height:1.35; letter-spacing:-.01em; }
+
+  .lead{ font-size:var(--text-lead); max-width:68ch; }
+  .body{ font-size:var(--text-body); max-width:68ch; color:var(--text-soft); }
+
+  .eyebrow{
+    display:block;
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+    margin-bottom:var(--space-4);
+  }
+
+  /* =========================================================
+     PASEK NAWIGACJI — otwiera siatkę linią nośną
+     ========================================================= */
+  .bar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:var(--space-4); flex-wrap:wrap;
+    padding:var(--space-3) var(--gutter);
+    border-top:var(--border-width) solid var(--line-strong);
+    border-bottom:var(--border-width) solid var(--line);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    background:var(--bg);
+  }
+  /* Logotyp: symbol #l-brand ze sprite'u na górze <body>.
+     fill:currentColor, więc trzyma token --text i zadziała
+     też na odwróconym tle. Tekst „Dawid Sikora" zostaje w DOM
+     jako nazwa dostępna linku, tylko schowany wizualnie. */
+  .brandmark{
+    --brand-h:19.2px;              /* 16px +20%, ~134px szerokości */
+    display:inline-flex; align-items:center;
+    text-decoration:none; font-weight:500;
+  }
+  .brandmark-logo{
+    display:block; fill:currentColor;
+    /* proporcja z viewBox: 727 × 104 */
+    height:var(--brand-h); width:calc(var(--brand-h) * 727 / 104);
+  }
+  .brandmark-text{
+    position:absolute; width:1px; height:1px;
+    overflow:hidden; clip-path:inset(50%); white-space:nowrap;
+  }
+  .bar nav ul{ display:flex; gap:var(--space-5); }
+  .bar nav a{ text-decoration:none; padding:var(--space-1) var(--space-1); }
+  .bar nav a:hover{ background:var(--accent); }
+
+  .status{ display:inline-flex; align-items:center; }
+  .status i{ display:inline-block; width:8px; height:8px; background:var(--status-ok); margin-right:var(--space-2); }
+
+  /* =========================================================
+     PRZYCISKI I LINKI
+     ========================================================= */
+  .btn{
+    display:inline-block; text-decoration:none; cursor:pointer;
+    font-family:var(--font);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    padding:var(--space-3) var(--space-6);
+    border:var(--border-width) solid var(--line-strong);
+    border-radius:var(--radius);
+    background:var(--accent); color:var(--accent-ink);
+    transition:background .25s ease, color .25s ease;
+  }
+  .btn:hover{ background:var(--surface-inverse); color:var(--accent); }
+
+  .btn-ghost{
+    background:transparent; color:var(--text);
+  }
+  .btn-ghost:hover{ background:var(--surface-inverse); color:var(--text-inverse); }
+
+  .btn-sm{ padding:var(--space-2) var(--space-4); }
+
+  /* =========================================================
+     PIKSELOWY REVEAL — przyciski primary
+     ---------------------------------------------------------
+     Sprite dissolve: pionowy pas 17 klatek (assets/pixel/dissolve.png)
+     przewijany przez steps(16), więc ciemność nie przenika, tylko
+     dosypuje się kolejnymi pikselami — po 4 na klatkę, stąd płynny
+     przyrost. Kolejność jest nieregularna i tak dobrana, żeby piksele
+     jak najdłużej nie stykały się bokami (patrz dissolve.mjs).
+
+     Tło przycisku zostaje limonkowe; ciemne są wyłącznie piksele
+     sprite'a, a akcent prześwituje między nimi. Dlatego hover musi
+     nadpisać pierwotne background na primary — inaczej tło zmieniłoby
+     się od razu i nie byłoby czego odsłaniać.
+
+     Klatka ma 16×4 piksele, a background-size:192px daje im po 12px
+     na ekranie — duże bloki, nie ziarno. Wysokość klatki wychodzi
+     wtedy na 48px, czyli więcej niż przycisk: pas nie powtarza się
+     w pionie (tam leżą kolejne klatki), więc niższa klatka zostawiłaby
+     dół przycisku bez pikseli.
+
+     Bez zgody na ruch działa pierwotny hover: limonkowy napis na
+     nieodsłoniętym limonkowym tle byłby niewidoczny (1.03:1).
+     ========================================================= */
+  @media (prefers-reduced-motion:no-preference){
+    /* Sam rozsypujący się sprite jest wspólny dla obu odmian przycisku:
+       to czarne piksele na przezroczystym tle, więc kładzie się tak samo
+       na limonce (primary) jak na przezroczystości (ghost). */
+    .btn:hover{
+      background-image:url("assets/pixel/dissolve.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+      /* napis przeskakuje twardo, gdy pole jest już ciemne */
+      transition:color 0s .3s;
+    }
+    /* Primary: tło zostaje limonkowe, ciemność dokładają piksele.
+       Gdyby robiło to background, nie byłoby czego odsłaniać. */
+    .btn:not(.btn-ghost):hover{
+      background-color:var(--accent);
+      color:var(--accent);
+    }
+    /* Ghost: tło zostaje przezroczyste, napis schodzi na jasny.
+       Reguła musi stać po .btn-ghost:hover wyżej, żeby wygrać
+       przy tej samej specyficzności. */
+    .btn-ghost:hover{
+      background-color:transparent;
+      color:var(--text-inverse);
+    }
+    @keyframes btn-dissolve{
+      to{ background-position-y:calc(-16 * 48px); }
+    }
+  }
+
+  .lnk{
+    color:var(--text);
+    text-decoration:underline;
+    text-underline-offset:3px;
+    text-decoration-thickness:var(--border-width);
+  }
+  .lnk:hover{ background:var(--accent); }
+
+  /* =========================================================
+     PIKSELOWY REVEAL — przycisk tertiary (podkreślony tekst)
+     ---------------------------------------------------------
+     Ta sama rozsypka co na przyciskach, tylko w drugą stronę:
+     na primary ciemne piksele kładą się na limonkowym tle, tutaj
+     limonkowe przybywają na tle strony. Stąd osobny pas klatek
+     w kolorze akcentu — dissolve-lnk.png, wygenerowany tym samym
+     skryptem i tym samym ziarnem co dissolve.png, więc kolejność
+     zapalania pikseli jest identyczna w całym systemie:
+
+       node assets/pixel/dissolve.mjs \
+            assets/pixel/dissolve-lnk.png 16 4 17 D8F23A in
+
+     Geometria jest wspólna z przyciskami (192px, klatka 48px),
+     więc animacja korzysta z gotowych klatek btn-dissolve zamiast
+     dublować keyframes. Tekst zostaje ciemny przez całą rozsypkę
+     — czytelny i na tle strony, i na limonce — więc w odróżnieniu
+     od primary nic tu nie przeskakuje kolorem.
+
+     Bez zgody na ruch zostaje pierwotny hover: limonka od razu.
+     ========================================================= */
+  @media (prefers-reduced-motion:no-preference){
+    .lnk:hover{
+      background-color:transparent;      /* limonkę dosypują piksele */
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+    }
+  }
+
+  /* =========================================================
+     HERO — dwie komórki: wypowiedź po lewej, dane po prawej
+     ========================================================= */
+  .hero{
+    position:relative;
+    display:grid; grid-template-columns:1.45fr 1fr;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .hero .cell{ padding:var(--space-24) var(--gutter); }
+  .hero .cell + .cell{ position:relative; border-left:var(--border-width) solid var(--line); }
+
+  .hero .status{ margin-bottom:var(--space-8); }
+
+  /* mechanika .trait — z context/reference.html
+     Hover na całym nagłówku gasi wszystkie pola i przygasza słowa;
+     hover na jednej cesze przywraca ją do pełni. */
+  .trait{
+    /* inline-block, bo transform nie działa na elementach inline */
+    display:inline-block;
+    position:relative;
+    background:var(--accent); padding:0 .16em;
+    transition:background .25s ease, opacity .25s ease;
+  }
+
+  /* Lupka w prawym górnym rogu limonkowego pola — znak „to jest do
+     obejrzenia". Siedzi na ::after, bo tło .trait zajmuje pikselowa
+     rozsypka. Wymiary w em, żeby skalowała się razem z H1 (clamp
+     1.8–3.1rem). Wystaje poza pole o ~1/3 swojej wysokości, tak jak
+     na referencji, więc nie zjada światła wokół liter. */
+  .trait::after{
+    content:"";
+    position:absolute;
+    top:-.12em; right:-.18em;
+    width:.36em; height:.36em;
+    background:url("assets/Icons/mag_glass.svg") no-repeat center/contain;
+    pointer-events:none;
+  }
+  h1:hover .trait{ background:transparent; opacity:.4; }
+  h1 .trait:hover{
+    background:var(--accent); opacity:1;
+    animation:headShake 1s ease-in-out;
+  }
+  /* klatki 1:1 z animate.css (MIT) — bez ładowania całej biblioteki */
+  @keyframes headShake{
+    0%    { transform:translateX(0); }
+    6.5%  { transform:translateX(-6px) rotateY(-9deg); }
+    18.5% { transform:translateX(5px)  rotateY(7deg); }
+    31.5% { transform:translateX(-3px) rotateY(-5deg); }
+    43.5% { transform:translateX(2px)  rotateY(3deg); }
+    50%   { transform:translateX(0); }
+  }
+
+  /* =========================================================
+     PIKSELOWY REVEAL — cechy w nagłówku hero
+     ---------------------------------------------------------
+     Ten sam gest co na przyciskach i .lnk: limonka nie wjeżdża
+     płasko, tylko dosypuje się pikselami. Wspólny pas klatek
+     (dissolve-lnk.png — limonka na przezroczystości), więc
+     kolejność zapalania pikseli jest identyczna w całym systemie.
+
+     Różnica wobec przycisków jest w geometrii. Tam klatka ma stałe
+     48px, bo przycisk ma stałą wysokość. H1 skaluje się przez clamp
+     od 1.8rem do 3.1rem, więc pas też musi być w em, inaczej na
+     dużym ekranie klatka (48px) byłaby niższa od pola (~61px)
+     i dół cechy zostałby bez pikseli.
+
+     Klatka źródłowa to 16×4 piksele. background-size:5em daje
+     piksel 0.3125em i klatkę 1.25em — zawsze odrobinę wyżej niż
+     pole cechy (line-height 1.22 + padding), przy każdym rozmiarze
+     nagłówka. Stąd osobne keyframes: koniec pasa to -16 × 1.25em.
+
+     headShake zostaje i leci równolegle — rozsypka wypełnia pole,
+     potrząśnięcie zaczepia oko. Bez zgody na ruch działa pierwotna
+     reguła wyżej: limonka wraca od razu.
+     ========================================================= */
+  @media (prefers-reduced-motion:no-preference){
+    h1 .trait:hover{
+      background-color:transparent;      /* limonkę dosypują piksele */
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:5em;
+      background-position:0 0;
+      image-rendering:pixelated;
+      /* bez przejścia na tle — inaczej limonka gasłaby przez .25s
+         równocześnie z dosypywaniem pikseli i pole by się ubrudziło */
+      transition:opacity .25s ease;
+      animation:trait-dissolve .45s steps(16) forwards,
+                headShake 1s ease-in-out;
+    }
+    @keyframes trait-dissolve{
+      to{ background-position-y:calc(-16 * 1.25em); }
+    }
+  }
+
+  .hero-cta{ margin-top:var(--space-10); }
+
+  /* tabela metadanych — nośnik treści, nie dekoracja */
+  .meta{
+    width:100%; border-collapse:collapse; font-size:var(--text-small);
+    /* szerokość kolumny kluczy jako liczba, nie procent — ta sama wartość
+       steruje układem i podziałem czasu rysowania linii */
+    --meta-key:.46;
+  }
+  .meta th, .meta td{
+    /* linia wiersza jedzie pseudoelementem (patrz niżej), więc border
+       zostaje na miejscu, tylko przezroczysty — wysokość wiersza
+       i wyrównanie siatki nie drgną ani o piksel */
+    position:relative;
+    padding:var(--space-3) 0;
+    border-bottom:var(--border-width) solid transparent;
+  }
+  .meta th{
+    text-align:left; font-weight:400; color:var(--text-muted);
+    text-transform:uppercase; letter-spacing:.1em; font-size:var(--text-label);
+    width:calc(var(--meta-key) * 100%);
+  }
+  .meta td{ font-weight:500; }
+
+  /* =========================================================
+     LINIE TABELI — wszystkie jadą razem, jednym ruchem
+     ---------------------------------------------------------
+     Ta sama logika i kierunek co maska nagłówków, tylko wolniej.
+     Wiersz składa się z dwóch komórek, więc każdy odcinek dostaje
+     czas proporcjonalny do swojej szerokości, a odcinek pod wartością
+     startuje dokładnie wtedy, gdy kończy się odcinek pod kluczem —
+     linia przejeżdża wiersz jednym równym ruchem, bez szwu w połowie.
+     Dlatego easing jest liniowy: stała prędkość, nie ruch z rozbiegiem.
+     Bez opóźnień per wiersz: wszystkie linie startują i kończą razem.
+     Klasę .wipe dokłada JS. Bez skryptu linie po prostu stoją.
+     ========================================================= */
+  .meta{
+    --line-dur:.75s;    /* przejazd całej szerokości wiersza */
+    --line-lead:.3s;    /* start po tym, jak maska ruszy z tabelą */
+  }
+  .meta th::after, .meta td::after{
+    content:''; position:absolute;
+    left:0; right:0; bottom:calc(-1 * var(--border-width));
+    height:var(--border-width); background:var(--line);
+    transform-origin:left center;
+    transition:transform var(--line-dur) linear var(--line-lead);
+  }
+  .meta th::after{
+    transition-duration:calc(var(--line-dur) * var(--meta-key));
+  }
+  .meta td::after{
+    transition-duration:calc(var(--line-dur) * (1 - var(--meta-key)));
+    transition-delay:calc(var(--line-lead) + var(--line-dur) * var(--meta-key));
+  }
+  .meta.wipe th::after,         .meta.wipe td::after{ transform:scaleX(0); }
+  .meta.wipe.is-open th::after, .meta.wipe.is-open td::after{ transform:scaleX(1); }
+
+  /* =========================================================
+     SEKCJE
+     ========================================================= */
+  section{ padding:var(--space-24) 0; border-bottom:var(--border-width) solid var(--line-strong); }
+  .bg-soft{ background:var(--surface); }
+
+  section > .wrap > h2{ margin-bottom:var(--space-16); }
+
+  /* --- proces: trzy kroki --- */
+  .steps{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    border-top:var(--border-width) solid var(--line);
+  }
+  .step{
+    padding:var(--space-8) var(--space-6) var(--space-8) 0;
+    border-bottom:var(--border-width) solid var(--line);
+  }
+  .step + .step{ border-left:var(--border-width) solid var(--line); padding-left:var(--space-6); }
+  .step-no{
+    display:block; font-size:var(--text-label); letter-spacing:.1em;
+    color:var(--text-muted); margin-bottom:var(--space-4);
+  }
+  .step h3{ margin-bottom:var(--space-4); }
+  .step p{ color:var(--text-soft); }
+
+  /* --- miejsca na obraz --- */
+  .ph{ display:block; background:var(--surface); border:var(--border-width) solid var(--line); }
+  .bg-soft .ph{ background:var(--bg); }
+  .ph-3x2{ aspect-ratio:3/2; }
+  /* obraz wchodzi w miejsce placeholdera: kadr przycięty do proporcji ramki */
+  .img-fit{ width:100%; height:auto; object-fit:cover; }
+  .ph-1x1{ aspect-ratio:1/1; }
+  /* Grafika pikselowa skaluje się najbliższym sąsiadem — interpolacja
+     rozmyłaby krawędzie, czyli jedyne, co tu niesie formę. */
+  .px-art{ image-rendering:pixelated; }
+
+  /* --- karty projektów --- */
+  .story{
+    display:grid; grid-template-columns:1fr 1.25fr; gap:var(--space-12);
+    text-decoration:none;
+    padding:var(--space-12) 0;
+    border-top:var(--border-width) solid var(--line-strong);
+    align-items:start;
+  }
+  .story:hover .story-link{ background:var(--accent); }
+
+  /* „Read the case study" to ten sam tertiary co .lnk — podkreślony tekst
+     z limonkowym tłem na najeździe — więc rozsypuje się tak samo. Wyzwala
+     go najazd na całą kartę, nie na sam link. */
+  @media (prefers-reduced-motion:no-preference){
+    .story:hover .story-link{
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+    }
+  }
+
+  /* =========================================================
+     KADR NA KARTACH PRAC
+     ---------------------------------------------------------
+     Ramka i proporcja siedzą na opakowaniu, nie na obrazku —
+     inaczej przycinanie nie miałoby czego trzymać.
+
+     Dojazd zdjęcia przy najeździe (scale 1.08) jest wyłączony na
+     próbę: całą robotę przy hoverze robi teraz pikselowa rozsypka
+     niżej. Żeby go wrócić, wystarczy przejście na .story-media img
+     i .story:hover .story-media img{ transform:scale(1.08); }
+     — plus zdjęcie skali przy prefers-reduced-motion:reduce.
+     ========================================================= */
+  .story-media{ position:relative; display:block; overflow:hidden; }
+  .story-media img{
+    display:block; width:100%; height:100%; object-fit:cover;
+  }
+
+  /* =========================================================
+     PIKSELOWE PRZYKRYCIE ZDJĘCIA KARTY
+     ---------------------------------------------------------
+     Przy najeździe zdjęcie zasypuje się dużymi blokami w kolorze
+     tła — jakby kadr rozsypywał się w stronę — i natychmiast
+     wraca. Kursor przez cały ten czas stoi na karcie: to błysk,
+     nie stan.
+
+     Przebieg zawraca na trzynastej klatce z szesnastu. Zdjęcie
+     jest wtedy prawie przykryte, ale „prawie" jest celowe: pełne
+     przykrycie na ułamek sekundy wyglądałoby jak błąd ładowania.
+
+     animation, nie transition: przejście trzymałoby stan końcowy
+     do zejścia myszy. Bez „forwards" warstwa sama wraca do klatki
+     zerowej, a przy kolejnym najeździe przebieg rusza od nowa.
+
+     Jedna warstwa zamiast czterech pasów przy krawędziach (tak to
+     działało wcześniej), bo teraz rozsypka idzie przez cały kadr.
+     Sprite:
+
+       node assets/pixel/dissolve.mjs \
+            assets/pixel/dissolve-cover.png 12 8 17 EBE8E0 in
+
+     Geometria bez ani jednej liczby w pikselach. Klatka to 12×8
+     bloków, a background-size:100% 1700% rozciąga pas 17 klatek
+     tak, że jedna klatka przykrywa dokładnie całe zdjęcie. Blok
+     wychodzi wtedy na 1/12 szerokości kadru — przy kafelku ~460px
+     to ok. 38px, czyli cztery razy więcej niż w rozsypce przycisków.
+     Proporcja 12:8 to 3:2, czyli proporcja kadru, więc bloki są
+     kwadratowe na każdej szerokości ekranu.
+
+     Przewijanie w procentach, nie w pikselach: przy tle wyższym
+     od elementu 0% to pierwsza klatka, a 100% ostatnia, niezależnie
+     od wysokości karty. Stąd 81.25% = 13/16 klatki.
+     ========================================================= */
+  .px-frame{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    image-rendering:pixelated;
+    background-image:url("assets/pixel/dissolve-cover.png");
+    background-repeat:no-repeat;
+    background-size:100% 1700%;
+    background-position:0 0;
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    /* Trzynaście klatek w głąb i trzynaście z powrotem, po 35 ms.
+       steps(13) musi odpowiadać liczbie klatek w odcinku — inaczej
+       tło przewija się po ułamkach bloku i rozsypka się rozmazuje. */
+    .story:hover .px-frame{ animation:px-cover .9s steps(13); }
+
+    @keyframes px-cover{
+      0%   { background-position:0 0; }
+      50%  { background-position:0 81.25%; }
+      100% { background-position:0 0; }
+    }
+  }
+  .story-meta{
+    display:block; font-size:var(--text-label); letter-spacing:.1em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:var(--space-3);
+  }
+  .story h3{ margin-bottom:var(--space-8); }
+
+  .facts li{
+    display:grid; grid-template-columns:150px 1fr; gap:var(--space-6);
+    padding:var(--space-3) 0;
+    border-bottom:var(--border-width) solid var(--line);
+    font-size:var(--text-small);
+  }
+  .facts li:first-child{ border-top:var(--border-width) solid var(--line); }
+  .facts .label{
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .facts .value{ color:var(--text-soft); font-weight:400; }
+
+  /* --- wynik na karcie: do trzech liczb zamiast zdania ---
+     Lista prac jest skanowana, nie czytana — liczba zatrzymuje wzrok
+     szybciej niż opis. Pełny kontekst i koszty decyzji zostają
+     w case study, tu ma zostać sam dowód.
+
+     grid-auto-columns trzyma równe kolumny niezależnie od tego, ile
+     liczb wstawisz, więc karta z dwiema nie rozjedzie się względem
+     karty z trzema. Trzy to sufit: czwarta rozcieńcza trzy pierwsze. */
+  .metrics{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); }
+  .metrics .metric + .metric{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-4);
+  }
+  .metrics .metric{ padding-right:var(--space-4); }
+  .metrics .metric-num{
+    display:block; color:var(--text); font-weight:700; letter-spacing:-.01em;
+  }
+  .metrics .metric-cap{
+    display:block; margin-top:var(--space-1);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+
+  .story-link{
+    display:inline-block; margin-top:var(--space-8);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    text-decoration:underline; text-underline-offset:3px;
+    text-decoration-thickness:var(--border-width);
+    padding:var(--space-1) var(--space-1);
+    transition:background .25s ease;
+  }
+
+  .work-more{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:var(--space-8); flex-wrap:wrap;
+    padding:var(--space-8) 0 0 0;
+    border-top:var(--border-width) solid var(--line-strong);
+  }
+  .work-more p{ color:var(--text-soft); max-width:68ch; font-size:var(--text-small); margin:0; }
+
+  /* --- narzędzia --- */
+  .tools{
+    display:grid; grid-template-columns:repeat(6,1fr);
+    border-top:var(--border-width) solid var(--line);
+    border-left:var(--border-width) solid var(--line);
+  }
+  .tool{
+    padding:var(--space-6);
+    border-bottom:var(--border-width) solid var(--line);
+    border-right:var(--border-width) solid var(--line);
+    display:flex; flex-direction:column; gap:var(--space-4);
+    align-items:center; text-align:center;
+  }
+  .tool span:last-child{
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+  }
+  .tool-logo{
+    display:block; width:75%; height:auto; aspect-ratio:1/1;
+    fill:var(--text);
+    transition:fill .15s linear;
+  }
+  /* hover: kafelek się odwraca — bez nowych kolorów w palecie */
+  .tool{ transition:background-color .15s linear, color .15s linear; }
+  .tool:hover{ background:var(--surface-inverse); color:var(--text-inverse); }
+  .tool:hover .tool-logo{ fill:var(--bg); }
+
+  /* =========================================================
+     PIKSELOWY REVEAL — kafelki narzędzi
+     ---------------------------------------------------------
+     Ta sama mechanika co w przyciskach, ale kafelek nie ma stałego
+     rozmiaru: kolumny są 1fr, więc szerokość zależy od okna, a przy
+     dwóch progach siatka schodzi z sześciu kolumn na trzy i dwie.
+     Dlatego zamiast rozmiaru w pikselach klatka dostaje 100%
+     szerokości kafelka, a cały pas — stokrotność jego wysokości
+     (25 klatek). Jedna klatka = dokładnie jeden kafelek, w każdym
+     układzie.
+
+     Pozycja tła w procentach liczy się od różnicy (kafelek − obraz),
+     a ta wynosi −24 wysokości kafelka. Stąd przejazd od 0% do 100%
+     to równo 24 kroki przez wszystkie klatki — bez jednej liczby
+     w pikselach, więc nic nie trzeba poprawiać przy zmianie siatki.
+
+     Sprite ma 12×12 pól, nie 16×4 jak przycisk: kafelek jest prawie
+     kwadratowy, a pola mają zostać kwadratami, nie paskami.
+     ========================================================= */
+  @media (prefers-reduced-motion:no-preference){
+    .tool:hover{
+      /* Tło zostaje jasne — ciemność dosypują wyłącznie piksele.
+         Gdyby robił to background-color, nie byłoby czego odsłaniać. */
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-tool.png");
+      background-repeat:no-repeat;
+      background-size:100% 2500%;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:tool-dissolve .45s steps(24) forwards;
+      /* napis i logo przeskakują twardo, gdy pole jest już ciemne */
+      transition:color 0s .3s;
+    }
+    .tool:hover .tool-logo{ transition:fill 0s .3s; }
+    @keyframes tool-dissolve{
+      to{ background-position-y:100%; }
+    }
+  }
+
+  /* --- about --- */
+  .about{ display:grid; grid-template-columns:1.45fr 1fr; gap:var(--space-16); align-items:start; }
+  .about h2{ margin-bottom:var(--space-8); }
+  .about p{ color:var(--text-soft); max-width:68ch; }
+  .about p + p{ margin-top:var(--space-8); }
+  .about-link{ display:inline-block; margin-top:var(--space-10); }
+
+  /* --- kontakt --- */
+  .contact{ display:grid; grid-template-columns:1.45fr 1fr; gap:var(--space-16); align-items:start; }
+  .contact > div:first-child p{ color:var(--text-soft); margin-top:var(--space-8); max-width:68ch; }
+
+  .mail-box{ border-top:var(--border-width) solid var(--line); padding-top:var(--space-6); }
+  .mail-label{
+    display:block; font-size:var(--text-label); letter-spacing:.1em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:var(--space-2);
+  }
+  .mail-address{ display:block; font-size:var(--text-small); font-weight:500; }
+  .contact-actions{ display:flex; gap:var(--space-4); flex-wrap:wrap; margin-top:var(--space-8); }
+  .alt-channel{
+    margin-top:var(--space-8); font-size:var(--text-small); color:var(--text-soft);
+    padding-top:var(--space-6); border-top:var(--border-width) solid var(--line);
+  }
+
+  /* =========================================================
+     STOPKA
+     ========================================================= */
+  .foot{
+    display:flex; justify-content:space-between; gap:var(--space-4); flex-wrap:wrap;
+    padding-top:var(--space-8); padding-bottom:var(--space-8);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .foot-links{ display:flex; gap:var(--space-5); }
+  .foot-links a{ text-decoration:none; padding:var(--space-1); }
+  .foot-links a:hover{ background:var(--accent); color:var(--accent-ink); }
+
+  /* Stopka dostaje tę samą rozsypkę co przyciski, tertiary i powrót.
+     Skrót `background` wyżej zeruje podwłasności tła, więc sprite,
+     rozmiar i powtarzanie muszą stać tu w komplecie; klatki
+     btn-dissolve są wspólne dla całego systemu. */
+  @media (prefers-reduced-motion:no-preference){
+    .foot-links a:hover{
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+      /* napis ciemnieje, gdy limonki jest już dość pod spodem */
+      transition:color 0s .3s;
+    }
+  }
+
+  /* =========================================================
+     ŁAMANIE — [BRAK W DESIGN.md] progi ustalone roboczo
+     ========================================================= */
+  @media (max-width:1024px){
+    .tools{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width:880px){
+    .hero{ grid-template-columns:1fr; }
+    .hero .cell{ padding:var(--space-16) var(--gutter); }
+    .hero .cell + .cell{ border-left:0; border-top:var(--border-width) solid var(--line); }
+    .steps{ grid-template-columns:1fr; }
+    .step + .step{ border-left:0; padding-left:0; }
+    .story{ grid-template-columns:1fr; gap:var(--space-8); }
+    .about, .contact{ grid-template-columns:1fr; gap:var(--space-12); }
+    .bar nav{ display:none; }
+    section{ padding:var(--space-20) 0; }
+  }
+  @media (max-width:560px){
+    .brandmark{ --brand-h:16.8px; }
+    .tools{ grid-template-columns:repeat(2,1fr); }
+    .facts li{ grid-template-columns:1fr; gap:var(--space-1); }
+    /* Trzy liczby obok siebie na telefonie łamałyby podpisy
+       po jednym słowie w linii — schodzą w kolumnę. */
+    .metrics{ grid-auto-flow:row; }
+    .metrics .metric + .metric{
+      border-left:0; padding-left:0;
+      border-top:var(--border-width) solid var(--line);
+      padding-top:var(--space-2); margin-top:var(--space-2);
+    }
+  }
+
+  /* =========================================================
+     TŁO SHADEROWE — sekcje „How I work" i „About"
+     ---------------------------------------------------------
+     EKSPERYMENT. Żeby cofnąć: usuń klasę `shader-bg` z
+     <section id="process"> lub <section id="about">. Cała reszta (ten blok + skrypt na
+     końcu <body>
+
+) jest wtedy martwa i sekcja wraca do
+     `.bg-soft`. Pełny stan sprzed zmiany: index.html.bak
+     ========================================================= */
+  .shader-bg{
+    background:var(--shader-back);
+    --shader-back:#000A0F;
+  }
+  /* canvas wstrzykuje biblioteka: position:absolute, z-index:-1 */
+  .shader-bg > .wrap{ position:relative; z-index:1; }
+  /* przyciemniacz — trzyma kontrast tekstu nad ruchomym tłem */
+  .shader-bg::after{
+    content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:rgba(0,10,15,.60);
+  }
+  .shader-bg h2,
+  .shader-bg .step h3{ color:var(--text-inverse); }
+  .shader-bg .eyebrow,
+  .shader-bg .step-no{ color:#AEB5AA; }
+  .shader-bg .step p{ color:#DCDFD6; }
+  .shader-bg .steps{ border-top-color:rgba(235,232,224,.28); }
+  .shader-bg .step{ border-bottom-color:rgba(235,232,224,.28); }
+  .shader-bg .step + .step{ border-left-color:rgba(235,232,224,.28); }
+  /* elementy sekcji „About" */
+  .shader-bg .about p{ color:#DCDFD6; }
+  .shader-bg .lnk{ color:var(--text-inverse); }
+  .shader-bg .lnk:hover{ background:var(--accent); color:var(--accent-ink); }
+  /* Na ciemnym tle napis musi zaczekać, aż limonki będzie dość: ciemny
+     tekst na nieodsłoniętym tle byłby nieczytelny. Stąd przeskok koloru
+     dopiero po 0.3s — ten sam zabieg co na przyciskach primary. */
+  @media (prefers-reduced-motion:no-preference){
+    .shader-bg .lnk:hover{
+      /* Skrót `background` w regule wyżej zeruje wszystkie podwłasności
+         tła, a jest bardziej szczegółowy niż reguła przy .lnk — cały
+         sprite trzeba więc ustawić tutaj jeszcze raz. Animacja przeżywa,
+         bo nie należy do tego skrótu. */
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      transition:color 0s .3s;
+    }
+  }
+  .shader-bg .ph{ background:transparent; border-color:rgba(235,232,224,.28); }
+
+/* =========================================================
+     ODSŁONA MASKĄ — nagłówki wycierają się twardą krawędzią
+     ---------------------------------------------------------
+     Prostokątna maska jedzie w prawo. Bez 3D, bez rozmycia,
+     bez cienia — ta sama logika co linie siatki.
+     Tekst NIE jest cięty na znaki: clip-path działa na całym
+     elemencie, więc DOM i czytniki ekranu zostają nietknięte.
+     Klasę dokłada JS, więc bez skryptu nagłówki po prostu stoją.
+     Wyłączenie: usuń <script> „ODSŁONA" na końcu <body>.
+     ========================================================= */
+  .wipe{ clip-path:inset(0 100% 0 0); }
+  .wipe.is-open{
+    clip-path:inset(0 0 0 0);
+    /* easeInOutCubic — zdecydowane, bez odbicia */
+    transition:clip-path .65s cubic-bezier(.65,0,.35,1);
+  }
+  h1.wipe.is-open{ transition-duration:.85s; }
+  /* krótszy tekst, krótsza droga maski — inaczej H3 wleczą się za H2 */
+  h3.wipe.is-open{ transition-duration:.5s; }
+  /* Tabela metadanych w hero — ta sama maska, co nagłówki.
+     Lekkie opóźnienie, żeby dane wjechały po H1, nie równolegle z nim.
+     Skrót transition musi nieść też opacity: klasa .is-open zostaje
+     na elemencie na zawsze, a tabela przygasa przy hoverze na cechach. */
+  .meta.wipe.is-open{
+    transition:clip-path .7s cubic-bezier(.65,0,.35,1) .12s,
+               opacity .28s ease;
+  }
+
+/* =========================================================
+     DYMEK „FLEXIBLE" — prawy górny róg hero
+     ---------------------------------------------------------
+     Wyzwalany najechaniem na słowo „Flexible" w H1. Tabela
+     metadanych przygasa, żeby dymek nie walczył z danymi —
+     ta sama mechanika, co hover na H1 gaszący pozostałe cechy.
+     Selektor :has() — bez niego dymek po prostu się nie pokaże.
+     ========================================================= */
+  .trait-note{
+    position:absolute; z-index:2;
+    /* rozpięty na szerokość kolumny danych — te same krawędzie,
+       na których stoi tabela, więc wyrównanie trzyma na każdej szerokości.
+       top = górny padding komórki (.hero .cell), czyli górna krawędź
+       tabeli, a zarazem linia „Open to new roles" w lewej komórce —
+       obie komórki startują treść na tej samej wysokości.
+       Zero paddingu od góry, żeby pasek siadł dokładnie na tej linii. */
+    /* bottom = --space-12 (48px, najbliższy krok skali od 44): dolna
+       krawędź kształtu trzyma stały odstęp od linii zamykającej hero,
+       niezależnie od wysokości akapitu i szerokości okna */
+    top:var(--space-24); bottom:var(--space-12);
+    left:var(--gutter); right:var(--gutter);
+    display:flex; flex-direction:column; align-items:flex-start;
+    background:var(--bg);
+    padding:0;
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, visibility 0s .2s;
+  }
+  /* pasek poziomy — wjeżdża od lewej, raz, bez pętli */
+  .trait-note-bar{
+    display:block; width:80px; height:10px;
+    margin-bottom:var(--space-5);
+    background:var(--accent);
+    border:var(--border-width) solid var(--line-strong);
+    transform:scaleX(0); transform-origin:left center;
+    transition:transform .45s cubic-bezier(.65,0,.35,1) .05s;
+  }
+  .trait-note-label{
+    display:block; margin-bottom:var(--space-3);
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .trait-note p{
+    /* --text-h3 (18px), ale waga 400 i luźniejsza interlinia:
+       to wypowiedź do czytania, nie nagłówek. */
+    font-size:var(--text-h3); font-weight:400;
+    line-height:1.55; color:var(--text);
+  }
+
+  /* Pikselowany kształt pod tekstem. Ilustracja leży jako tło elementu,
+     nie jako <img> — dzięki temu można na nią nałożyć warstwę, która
+     znika pikselami (patrz ::after niżej). To czysta dekoracja, więc
+     rezygnacja z <img> niczego nie zabiera czytnikom ekranu.
+     Pliki i skrypty, którymi powstały: assets/pixel/ */
+  .trait-note-pixel{
+    display:block; position:relative; margin-top:var(--space-6);
+    /* zjada całą wolną wysokość dymka, więc rośnie tak duży, jak pozwala
+       hero, i zawsze kończy się na dolnym odstępie --space-12.
+       Szerokość wychodzi z proporcji pliku (--ar), bo wysokość ustala flex. */
+    flex:1 1 auto; min-height:144px; max-width:100%;
+    aspect-ratio:var(--ar);
+    background-repeat:no-repeat;
+    background-position:left top;
+    background-size:contain;
+    image-rendering:pixelated;
+  }
+  .note--flex    .trait-note-pixel{ --ar:48/48; background-image:url("assets/pixel/trait-flex.png"); }
+  .note--systems .trait-note-pixel{ --ar:55/74; background-image:url("assets/pixel/trait-systems.png"); }
+  .note--data    .trait-note-pixel{ --ar:74/65; background-image:url("assets/pixel/trait-data.png"); }
+
+  /* =========================================================
+     PIKSELOWE WEJŚCIE ILUSTRACJI
+     ---------------------------------------------------------
+     Nagłówki i tekst wjeżdżają maską, ilustracje mają własny
+     język: przykrywa je płachta w kolorze tła, która ubywa
+     piksel po pikselu (pas klatek z assets/pixel/cover-*.png,
+     ten sam generator co dissolve przycisków, tryb „out").
+
+     background-size:100% 1700% rozciąga 17 klatek tak, że jedna
+     klatka = dokładnie wysokość elementu. Wtedy przesuw o 100%
+     w steps(16) trafia klatka w klatkę, niezależnie od tego, jak
+     duża wyszła ilustracja — a jej rozmiar ustala flex, więc
+     w pikselach nie da się go tu zapisać.
+     ========================================================= */
+  .trait-note-pixel::after{
+    content:'';
+    position:absolute;
+    /* Płachta wystaje poza ilustrację, bo przy inset:0 na lewej krawędzi
+       zostawała szpara. Płachta ma połowę rozdzielczości ilustracji (np. 28px
+       wobec 55px), więc jeden jej piksel po rozciągnięciu wypada na dwa piksele
+       rysunku, a przeglądarka próbkuje go z przesunięciem o pół piksela.
+       Efekt: skrajna kolumna rysunku nie była przykryta i na starcie animacji
+       migały cztery kreski — lewe krawędzie czterech warstw.
+       Nadmiar w procentach, nie w pikselach: szpara rośnie razem z ilustracją
+       (to zawsze pół piksela płachty), a rysunek skaluje się z wysokością hero.
+       4% to z zapasem więcej niż 1/56 szerokości. Nadmiar maluje tłem po tle
+       dymka, więc nic nie kosztuje. */
+    inset:-4%;
+    background-repeat:no-repeat;
+    background-size:100% 1700%;
+    background-position:0 0;
+    image-rendering:pixelated;
+  }
+  .note--flex    .trait-note-pixel::after{ background-image:url("assets/pixel/cover-flex.png"); }
+  .note--systems .trait-note-pixel::after{ background-image:url("assets/pixel/cover-systems.png"); }
+  .note--data    .trait-note-pixel::after{ background-image:url("assets/pixel/cover-data.png"); }
+
+  @keyframes trait-pixel-in{ to{ background-position-y:100%; } }
+
+  /* Odsłona maską — ta sama mechanika i krzywa co nagłówki H1/H2,
+     tyle że wyzwalana najechaniem, nie przewijaniem. */
+  .trait-note-label,
+  .trait-note p{ clip-path:inset(0 100% 0 0); }
+
+  /* Każda cecha odsłania swój blok. Selektory grupowane, żeby reguły
+     odsłony istniały raz, a nie po komplecie na każdy blok. */
+  .hero:has(.trait--flex:hover)    .note--flex,
+  .hero:has(.trait--systems:hover) .note--systems,
+  .hero:has(.trait--data:hover)    .note--data{
+    opacity:1; visibility:visible;
+    transition:opacity .2s ease;
+  }
+  .hero:has(.trait--flex:hover)    .note--flex    .trait-note-label,
+  .hero:has(.trait--systems:hover) .note--systems .trait-note-label,
+  .hero:has(.trait--data:hover)    .note--data    .trait-note-label{
+    clip-path:inset(0 0 0 0);
+    transition:clip-path .5s cubic-bezier(.65,0,.35,1) .12s;
+  }
+  .hero:has(.trait--flex:hover)    .note--flex    p,
+  .hero:has(.trait--systems:hover) .note--systems p,
+  .hero:has(.trait--data:hover)    .note--data    p{
+    clip-path:inset(0 0 0 0);
+    transition:clip-path .65s cubic-bezier(.65,0,.35,1) .2s;
+  }
+  /* Kształt wchodzi ostatni — po pasku, etykiecie i akapicie. */
+  .hero:has(.trait--flex:hover)    .note--flex    .trait-note-pixel::after,
+  .hero:has(.trait--systems:hover) .note--systems .trait-note-pixel::after,
+  .hero:has(.trait--data:hover)    .note--data    .trait-note-pixel::after{
+    animation:trait-pixel-in .6s steps(16) .25s forwards;
+  }
+  .hero:has(.trait--flex:hover)    .note--flex    .trait-note-bar,
+  .hero:has(.trait--systems:hover) .note--systems .trait-note-bar,
+  .hero:has(.trait--data:hover)    .note--data    .trait-note-bar{ transform:scaleX(1); }
+
+  /* Tabela ustępuje przy hoverze na dowolnej z trzech cech. */
+  .meta{ transition:opacity .28s ease; }
+  .hero:has(.trait:hover) .meta{ opacity:0; }
+
+  /* Na wąskich ekranach hero jest jednokolumnowe, a dotyk nie ma hovera. */
+  @media (max-width:900px), (hover:none){
+    .trait-note{ display:none; }
+    .hero:has(.trait--flex:hover) .meta{ opacity:1; }
+  }
+
+  /* Sekcja 8 DESIGN.md (animacje) jest jeszcze pusta.
+     Do czasu jej ustalenia szanujemy preferencję systemową. */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{ transition:none !important; animation:none !important; }
+    /* płachta pikseli nie miałaby czym zniknąć, więc jej nie ma */
+    .trait-note-pixel::after{ display:none; }
+    html{ scroll-behavior:auto; }
+  }

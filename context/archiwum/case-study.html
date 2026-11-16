@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study — Analytics dashboard · Dawid Sikora</title>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    font-family: Georgia, "Times New Roman", serif;
+    color:#111; background:#fff; line-height:1.6;
+  }
+
+  .wrap{ width:100%; max-width:1080px; margin:0 auto; padding:0 28px; }
+  a{ color:inherit; }
+
+  h1{ font-size:clamp(2.8rem, 7vw, 5.4rem); line-height:1.02; letter-spacing:-0.028em; font-weight:400; }
+  h2{ font-size:clamp(1.9rem, 3.6vw, 2.9rem); line-height:1.14; letter-spacing:-0.015em; font-weight:400; }
+  h3{ font-size:1.4rem; line-height:1.25; font-weight:400; }
+  p { font-size:1.0625rem; color:#4f4f4f; }
+  .lead{ font-size:1.3rem; color:#3a3a3a; line-height:1.5; }
+
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:#767676; margin-bottom:28px; display:block;
+  }
+
+  header{ border-bottom:1px solid #e4e4e4; position:sticky; top:0; background:#fff; z-index:20; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:22px 0; gap:24px; }
+  .brandmark{ font-size:1.0625rem; letter-spacing:-0.01em; text-decoration:none; }
+  .nav-links{ display:flex; align-items:center; gap:30px; list-style:none; }
+  .nav-links a{ font-size:0.95rem; color:#4f4f4f; text-decoration:none; }
+  .nav-links a:hover{ color:#111; }
+
+  .btn{
+    display:inline-block; padding:15px 28px; font-size:0.95rem; font-family:inherit;
+    border:1px solid #111; background:#111; color:#fff; text-decoration:none;
+    border-radius:2px; cursor:pointer;
+  }
+  .btn:hover{ background:#3a3a3a; border-color:#3a3a3a; }
+  .btn-ghost{ background:transparent; color:#111; }
+  .btn-ghost:hover{ background:#f0f0f0; }
+  .btn-sm{ padding:10px 18px; font-size:0.875rem; }
+
+  section{ padding:120px 0; }
+  .divider{ border-top:1px solid #e4e4e4; }
+  .bg-soft{ background:#f6f6f6; }
+
+  .ph{ background:#e6e6e6; border:1px solid #d7d7d7; width:100%; display:block; }
+  .ph-3x2{ aspect-ratio:3/2; }
+  .ph-1x1{ aspect-ratio:1/1; }
+
+  /* --- hero --- */
+  .hero{ padding:130px 0 116px; text-align:center; }
+  .hero h1{ max-width:20ch; margin:0 auto; }
+  .hero-cta{ margin-top:48px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+
+  /* three traits: hovering one dims the rest */
+  .trait{
+    position:relative; display:inline-block;
+    transition:opacity .25s ease, color .25s ease;
+  }
+  .trait::after{
+    content:""; position:absolute; left:0; right:0; bottom:0.1em;
+    height:0.07em; background:#111; transition:height .25s ease, bottom .25s ease;
+  }
+  .hero h1:hover .trait{ opacity:0.28; }
+  .hero h1 .trait:hover{ opacity:1; }
+  .hero h1 .trait:hover::after{ height:0.22em; bottom:0.04em; }
+
+  .status{
+    display:inline-flex; align-items:center; gap:12px; margin-bottom:34px;
+    font-size:0.9rem; color:#4f4f4f; border:1px solid #d7d7d7;
+    border-radius:999px; padding:9px 20px 9px 14px;
+  }
+  .lamp{
+    width:9px; height:9px; border-radius:50%; background:#111;
+    border:4px solid #dcdcdc; box-sizing:content-box; display:inline-block;
+  }
+
+  /* --- work section closer --- */
+  .work-more{
+    margin-top:80px; padding-top:40px; border-top:1px solid #e4e4e4;
+    display:flex; justify-content:space-between; align-items:center; gap:28px; flex-wrap:wrap;
+  }
+  .work-more p{ max-width:46ch; }
+
+  /* --- process --- */
+  .steps{ display:grid; grid-template-columns:repeat(3, 1fr); gap:56px 48px; margin-top:12px; }
+  .step-no{
+    font-size:3.4rem; line-height:1; color:#c4c4c4; display:block; margin-bottom:22px;
+    padding-bottom:22px; border-bottom:1px solid #d3d3d3;
+  }
+  .step h3{ margin-bottom:14px; }
+
+  /* --- work --- */
+  .story{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center; text-decoration:none; }
+  .story + .story{ margin-top:96px; padding-top:96px; border-top:1px solid #e4e4e4; }
+  .story:hover .ph{ background:#dcdcdc; }
+  .story-meta{ font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; margin-bottom:12px; display:block; }
+  .story h3{ font-size:1.9rem; margin-bottom:24px; }
+  .facts{ list-style:none; }
+  .facts li{ padding:14px 0; border-top:1px solid #e4e4e4; display:grid; grid-template-columns:110px 1fr; gap:20px; }
+  .facts li:last-child{ border-bottom:1px solid #e4e4e4; }
+  .facts .label{ font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; padding-top:3px; }
+  .facts .value{ font-size:1rem; color:#4f4f4f; }
+  .story-link{ display:inline-block; margin-top:26px; font-size:0.95rem; border-bottom:1px solid #111; padding-bottom:2px; }
+
+  /* --- tools --- */
+  .tools{ display:grid; grid-template-columns:repeat(6, 1fr); gap:28px; }
+  .tool{ text-align:center; }
+  .tool .ph{ margin-bottom:14px; }
+  .tool span{ font-size:0.85rem; color:#5a5a5a; }
+
+  /* --- about --- */
+  .about{ display:grid; grid-template-columns:1fr 340px; gap:64px; align-items:start; }
+  .about p + p{ margin-top:20px; }
+  .about-link{ display:inline-block; margin-top:22px; font-size:0.95rem; border-bottom:1px solid #111; padding-bottom:2px; text-decoration:none; }
+
+  /* --- contact --- */
+  .contact{ display:grid; grid-template-columns:1fr 440px; gap:56px; align-items:center; }
+  .contact h2{ max-width:18ch; margin-bottom:18px; }
+  .contact p{ max-width:46ch; }
+
+  .mail-box{ border:1px solid #d7d7d7; border-radius:2px; padding:30px; }
+  .mail-label{ font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase; color:#7a7a7a; margin-bottom:12px; display:block; }
+  .mail-address{
+    font-size:clamp(1.15rem, 2.2vw, 1.5rem); color:#111; display:block;
+    margin-bottom:26px; word-break:break-all; user-select:all; cursor:text;
+  }
+  .contact-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+  .alt-channel{ margin-top:26px; padding-top:22px; border-top:1px solid #e4e4e4; font-size:0.95rem; }
+  .alt-channel a{ color:#111; border-bottom:1px solid #111; padding-bottom:2px; text-decoration:none; }
+
+  footer{ border-top:1px solid #e4e4e4; padding:40px 0; }
+  .foot{ display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
+  .foot a, .foot span{ font-size:0.9rem; color:#6b6b6b; text-decoration:none; }
+  .foot-links{ display:flex; gap:26px; }
+  .foot a:hover{ color:#111; }
+
+  @media (max-width:880px){
+    .nav-links{ display:none; }
+    section{ padding:80px 0; }
+    .hero{ padding:72px 0 64px; }
+    .hero-cta{ margin-top:36px; }
+    .steps{ grid-template-columns:1fr; gap:40px; }
+    .story{ grid-template-columns:1fr; gap:28px; }
+    .story + .story{ margin-top:64px; padding-top:64px; }
+    .facts li{ grid-template-columns:1fr; gap:6px; }
+    .tools{ grid-template-columns:repeat(3, 1fr); gap:24px; }
+    .about{ grid-template-columns:1fr; gap:32px; }
+    .about .ph-1x1{ max-width:240px; }
+    .contact{ grid-template-columns:1fr; gap:32px; }
+    .work-more{ margin-top:56px; }
+  }
+
+  /* --- case study page --- */
+  .backlink{ font-size:0.9rem; color:#6b6b6b; text-decoration:none; display:inline-block; }
+  .backlink:hover{ color:#111; }
+
+  .case-head{ padding:80px 0 56px; }
+  .case-head h1{
+    font-size:clamp(2.3rem, 5vw, 3.6rem); line-height:1.1; letter-spacing:-0.02em;
+    max-width:20ch; margin:28px 0 40px;
+  }
+  .case-head .lead{ max-width:60ch; }
+
+  .meta-bar{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:28px;
+    border-top:1px solid #e4e4e4; border-bottom:1px solid #e4e4e4;
+    padding:26px 0; margin-top:48px;
+  }
+  .meta-bar dt{ font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; margin-bottom:8px; }
+  .meta-bar dd{ font-size:1rem; color:#4f4f4f; }
+
+  .chapter{ padding:96px 0; }
+  .chapter-no{ font-size:0.75rem; letter-spacing:0.18em; text-transform:uppercase; color:#767676; display:block; margin-bottom:22px; }
+  .chapter h2{ max-width:20ch; margin-bottom:28px; }
+  .prose{ max-width:66ch; }
+  .prose p + p{ margin-top:18px; }
+
+  .pull{
+    font-size:clamp(1.4rem, 2.6vw, 1.9rem); line-height:1.3; color:#111;
+    border-left:2px solid #111; padding-left:28px; margin:48px 0; max-width:34ch;
+  }
+
+  .figure{ margin-top:48px; }
+  .figure figcaption{ font-size:0.85rem; color:#7a7a7a; margin-top:12px; }
+
+  .findings{ list-style:none; margin-top:40px; counter-reset:f; }
+  .findings li{
+    counter-increment:f; padding:26px 0; border-top:1px solid #e4e4e4;
+    display:grid; grid-template-columns:56px 1fr; gap:24px;
+  }
+  .findings li:last-child{ border-bottom:1px solid #e4e4e4; }
+  .findings li::before{ content:counter(f, decimal-leading-zero); font-size:1.4rem; color:#c4c4c4; }
+  .findings h3{ font-size:1.25rem; margin-bottom:8px; }
+
+  .decisions{ display:grid; grid-template-columns:repeat(3, 1fr); gap:48px; margin-top:48px; }
+  .decision{ border-top:2px solid #111; padding-top:22px; }
+  .decision h3{ font-size:1.25rem; margin-bottom:16px; }
+  .decision .label{ font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a7a7a; display:block; margin:18px 0 6px; }
+  .decision p{ font-size:1rem; }
+
+  .outcome{ display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; margin-top:48px; }
+  .outcome .num{ font-size:clamp(2.2rem, 4.5vw, 3.2rem); line-height:1; color:#111; display:block; margin-bottom:14px; }
+  .outcome p{ font-size:1rem; }
+  @media (max-width:880px){
+    .case-head{ padding:48px 0 40px; }
+    .meta-bar{ grid-template-columns:repeat(2, 1fr); gap:24px; margin-top:32px; }
+    .chapter{ padding:64px 0; }
+    .decisions{ grid-template-columns:1fr; gap:36px; }
+    .outcome{ grid-template-columns:1fr; gap:28px; }
+    .pull{ margin:36px 0; padding-left:20px; }
+    .findings li{ grid-template-columns:1fr; gap:8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brandmark" href="wireframe-dawid-sikora.html">Dawid Sikora</a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="wireframe-dawid-sikora.html#process">Process</a></li>
+        <li><a href="wireframe-dawid-sikora.html#work">Work</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-sm" href="wireframe-dawid-sikora.html#contact">Email me</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="wrap case-head">
+    <a class="backlink" href="wireframe-dawid-sikora.html#work">&larr; All work</a>
+    <h1>An analytics dashboard an ops team can actually read</h1>
+    <p class="lead">A team of [DO UZUPEŁNIENIA — ilu?] people ran daily operations off a screen nobody could scan. I rebuilt it around the decisions they make, not around the shape of the database.</p>
+
+    <dl class="meta-bar">
+      <div><dt>My role</dt><dd>UX/UI Designer</dd></div>
+      <div><dt>Timeline</dt><dd>[DO UZUPEŁNIENIA — ile trwało]</dd></div>
+      <div><dt>Team</dt><dd>[DO UZUPEŁNIENIA — kto jeszcze]</dd></div>
+      <div><dt>Tools</dt><dd>[DO UZUPEŁNIENIA — czym pracowałeś]</dd></div>
+    </dl>
+  </div>
+
+  <div class="wrap">
+    <figure class="figure"><span class="ph ph-3x2"></span><figcaption>Final view. The story of how it got here starts below.</figcaption></figure>
+  </div>
+
+  <section class="chapter">
+    <div class="wrap prose">
+      <span class="chapter-no">01 — The problem</span>
+      <h2>Everything was on screen. Nothing was findable.</h2>
+      <p>[DO UZUPEŁNIENIA — co się działo w firmie, kto zgłosił problem i dlaczego akurat wtedy.]</p>
+      <p>The dashboard showed every metric the database could produce. That felt thorough and worked terribly. People scrolled past twenty numbers to reach the one they check every morning.</p>
+      <p class="pull">"I know the number is in there. I just can't find it before the call starts."<br><span style="font-size:0.9rem; color:#7a7a7a;">[DO UZUPEŁNIENIA — prawdziwy cytat użytkownika albo usuń ten blok]</span></p>
+    </div>
+  </section>
+
+  <section class="chapter bg-soft">
+    <div class="wrap">
+      <div class="prose">
+        <span class="chapter-no">02 — What I found</span>
+        <h2>I watched people use it before I changed anything.</h2>
+        <p>[DO UZUPEŁNIENIA — jak badałeś: ile rozmów, obserwacji, jakie dane z analityki.] Three things came back every time.</p>
+      </div>
+      <ol class="findings">
+        <li>
+          <div>
+            <h3>Everyone opened it for one number first</h3>
+            <p>Different roles, different number. The layout treated all of them as equally important, so none of them were.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>The numbers were trusted less than a spreadsheet</h3>
+            <p>Nothing said where a figure came from or when it was last updated, so people exported to Excel and checked by hand.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>The urgent and the routine looked identical</h3>
+            <p>A red alert and a stable metric had the same visual weight. Problems got noticed late.</p>
+          </div>
+        </li>
+      </ol>
+      <figure class="figure"><span class="ph ph-3x2"></span><figcaption>[DO UZUPEŁNIENIA — zdjęcie z badań, tablica z insightami albo nagranie sesji]</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="chapter">
+    <div class="wrap">
+      <div class="prose">
+        <span class="chapter-no">03 — The system underneath</span>
+        <h2>Before the layout, I mapped what feeds what.</h2>
+        <p>Every metric on this screen comes from somewhere, updates on its own schedule, and means something different depending on who's looking. I mapped that first: sources, refresh rates, roles, and the decisions each role has to make.</p>
+        <p>That map is the reason the final layout looks obvious. The hierarchy on screen is the hierarchy of the work.</p>
+      </div>
+      <figure class="figure"><span class="ph ph-3x2"></span><figcaption>[DO UZUPEŁNIENIA — mapa systemu, przepływ danych albo diagram ról i uprawnień]</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="chapter bg-soft">
+    <div class="wrap">
+      <div class="prose">
+        <span class="chapter-no">04 — The calls I made</span>
+        <h2>Three decisions, and what each one cost.</h2>
+        <p>Every one of these made something else worse. That's the job.</p>
+      </div>
+      <div class="decisions">
+        <div class="decision">
+          <h3>One screen per role, not one screen for all</h3>
+          <span class="label">Why</span>
+          <p>The number you open the dashboard for depends on your job. Ranking metrics for an average user served nobody.</p>
+          <span class="label">The trade-off</span>
+          <p>More views to maintain. We agreed it was worth it for [DO UZUPEŁNIENIA — ile ról].</p>
+        </div>
+        <div class="decision">
+          <h3>Every number says where it came from</h3>
+          <span class="label">Why</span>
+          <p>Trust was the real blocker. A source and a timestamp did more for adoption than any chart ever would.</p>
+          <span class="label">The trade-off</span>
+          <p>More labels on screen, which fights the goal of calming the layout down.</p>
+        </div>
+        <div class="decision">
+          <h3>Alerts get their own space</h3>
+          <span class="label">Why</span>
+          <p>Anything needing action today had to be impossible to scroll past.</p>
+          <span class="label">The trade-off</span>
+          <p>Prime screen real estate sits empty on a good day. That emptiness is the signal.</p>
+        </div>
+      </div>
+      <figure class="figure"><span class="ph ph-3x2"></span><figcaption>[DO UZUPEŁNIENIA — porównanie przed/po albo iteracje jednego widoku]</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="chapter">
+    <div class="wrap">
+      <div class="prose">
+        <span class="chapter-no">05 — The result</span>
+        <h2>The team extends it without me now.</h2>
+      </div>
+      <div class="outcome">
+        <div><span class="num">[DO UZUPEŁNIENIA]</span><p>Time to find the key number, before and after. [DO UZUPEŁNIENIA — jeśli nie mierzyliście, usuń ten kafelek]</p></div>
+        <div><span class="num">[DO UZUPEŁNIENIA]</span><p>[DO UZUPEŁNIENIA — druga liczba: adopcja, mniej eksportów do Excela, liczba zgłoszeń do supportu]</p></div>
+        <div><span class="num">—</span><p>New views get built by the team from the components and rules I left behind. No call with me required.</p></div>
+      </div>
+      <div class="prose" style="margin-top:48px;">
+        <p><strong>What I'd do differently.</strong> [DO UZUPEŁNIENIA — jedna szczera rzecz, którą zrobiłbyś inaczej. To zdanie robi więcej dla wiarygodności niż cała reszta strony.]</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">Next case study</span>
+      <a class="story" href="#">
+        <span class="ph ph-3x2"></span>
+        <div>
+          <span class="story-meta">Design system · [DO UZUPEŁNIENIA — rok]</span>
+          <h3>A component system that stopped the drift</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">Every view looked like a different person had designed it. That's because one had.</span></li>
+            <li><span class="label">What I did</span><span class="value">Pulled the repeating patterns into one system, with usage rules and documentation developers actually open.</span></li>
+            <li><span class="label">Result</span><span class="value">New screens ship faster and look like the rest of the product on their own. [DO UZUPEŁNIENIA — twardy wynik, jeśli masz]</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="divider" style="padding:96px 0;">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">[DO UZUPEŁNIENIA — adres e-mail]</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:[DO UZUPEŁNIENIA — adres e-mail]">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:[DO UZUPEŁNIENIA — adres e-mail]">Email</a>
+      <a href="[DO UZUPEŁNIENIA — link do LinkedIna]">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

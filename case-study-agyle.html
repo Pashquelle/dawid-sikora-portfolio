@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agyle Healthcare — an NHS patient record, six modules deep — Dawid Sikora</title>
+<meta name="description" content="Case study: six modules of Agyle Healthcare, a modular EPR running in NHS hospitals — an ED Whiteboard on wall displays, live dashboards for two hospital sites, an outpatient scheduler, bed capacity management, an AI-assisted document record, planned surgical admissions, and the design system that kept parallel projects speaking one language.">
+
+<!--
+  ============================================================
+  Dawid Sikora — case study
+  ============================================================
+  Kierunek wizualny: „Panel danych" — context/reference.html
+  Tokeny i reguły:   DESIGN.md
+  Treść i struktura: context/case-study.html (wireframe)
+
+  System wizualny siedzi w style.css, wspólnym z index.html.
+  Tutaj zostają wyłącznie komponenty istniejące tylko na tej
+  podstronie: nagłówek case study, rozdziały, ustalenia, decyzje
+  i wynik.
+
+  Miejsca [DO UZUPEŁNIENIA — …] pochodzą z wireframe'u i czekają
+  na prawdziwe dane. Lorem ipsum nie używamy (DESIGN.md §7).
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+  /* =========================================================
+     PASEK PRZYKLEJONY — tylko na case study
+     ---------------------------------------------------------
+     Na podstronie czytanej od góry do dołu powrót do prac musi być
+     pod ręką przez całą lekturę, nie tylko na starcie. Pasek ma
+     własne tło i linię nośną, więc treść pod nim nie prześwituje.
+     z-index wyżej niż dymki cech w hero (te mają 2).
+     ========================================================= */
+  .bar{ position:sticky; top:0; z-index:30; }
+
+  /* Po oderwaniu się od góry strony logotyp znika, a powrót zajmuje
+     jego miejsce w lewym rogu. Klasę dokłada skrypt na dole strony;
+     bez niego pasek po prostu zostaje z logotypem. Przełączenie jest
+     twarde, bez przenikania — tak jak reszta tej strony. */
+  .bar.is-stuck .brandmark{ display:none; }
+
+  /* =========================================================
+     POWRÓT DO PRAC — jedzie z treścią i parkuje w pasku
+     ---------------------------------------------------------
+     Link zostaje tam, gdzie stoi w wireframie: w kolumnie treści,
+     nad tytułem. Przy przewijaniu przykleja się do góry i wjeżdża
+     w pasek — bez przeskoku w bok, bo przez cały czas siedzi w .wrap,
+     więc trzyma ten sam margines co H1 pod nim.
+
+     padding-top rzędu = górny padding paska, dzięki czemu po
+     zaparkowaniu link siada równo w linii linków nawigacji.
+
+     pointer-events: rząd jest szeroki na całą stronę i po zaparkowaniu
+     leży na pasku — bez tego zjadałby kliknięcia w nawigację i w CTA.
+     ========================================================= */
+  /* Górny oddech strony bierze <main>, nie ten rząd: padding rodzica
+     nie rusza pozycji parkowania, a margines na samym rzędzie owszem —
+     przykleiłby się o tyle niżej, bo sticky liczy się od marginesu. */
+  main{ padding-top:var(--space-16); }
+  .backlink-row{
+    /* display:flex, żeby wysokość rzędu równała się wysokości linku —
+       przy inline-block doszedłby jeszcze luz pod linią bazową i środek
+       wypadłby za nisko */
+    display:flex; align-items:center;
+    /* --backlink-top liczy skrypt na dole strony: połowa różnicy między
+       wysokością paska a wysokością linku, czyli równo góra i dół.
+       Zapas 16px działa, gdyby skryptu zabrakło. */
+    position:sticky; top:var(--backlink-top, var(--space-4)); z-index:31;
+    margin-bottom:var(--space-8);
+    pointer-events:none;
+  }
+  .backlink{
+    pointer-events:auto;
+    display:inline-block; text-decoration:none; white-space:nowrap;
+    padding:var(--space-1);
+    font-size:var(--text-micro); letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .backlink:hover{ background:var(--accent); color:var(--accent-ink); }
+
+  /* Powrót dostaje tę samą rozsypkę co przyciski i linki tertiary —
+     limonka przybywa pikselami, nie od razu. Sprite i geometria wspólne
+     z systemem (style.css), stąd gotowe klatki btn-dissolve.
+     Skrót `background` wyżej zeruje podwłasności tła, więc sprite,
+     rozmiar i powtarzanie muszą stać tutaj komplenie. */
+  @media (prefers-reduced-motion:no-preference){
+    .backlink:hover{
+      background-color:transparent;
+      background-image:url("assets/pixel/dissolve-lnk.png");
+      background-repeat:repeat-x;
+      background-size:192px;
+      background-position:0 0;
+      image-rendering:pixelated;
+      animation:btn-dissolve .45s steps(16) forwards;
+      /* napis ciemnieje, gdy limonki jest już dość pod spodem */
+      transition:color 0s .3s;
+    }
+  }
+
+  /* =========================================================
+     NAGŁÓWEK CASE STUDY
+     ---------------------------------------------------------
+     Zamiast hero z dwiema komórkami: tytuł, zajawka i pasek
+     metadanych. Pasek to ta sama tabela co w hero, tylko rozłożona
+     w poziomie — cztery kolumny rozdzielone linią porządkującą.
+     ========================================================= */
+  /* padding-bottom, nie skrót: .case-head siedzi na tym samym elemencie
+     co .wrap, a skrót wyzerowałby jego boczny --gutter i cały nagłówek
+     stałby o jedno wcięcie na lewo od reszty strony */
+  .case-head{ padding-bottom:var(--space-24); }
+  .case-head h1{ margin:0 0 var(--space-8); }
+  .case-head .lead{ max-width:68ch; }
+
+  .case-meta{
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    margin:var(--space-16) 0 0;   /* dl ma własny margines domyślny */
+    border-top:var(--border-width) solid var(--line-strong);
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-meta > div{ padding:var(--space-4) var(--space-6) var(--space-4) 0; }
+  .case-meta > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-meta dt{
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted); margin-bottom:var(--space-2);
+  }
+  .case-meta dd{ margin:0; font-size:var(--text-small); font-weight:500; }
+
+  /* =========================================================
+     WYNIK NA GÓRZE — do trzech liczb pod paskiem metadanych
+     ---------------------------------------------------------
+     Rekruter skanuje i w większości nie dojedzie do sekcji 05.
+     Ten pasek podaje twarde liczby od razu; pełny kontekst,
+     koszty decyzji i „co zrobiłbym inaczej" zostają na dole —
+     to powtórzenie, nie przeniesienie.
+
+     Bez własnego border-top: pasek dokleja się do dolnej linii
+     .case-meta, więc obie tabele czytają się jak jeden blok.
+     Liczby są mniejsze niż w .outcome (h3, nie h2) — na górze
+     mają wspierać nagłówek, a nie z nim konkurować.
+
+     Trzy kafelki to sufit, nie cel. Przy dwóch zostaw dwa:
+     grid-auto-columns trzyma równą szerokość niezależnie od
+     liczby elementów, więc nic się nie rozjedzie.
+     ========================================================= */
+  .case-results{
+    display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+    margin:0;
+    border-bottom:var(--border-width) solid var(--line-strong);
+  }
+  .case-results > div{ padding:var(--space-6) var(--space-6) var(--space-6) 0; }
+  .case-results > div + div{
+    border-left:var(--border-width) solid var(--line);
+    padding-left:var(--space-6);
+  }
+  .case-results dt{
+    font-size:var(--text-h3); font-weight:700; line-height:1.25;
+    letter-spacing:-.02em; margin-bottom:var(--space-2);
+  }
+  .case-results dd{
+    margin:0; font-size:var(--text-small); color:var(--text-soft);
+    max-width:32ch;
+  }
+
+  /* =========================================================
+     ROZDZIAŁY
+     ---------------------------------------------------------
+     Padding sekcji i linię zamykającą biorą z <section> w style.css,
+     odstęp H2 do treści też. Tutaj tylko wnętrze rozdziału.
+     ========================================================= */
+  .prose{ max-width:68ch; }            /* DESIGN.md §3: maks. długość wiersza */
+  .prose p{ color:var(--text-soft); }
+  .prose p + p{ margin-top:var(--space-8); }
+
+  /* Cytat: pole akcentu nad tekstem, jak pasek w dymkach cech.
+     Akcent jest wypełnieniem, nigdy kolorem liter (DESIGN.md §2). */
+  .pull{ margin:var(--space-16) 0 0; max-width:44ch; }
+  .pull::before{
+    content:''; display:block; width:80px; height:10px;
+    margin-bottom:var(--space-5);
+    background:var(--accent);
+    border:var(--border-width) solid var(--line-strong);
+  }
+  .pull p{
+    margin:0; font-size:var(--text-h3); font-weight:400; line-height:1.45;
+    color:var(--text);
+  }
+  .pull-source{
+    display:block; margin-top:var(--space-4);
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+
+  /* Nagłówek rozdziału oddycha pełnym światłem sekcji. Rozdziały
+     z kadrem obok mają własną, mniejszą wartość — niżej, przy .split. */
+  section > .wrap > h2{ margin-bottom:var(--space-16); }
+
+  .figure{ margin:var(--space-16) 0 0; }
+  .figure figcaption{
+    margin-top:var(--space-3);
+    font-size:var(--text-label); color:var(--text-muted);
+  }
+
+  /* =========================================================
+     ROZDZIAŁ Z KADREM OBOK — tekst po lewej, zrzut po prawej
+     ---------------------------------------------------------
+     Cały rozdział siedzi w siatce: nadtytuł, nagłówek i akapity
+     w lewej kolumnie, kadr w prawej. Dzięki temu zrzut startuje
+     w linii nadtytułu, a nie dopiero przy pierwszym akapicie —
+     inaczej prawa kolumna zaczynałaby się pustką wysokości H2.
+
+     Zrzuty UI przychodzą w natywnych 1600 px. Puszczone przez
+     .img-fit na pełną szerokość .wrap (1280) byłyby rozciągane
+     i gubiły ostrość — dlatego kolumna kadru ma twardy sufit
+     i obrazek zawsze idzie w dół skali, nigdy w górę.
+
+     Kadr jest przyklejony, bo akapity obok opowiadają o tym, co
+     na nim widać: przy przewijaniu ma zostać w polu widzenia
+     zamiast uciekać do góry. Nic się przy tym nie animuje —
+     rzecz po prostu stoi, więc reduced-motion to nie dotyczy.
+     ========================================================= */
+  .split{
+    display:grid; grid-template-columns:1fr minmax(0, 560px);
+    gap:var(--space-16); align-items:start;
+  }
+  /* H2 w siatce nie łapie reguły section > .wrap > h2, więc odstęp
+     pod nagłówkiem dostaje tutaj — mniejszy niż w rozdziałach bez
+     kadru, bo kolumna jest węższa i nie udźwignie tyle światła. */
+  .split h2{ margin-bottom:var(--space-10); }
+  .split .prose{ max-width:60ch; }
+  .split .figure{ margin:0; position:sticky; top:calc(var(--space-16) + 56px); }
+  /* Zrzuty w modułach idą bez ramki i bez wypełnienia — siedzą wprost
+     na tle sekcji. Ramka wokół zrzutu, który sam ma już obudowę
+     urządzenia albo własny kanał alfa, dokłada drugą krawędź wokół
+     krawędzi i czyta się jak nalepka. Siatkę na stronie trzymają
+     linie sekcji, nie obwódki obrazków. */
+  .split .figure img{
+    display:block; width:100%; height:auto;
+    background:none; border:0;
+  }
+
+  /* =========================================================
+     DRUGI WĄTEK W ROZDZIALE — ta sama siatka pod pierwszą
+     ---------------------------------------------------------
+     Rozdział bywa dłuższy niż jeden kadr obok tekstu. Druga
+     siatka dostaje własne światło i linię wewnętrzną: oddziela
+     wątki, nie zamykając sekcji — tę robotę trzyma linia nośna
+     pod <section>, a dwie mocne kreski pod rząd czytałyby się
+     jak dwa osobne rozdziały.
+     ========================================================= */
+  .split + .split,
+  .prose + .split,
+  .figure-wide + .split{
+    margin-top:var(--space-24);
+    padding-top:var(--space-24);
+    border-top:var(--border-width) solid var(--line);
+  }
+  .split h3{ margin:0 0 var(--space-6); }
+
+  /* =========================================================
+     NAGŁÓWEK MODUŁU
+     ---------------------------------------------------------
+     Nazwa modułu jest nagłówkiem, nie nadtytułem — ktoś, kto
+     skanuje stronę po H2, ma czytać „Agyle Whiteboard", a nie
+     „Module 01". Numer zostaje w nadtytule, bo to porządkowa
+     informacja, nie treść. Zdanie pod nagłówkiem jest tezą
+     modułu i trzyma rozmiar lead, nie akapitu.
+
+     Teza modułu siedzi w tym samym H2, po myślniku: „Agyle
+     Whiteboard — The whole Emergency Department…". Jedno zdanie
+     nagłówka zamiast nagłówka i lidu pod nim. Druga część idzie
+     zwykłą grubością i kolorem tekstu ciągłego, żeby przy
+     skanowaniu strony oko łapało samą nazwę modułu, a zdanie
+     doczytywało się dopiero przy zatrzymaniu.
+
+     Ten wzór obowiązuje w każdym module. */
+  .module-head{ margin-bottom:var(--space-16); }
+  /* Globalne h2 ma sufit 22ch — dobry dla samego nagłówka, za ciasny
+     dla nagłówka z tezą po myślniku: zdanie łamałoby się w wąski,
+     wysoki słup. Ten jeden nagłówek dostaje własną miarę. */
+  .module-head h2{ max-width:38ch; }
+  .module-claim{ font-weight:400; color:var(--text-soft); }
+
+  /* =========================================================
+     KADR OTWIERAJĄCY MODUŁ — pełna szerokość, pod wstępem
+     ---------------------------------------------------------
+     Zrzut całego ekranu nie mieści się w kolumnie 560 px: to,
+     co na nim widać, to gęstość, a gęstość zmniejszona o połowę
+     jest tylko szarym szumem. Taki kadr bierze więc całą
+     szerokość .wrap i siedzi zaraz pod wstępem do modułu —
+     wstęp mówi, czym ta rzecz jest, a obraz od razu to pokazuje,
+     zanim zaczną się wątki szczegółowe. Bez ramki i bez tła,
+     jak wszystkie pozostałe.
+     ========================================================= */
+  .figure-wide{ margin-top:var(--space-16); }
+
+  /* =========================================================
+     TRZY DECYZJE — domknięcie każdego modułu
+     ---------------------------------------------------------
+     Wzór przeniesiony z case-study-bajecznewakacje.html, żeby
+     obie podstrony mówiły tym samym językiem. Różnica jest
+     jedna: tam decyzje były osobnym rozdziałem na końcu case
+     study, tutaj zamykają każdy moduł z osobna — bo decyzje
+     dotyczą modułu, a nie całych czterech lat.
+
+     Każda karta otwiera się mocną linią, więc nad nagłówkiem
+     bloku nie ma osobnego separatora: trzy kreski kart robią
+     tę robotę i tak.
+     ========================================================= */
+  .decisions-title{ margin-top:var(--space-24); }
+  .decisions{
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    column-gap:var(--space-12); row-gap:var(--space-16);
+    margin-top:var(--space-10);
+  }
+  /* Subgrid: trzy wiersze karty (tytuł, WHY, treść) dzielą wysokości
+     w obrębie rzędu, więc dwuwierszowy tytuł w jednej kolumnie nie
+     zsuwa podnagłówka w pozostałych. */
+  .decision{
+    display:grid; grid-template-rows:subgrid; grid-row:span 3;
+    row-gap:var(--space-2);
+    border-top:var(--border-width) solid var(--line-strong);
+    padding-top:var(--space-6);
+  }
+  /* Tytuł karty to H4, nie H3: H3 jest już nagłówkiem całego bloku
+     („Three decisions I made"), więc karty muszą siedzieć poziom
+     niżej — inaczej czytnik ekranu dostaje trzy rodzeństwa tam,
+     gdzie są dzieci. Globalny reset marginesów obejmuje h1–h3,
+     dlatego h4 zeruje je tutaj. */
+  .decision h4{
+    margin:0; font-size:var(--text-body); font-weight:700;
+    line-height:1.35; letter-spacing:-.01em; color:var(--text);
+  }
+  .decision .label{
+    display:block; margin:var(--space-4) 0 0;
+    font-size:var(--text-label); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .decision p{ font-size:var(--text-body); color:var(--text-soft); }
+  .figure-wide img{
+    display:block; width:100%; height:auto;
+    background:none; border:0;
+  }
+
+  .aside-note{ margin-top:var(--space-16); }
+  .aside-note strong{ font-weight:700; color:var(--text); }
+
+  @media (max-width:880px){
+    main{ padding-top:var(--space-12); }
+    .case-head{ padding-bottom:var(--space-20); }
+    .case-meta{ grid-template-columns:repeat(2, 1fr); }
+    .case-meta > div:nth-child(odd){ border-left:0; padding-left:0; }
+    .case-meta > div:nth-child(n+3){ border-top:var(--border-width) solid var(--line); }
+    /* Liczby schodzą w kolumnę: na wąskim ekranie trzy obok siebie
+       łamałyby podpisy po jednym słowie w linii. */
+    .case-results{ grid-auto-flow:row; }
+    .case-results > div + div{
+      border-left:0; padding-left:0;
+      border-top:var(--border-width) solid var(--line);
+    }
+    /* Kadr schodzi pod tekst i przestaje się kleić: na wąskim ekranie
+       przyklejony obrazek zasłaniałby połowę akapitów, o których mówi. */
+    .split{ grid-template-columns:1fr; gap:var(--space-10); }
+    .split .figure{ position:static; }
+    /* Decyzje schodzą w kolumnę. Subgrid przestaje mieć sens przy
+       jednej kolumnie — wiersze i tak nie mają z czym się równać. */
+    .decisions{ grid-template-columns:1fr; row-gap:var(--space-10); }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  ============================================================
+  NOTATKI DO TEJ STRONY
+  ============================================================
+  Treść pochodzi z relacji Dawida (2026-10-20) i z opisów ze
+  starego portfolio: overview, specifics, reflections oraz opisy
+  modułów Dashboard i Whiteboard.
+
+  UKŁAD: strona jedzie modułami, nie jednym ciągłym opisem projektu.
+  Po nagłówku strony od razu moduł 01, 02 i tak dalej; docelowo 5–6.
+  Nawigacji po modułach na razie nie ma — do rozważenia, gdy przybędzie.
+
+  BUDOWA MODUŁU (trzymaj ją w każdym nowym):
+  • .module-head — nadtytuł „Module NN" i H2 w postaci:
+    „Nazwa modułu — teza jednym zdaniem", gdzie wszystko po myślniku
+    siedzi w <span class="module-claim">. Nazwa modułu idzie w H2,
+    nie w nadtytule: skanując stronę po nagłówkach ma się czytać
+    „Agyle Whiteboard". Trzymaj ten wzór w każdym module.
+  • .prose — wstęp do modułu, pełna szerokość.
+  • .figure-wide — cały ekran modułu, pełna szerokość .wrap, zaraz
+    pod wstępem: tekst mówi, czym to jest, obraz od razu pokazuje.
+  • 2–3 bloki .split — H3 i akapity po lewej, kadr po prawej.
+  • .decisions na końcu — „Three decisions I made", trzy karty
+    (tytuł decyzji, etykieta WHY, uzasadnienie). Domyka każdy moduł.
+    Wzór przeniesiony z case-study-bajecznewakacje.html.
+
+  OBRAZKI: wszystkie kadry w modułach idą bez ramki i bez tła, wprost
+  na tle sekcji. Jedyny wyjątek to placeholder .ph, który bez ramki
+  byłby niewidzialny — i ta ramka znika razem z nim.
+
+  ROZMIARY PLIKÓW: kolumna .split ma 560 px, .figure-wide ma 1280 px.
+  Zrzut wrzucony w natywnych ~2400 px do kolumny 560 px przeglądarka
+  zmniejsza ponad czterokrotnie w jednym przebiegu i drobny tekst
+  interfejsu rozmywa się w szarość — dlatego pliki do .split mają
+  sufiks -1400 i szerokość 1400 px (2× kolumny, z zapasem na ekrany
+  o podwójnej gęstości). Do .figure-wide natywne ~2400 px jest w sam
+  raz. Oryginały zostają w assets/ pod swoimi nazwami ze spacjami —
+  to materiał źródłowy, nie plik serwowany.
+
+  Rozdziały wstępu („The product", „How the work ran") zdjęte 2026-11-03.
+  Ich treść czeka w „teksty-odlozone.md" w katalogu projektu — tam też
+  leży akapit o Agyle Health Design System, materiał na osobny moduł.
+
+  DO UZUPEŁNIENIA:
+  • moduł 02 bez wątków .split. Wątki ma 01 (dwa), 03 (dwa),
+    04 (jeden), 05 (jeden) i 06 (jeden)
+  • liczba modułów na stronie (tytuł, meta, .case-meta) podbita
+    z pięciu na sześć 2026-11-03 — pilnuj jej przy kolejnych
+  • liczby w .case-results są jakościowe (5 modułów, 1 system,
+    oddział ED). Jeśli masz twarde metryki z wdrożenia, wstaw je
+    zamiast tych — strzałka albo liczba bije etykietę.
+
+  Sprawdzone: Agyle to modularny EPR w szpitalach NHS; pięć modułów
+  dostarczonych w Fortrus Ltd; Whiteboard wdrożony na dużych
+  ekranach w Dorset NHS; design system prowadzony w roli senior.
+  ============================================================
+-->
+
+<!-- Logotyp w brandmarku. Inline, bo zewnętrzny plik SVG nie doczytuje
+     się przy otwarciu strony z dysku; fill idzie z currentColor. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="l-brand" viewBox="0 0 727 104">
+    <path d="M726.812 90.8199H721.065C718.975 90.8199 717.146 90.4716 715.578 89.7749C714.011 89.0782 712.791 87.9461 711.921 86.3785C711.05 84.811 710.614 82.7209 710.614 80.1083V52.4151L710.353 49.4106C710.353 44.708 709.177 41.0503 706.826 38.4378C704.562 35.8252 700.861 34.5189 695.723 34.5189C691.02 34.5189 687.014 35.6946 683.705 38.0459C680.395 40.3972 677.914 43.3146 676.259 46.798L670.25 40.7891C671.556 38.6119 673.429 36.4348 675.867 34.2577C678.305 32.0805 681.266 30.2952 684.75 28.9019C688.233 27.5085 692.196 26.8118 696.637 26.8118C703.952 26.8118 709.482 28.8148 713.227 32.8207C716.972 36.7396 718.844 42.226 718.844 49.28V78.6714C718.844 80.3261 719.192 81.5017 719.889 82.1984C720.673 82.808 721.805 83.1128 723.285 83.1128H726.812V90.8199ZM687.885 92.1262C682.747 92.1262 678.741 90.8634 675.867 88.338C673.08 85.7254 671.687 82.329 671.687 78.1489C671.687 74.0559 673.08 70.6595 675.867 67.9599C678.654 65.1731 682.224 62.7783 686.579 60.7753L711.921 49.28L713.096 55.1583L690.236 66.0004C686.84 67.568 684.314 69.2226 682.66 70.9643C681.092 72.619 680.308 74.6219 680.308 76.9733C680.308 79.5858 681.179 81.5888 682.921 82.9822C684.75 84.2885 687.232 84.9416 690.367 84.9416C693.241 84.9416 695.897 84.4626 698.335 83.5047C700.861 82.4597 703.038 81.1098 704.867 79.4552C706.695 77.7135 708.089 75.8411 709.047 73.8382C710.092 71.7481 710.614 69.6145 710.614 67.4374L710.876 72.14C710.353 75.2751 709.09 78.4102 707.087 81.5453C705.171 84.5933 702.559 87.1188 699.25 89.1217C696.027 91.1247 692.239 92.1262 687.885 92.1262Z"/>
+    <path d="M631.541 90.8199H622.92V28.1181H631.541V90.8199ZM631.541 54.5051L630.758 50.325C631.019 47.3641 631.629 44.4902 632.586 41.7035C633.631 38.8297 635.025 36.2606 636.767 33.9964C638.508 31.7322 640.598 29.9469 643.037 28.6406C645.562 27.3343 648.393 26.6812 651.528 26.6812C655.185 26.6812 658.32 27.8568 660.933 30.2082C663.545 32.4724 664.852 35.7381 664.852 40.0053C664.852 42.2695 664.59 44.3596 664.068 46.2755C663.633 48.1914 663.11 49.6718 662.5 50.7169H653.226C654.097 49.6718 654.837 48.2785 655.446 46.5368C656.143 44.7079 656.491 42.8356 656.491 40.9197C656.491 38.9167 655.882 37.1315 654.663 35.5639C653.444 33.9964 651.353 33.2126 648.393 33.2126C645.345 33.2126 642.514 34.2576 639.902 36.3477C637.289 38.3507 635.243 41.0068 633.762 44.3161C632.282 47.5382 631.541 50.9346 631.541 54.5051Z"/>
+    <path d="M578.478 92.1262C572.817 92.1262 567.766 90.7764 563.325 88.0767C558.883 85.377 555.4 81.5888 552.874 76.712C550.436 71.7481 549.217 66.0004 549.217 59.469C549.217 52.7634 550.436 46.9722 552.874 42.0954C555.4 37.2186 558.883 33.4739 563.325 30.8613C567.766 28.1616 572.817 26.8118 578.478 26.8118C584.225 26.8118 589.32 28.1616 593.761 30.8613C598.203 33.4739 601.642 37.2186 604.081 42.0954C606.606 46.9722 607.869 52.7634 607.869 59.469C607.869 66.0004 606.606 71.7481 604.081 76.712C601.642 81.5888 598.203 85.377 593.761 88.0767C589.32 90.7764 584.225 92.1262 578.478 92.1262ZM578.478 84.811C582.658 84.811 586.272 83.853 589.32 81.9371C592.455 80.0213 594.893 77.191 596.635 73.4463C598.377 69.6145 599.248 64.9554 599.248 59.469C599.248 53.8955 598.377 49.2364 596.635 45.4917C594.893 41.6599 592.455 38.7861 589.32 36.8702C586.272 34.8673 582.658 33.8658 578.478 33.8658C574.472 33.8658 570.901 34.8673 567.766 36.8702C564.631 38.7861 562.193 41.6599 560.451 45.4917C558.709 49.2364 557.838 53.8955 557.838 59.469C557.838 64.9554 558.709 69.6145 560.451 73.4463C562.193 77.191 564.631 80.0213 567.766 81.9371C570.901 83.853 574.472 84.811 578.478 84.811Z"/>
+    <path d="M504.108 0.384613H514.157V10.433H504.108V0.384613ZM504.108 60.6748H514.157V70.7232H504.108V80.7715H494.06V10.433H504.108V60.6748ZM534.254 30.5297H544.302V40.5781H534.254V30.5297ZM524.205 40.5781H534.254V50.6264H524.205V40.5781ZM514.157 50.6264H524.205V60.6748H514.157V50.6264ZM524.205 60.6748H534.254V80.7715H524.205V60.6748ZM484.012 80.7715H494.06V90.8199H484.012V80.7715ZM504.108 80.7715H514.157V90.8199H504.108V80.7715ZM534.254 80.7715H544.302V90.8199H534.254V80.7715Z"/>
+    <path d="M464.813 16.884H456.191V3.29865H464.813V16.884ZM464.813 90.8199H456.191V28.1181H464.813V90.8199Z"/>
+    <path d="M412.332 91.9955C407.107 91.9955 402.012 91.2553 397.048 89.7749C392.172 88.2073 387.861 85.7689 384.116 82.4596C380.458 79.0633 377.672 74.6655 375.756 69.2661L382.418 63.5185C383.811 68.5695 386.119 72.5754 389.341 75.5363C392.651 78.4972 396.352 80.6744 400.445 82.0678C404.538 83.3741 408.5 84.0272 412.332 84.0272C415.902 84.0272 419.212 83.5047 422.26 82.4596C425.308 81.4146 427.746 79.76 429.575 77.4958C431.491 75.2315 432.449 72.2706 432.449 68.613C432.449 65.1296 431.665 62.3428 430.097 60.2528C428.53 58.0756 426.222 56.3339 423.174 55.0276C420.126 53.7213 416.381 52.5457 411.94 51.5006L402.404 49.4106C399.356 48.7139 396.395 47.7995 393.521 46.6674C390.648 45.5353 388.079 44.0983 385.814 42.3566C383.55 40.6149 381.721 38.3942 380.328 35.6946C379.022 32.9949 378.368 29.7292 378.368 25.8974C378.368 20.6723 379.675 16.318 382.287 12.8345C384.987 9.26401 388.47 6.60789 392.738 4.86617C397.092 3.03737 401.707 2.12297 406.584 2.12297C414.596 2.12297 421.476 3.86468 427.224 7.34811C433.058 10.8315 437.238 15.8825 439.764 22.5011L432.579 28.2487C430.576 22.0656 427.311 17.5372 422.782 14.6633C418.254 11.7024 412.811 10.222 406.454 10.222C402.883 10.222 399.661 10.8316 396.787 12.0508C394 13.27 391.736 14.9681 389.994 17.1453C388.253 19.3224 387.382 22.0221 387.382 25.2443C387.382 30.034 388.906 33.6045 391.954 35.9558C395.089 38.22 399.487 40.0489 405.147 41.4422L415.467 43.9242C418.776 44.7079 421.955 45.7094 425.003 46.9286C428.138 48.0607 430.881 49.5412 433.233 51.37C435.671 53.1988 437.587 55.5066 438.98 58.2933C440.374 60.993 441.07 64.3458 441.07 68.3517C441.07 73.4027 439.764 77.7135 437.151 81.284C434.626 84.7674 431.186 87.4235 426.832 89.2524C422.564 91.0812 417.731 91.9955 412.332 91.9955Z"/>
+    <path d="M302.106 92.2568C296.707 92.2568 292.048 90.907 288.129 88.2073C284.297 85.5077 281.293 81.7194 279.116 76.8426C277.026 71.8787 275.98 66.0875 275.98 59.469C275.98 52.8505 277.026 47.1028 279.116 42.226C281.293 37.3492 284.297 33.561 288.129 30.8613C292.048 28.1617 296.707 26.8118 302.106 26.8118C306.809 26.8118 310.684 27.9004 313.732 30.0775C316.867 32.1676 319.219 34.9543 320.786 38.4378C322.441 41.8341 323.399 45.4917 323.66 49.4106L323.137 53.5907C323.137 50.1073 322.484 46.8851 321.178 43.9242C319.872 40.9633 317.869 38.5684 315.169 36.7396C312.469 34.9108 308.986 33.9964 304.719 33.9964C299.058 33.9964 294.312 36.0429 290.48 40.136C286.648 44.229 284.733 50.6733 284.733 59.469C284.733 68.2647 286.648 74.7526 290.48 78.9327C294.312 83.0257 299.058 85.0722 304.719 85.0722C308.986 85.0722 312.469 84.1578 315.169 82.329C317.869 80.5002 319.872 78.1054 321.178 75.1445C322.484 72.0965 323.137 68.8307 323.137 65.3473L323.66 69.658C323.399 73.5769 322.441 77.2345 320.786 80.6309C319.219 84.0272 316.867 86.814 313.732 88.9911C310.684 91.1683 306.809 92.2568 302.106 92.2568ZM331.628 90.8199H323.137V3.29865H331.628V90.8199Z"/>
+    <path d="M261.342 16.884H252.721V3.29865H261.342V16.884ZM261.342 90.8199H252.721V28.1181H261.342V90.8199Z"/>
+    <path d="M153.201 30.5297H163.249V40.5781H153.201V30.5297ZM173.297 30.5297H193.394V40.5781H173.297V30.5297ZM203.443 30.5297H223.539V40.5781H203.443V30.5297ZM233.588 30.5297H243.636V40.5781H233.588V30.5297ZM143.152 40.5781H153.201V50.6264H143.152V40.5781ZM173.297 80.7715H163.249V40.5781H173.297V80.7715ZM203.443 80.7715H193.394V40.5781H203.443V80.7715ZM223.539 40.5781H233.588V80.7715H223.539V40.5781ZM153.201 80.7715H163.249V90.8199H153.201V80.7715ZM173.297 80.7715H193.394V90.8199H173.297V80.7715ZM203.443 80.7715H223.539V90.8199H203.443V80.7715Z"/>
+    <path d="M137.412 90.8199H131.664C129.574 90.8199 127.745 90.4716 126.178 89.7749C124.61 89.0782 123.391 87.9461 122.52 86.3785C121.649 84.811 121.214 82.7209 121.214 80.1083V52.4151L120.953 49.4106C120.953 44.708 119.777 41.0503 117.426 38.4378C115.161 35.8252 111.46 34.5189 106.322 34.5189C101.62 34.5189 97.6136 35.6946 94.3044 38.0459C90.9951 40.3972 88.5132 43.3146 86.8585 46.798L80.8496 40.7891C82.1559 38.6119 84.0282 36.4348 86.4666 34.2577C88.9051 32.0805 91.866 30.2952 95.3494 28.9019C98.8328 27.5085 102.795 26.8118 107.237 26.8118C114.552 26.8118 120.082 28.8148 123.826 32.8207C127.571 36.7396 129.444 42.226 129.444 49.28V78.6714C129.444 80.3261 129.792 81.5017 130.489 82.1984C131.272 82.808 132.404 83.1128 133.885 83.1128H137.412V90.8199ZM98.4845 92.1262C93.3464 92.1262 89.3405 90.8634 86.4666 88.338C83.6799 85.7254 82.2865 82.329 82.2865 78.1489C82.2865 74.0559 83.6799 70.6595 86.4666 67.9599C89.2534 65.1731 92.8239 62.7783 97.1782 60.7753L122.52 49.28L123.696 55.1583L100.836 66.0004C97.4395 67.568 94.914 69.2226 93.2593 70.9643C91.6918 72.619 90.908 74.6219 90.908 76.9733C90.908 79.5858 91.7789 81.5888 93.5206 82.9822C95.3494 84.2885 97.8314 84.9416 100.966 84.9416C103.84 84.9416 106.496 84.4626 108.935 83.5047C111.46 82.4597 113.637 81.1098 115.466 79.4552C117.295 77.7135 118.688 75.8411 119.646 73.8382C120.691 71.7481 121.214 69.6145 121.214 67.4374L121.475 72.14C120.953 75.2751 119.69 78.4102 117.687 81.5453C115.771 84.5933 113.158 87.1188 109.849 89.1217C106.627 91.1247 102.839 92.1262 98.4845 92.1262Z"/>
+    <path d="M28.869 90.8199H3.00446V83.2434H27.6933C34.9214 83.2434 41.0174 81.9807 45.9813 79.4552C50.9452 76.9297 54.7334 73.0109 57.346 67.6986C59.9586 62.3864 61.2649 55.5066 61.2649 47.0593C61.2649 38.612 59.9586 31.7322 57.346 26.4199C54.7334 21.1077 50.9452 17.1888 45.9813 14.6633C41.0174 12.1379 34.9214 10.8751 27.6933 10.8751H3.00446V3.29865H28.869C38.1001 3.29865 45.7636 5.04036 51.8596 8.52379C57.9556 11.9201 62.4841 16.884 65.445 23.4155C68.493 29.9469 70.017 37.8282 70.017 47.0593C70.017 56.2904 68.493 64.1716 65.445 70.7031C62.4841 77.2345 57.9556 82.242 51.8596 85.7254C45.7636 89.1217 38.1001 90.8199 28.869 90.8199ZM8.6215 90.8199H0V3.29865H8.6215V90.8199Z"/>
+  </symbol>
+</svg>
+
+<header class="bar">
+  <a class="brandmark" href="index.html">
+    <svg class="brandmark-logo" aria-hidden="true"><use href="#l-brand"/></svg>
+    <span class="brandmark-text">Dawid Sikora</span>
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#process">Process</a></li>
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-sm" href="mailto:dsikoradesign@gmail.com">Email me</a>
+</header>
+
+<main>
+
+  <!-- Powrót: startuje w treści, przy przewijaniu parkuje w pasku. -->
+  <div class="wrap backlink-row">
+    <a class="backlink" href="index.html#work">&larr; All work</a>
+  </div>
+
+  <!-- ===================== NAGŁÓWEK ===================== -->
+  <div class="wrap case-head">
+    <h1>A huge, data-heavy healthcare ecosystem &mdash; for people who are counting seconds</h1>
+    <p class="lead">Agyle Healthcare is a modular Electronic Patient Record running in NHS hospitals in the UK. Masses of data, everything connected to everything, and hospitals still working off paper while treating patients. The job was to digitise that flow and cut time on task on the interactions a nurse or a clinician repeats hundreds of times a shift. At Fortrus I led UX/UI for most of that work: new modules, time-on-task explorations, and the design system underneath it.</p>
+
+    <dl class="case-meta">
+      <div><dt>My role</dt><dd>Product Designer, later senior &mdash; design system lead</dd></div>
+      <div><dt>Timeline</dt><dd>2022&ndash;2026 &middot; six modules</dd></div>
+      <div><dt>Team</dt><dd>Project Managers, Technical Consultants, NHS Business Strategists, developers</dd></div>
+      <div><dt>Tools</dt><dd>Figma, FigJam</dd></div>
+    </dl>
+
+    <dl class="case-results">
+      <div>
+        <dt>+17%</dt>
+        <dd>Task success rate &mdash; average across the modules.</dd>
+      </div>
+      <div>
+        <dt>&minus;22%</dt>
+        <dd>Error rate &mdash; average across the modules.</dd>
+      </div>
+      <div>
+        <dt data-licznik="off"><span role="img" aria-label="Down">&#8600;</span></dt>
+        <dd>Friction, on the interactions that repeat all shift.</dd>
+      </div>
+    </dl>
+
+  </div>
+
+  <!-- Rozdziały wstępu „The product" i „How the work ran" zdjęte 2026-11-03.
+       Treść nie przepadła — leży w „teksty-odlozone.md" w katalogu projektu,
+       razem z nadtytułami i nagłówkami, gotowa do wklejenia z powrotem.
+       Strona startuje teraz wprost od modułów. -->
+
+  <!-- ===================== MODUŁ 01 — WHITEBOARD ===================== -->
+  <section>
+    <div class="wrap">
+      <div class="module-head">
+        <span class="eyebrow">Module 01</span>
+        <h2>Agyle Whiteboard <span class="module-claim">&mdash; The whole Emergency Department on one screen, legible from across the room.</span></h2>
+      </div>
+
+      <div class="prose">
+        <p>The live picture of an Emergency Department: who is where, what has been done, what is waiting, and whose job it is next. It is the ED Acute part of Agyle&rsquo;s Urgent &amp; Emergency Care suite, running in Dorset.</p>
+        <p>The same view runs on a tablet in one person&rsquo;s hands and on a wall screen read by a room. So the first question was never &bdquo;does it look good" &mdash; it was &bdquo;can a nurse read it from six metres away while walking".</p>
+        <p>The board is a map of the department, not a list: zones, siderooms and infections sit where they sit in the building. The Holding column holds patients who arrived with no bed yet; you move one by dragging the tile onto a bay.</p>
+      </div>
+
+      <!-- Kadr otwierający moduł: cała tablica, pełna szerokość .wrap.
+           Ten zrzut jest o gęstości — w kolumnie 560 px kafelki robią
+           się nieczytelne i zostaje szary szum, więc bierze całą
+           szerokość i stoi zaraz pod wstępem. -->
+      <figure class="figure figure-wide">
+        <img src="assets/agyle/agyle-whiteboard.png"
+             alt="Moduł Agyle Whiteboard na tablecie. Ciemny interfejs: u góry pasek z nazwą NHS Trust 1 i oddziałem ED Ward, licznik trzech pacjentów w poczekalni, ikony filtrów, powiadomień i wyszukiwania. Po lewej kolumna Holding z trzema kafelkami pacjentów i pustym polem z napisem „Drag Patient Tiles here” oraz przyciskiem „Transfer to”. Główny obszar to mapa oddziału: kilka stref ZONE RH, dwa pokoje Sideroom i sekcja INFECTIONS, w każdej kafelki łóżek z nazwiskiem pacjenta, rozpoznaniem, lekarzem prowadzącym i licznikiem czasu. Kolorowe paski oznaczają stan łóżka — zajęte, gotowe, sprzątane, zamknięte (przekreślone na szaro)."
+             width="3236" height="2324" decoding="async">
+        <figcaption>The whole board. Zones and siderooms sit where they sit in the building; the Holding column on the left waits for a bed, and a patient moves by dragging the tile onto a bay.</figcaption>
+      </figure>
+
+      <!-- Pierwszy wątek modułu: poziomy zoomu kafelka. Plik to kopia
+           „assets/zrodla/Agyle - Zones Zoom.png" pod nazwą bez spacji w ścieżce. -->
+      <div class="split">
+        <div>
+          <h3>One tile, three densities</h3>
+          <div class="prose">
+            <p>The map could be arranged more than one way, and zoom was the one that did the most work. Pulled back, a tile is a bed number, an acuity score and a clock &mdash; enough to count free beds and spot the one that has been waiting too long, from six metres away. One step in, it adds the patient, the clinician and the treatment timer. All the way in, it carries the diagnosis, the alerts, the notes and the flags.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-zones-zoom-1400.png"
+               alt="Trzy poziomy powiększenia tej samej strefy ZONE RH w module Whiteboard, obok siebie. Po lewej widok najbardziej oddalony: osiem kafelków łóżek, w każdym tylko numer łóżka, czerwony wskaźnik pilności, litera statusu i czerwony licznik czasu, a pod nagłówkiem zielony pasek stanu. Na środku widok pośredni: te same kafelki dostają pasek z numerem łóżka, strefą i oznaczeniami IC1–IC5, nazwisko i wiek pacjentki, rząd ikon, lekarza prowadzącego oraz wiersz CDA Treatment Provision z licznikiem. Po prawej widok najbliższy: kafelki rozrastają się o rozpoznanie, oznaczenia NBM i płci, rząd ikon statusów, wiersz Custom Note oraz kolorowe etykiety F2S i CAR nad wierszem z licznikiem."
+               width="1400" height="828" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <!-- Drugi wątek modułu: to, co siedzi pod kafelkiem — zadania,
+           przekazanie zmiany, ścieżka przyjęcia i wypisu. Zrzut pokazuje
+           tablet i telefon obok siebie, więc idzie bez kadrowania. -->
+      <div class="split">
+        <div>
+          <h3>Under the tile: the whole patient journey</h3>
+          <div class="prose">
+            <p>The board was only the surface. Open a tile and Whiteboard has to carry a patient the entire way: arrival, triage, treatment, every handover in between, and discharge &mdash; each step leaving a trace somebody else can act on.</p>
+            <p>Tasks are the engine of that. A patient&rsquo;s work sits in columns by status, each card carrying who asked for it, when, and how long it has been waiting. The same queue follows the staff onto a phone, because part of this job happens at the door and not at a desk.</p>
+            <p>So we set UX standards for Agyle rather than drawing each screen on its own: how a task is assigned, how a state is changed, how a record is opened and left. Staff learn one behaviour and get it everywhere &mdash; the only honest way to make a system this large faster to work in, not merely more complete.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-tasks-ed-1400.png"
+               alt="Dwa urządzenia obok siebie. Na tablecie karta pacjentki Margaret Williamson z paskiem danych — data urodzenia, wiek, numer szpitalny, numer NHS, łóżko — i zakładkami Patient, Clinical Notes, Tasks, Observations, Forms, Sepsis Pathway. Otwarta zakładka Tasks pokazuje cztery kolumny statusów: Requested (26), In Progress (4), Completed (2) i Deferred (1), każda z czasem oczekiwania i podziałem na plany: Nursing Plan, Medical Plan, Treatment Plan, Investigation Plan, Assessments. Karty zadań — Check Blood test, RSV Injection, Speciality Review, Chest Drain — mają opis, autora, licznik czasu i przycisk Start. Na telefonie widok Emergency Department z zakładkami Location, OBS due, Task i Sort oraz listą Triage: Ambulance Offloading i Ambulance Queue, z kafelkami pacjentów, strefą, rozpoznaniem, lekarzem i licznikami."
+               width="1400" height="1042" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <h3 class="decisions-title">Three decisions I made</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h4>One tile at three densities, not three screens</h4>
+          <span class="label">Why</span>
+          <p>A wall screen and a tablet needed the same board, and a separate layout per context would have drifted apart within two releases. Zoom carries the difference instead, so there is one thing to maintain and one thing to learn.</p>
+        </div>
+        <div class="decision">
+          <h4>Keep the department&rsquo;s geography</h4>
+          <span class="label">Why</span>
+          <p>A sorted list is easier to build and useless at a glance. Staff already navigate by where things are, so zones, siderooms and infections sit on the board where they sit in the building &mdash; you find a patient by looking, not by reading.</p>
+        </div>
+        <div class="decision">
+          <h4>One panel for anything touching more than one patient</h4>
+          <span class="label">Why</span>
+          <p>Filters, escalation, admittance and audit could have lived next to the thing they act on. On a screen shared by a room, that means hunting between bays and mis-clicking into the wrong patient&rsquo;s record. One known place is slower to reach and much harder to get wrong.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODUŁ 02 — DASHBOARD ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <div class="module-head">
+        <span class="eyebrow">Module 02</span>
+        <h2>Agyle Dashboards <span class="module-claim">&mdash; two hospitals, one screen, and a reason to stop guessing.</span></h2>
+      </div>
+
+      <div class="prose">
+        <p>An NHS Trust running two hospital sites already had dashboards. They reported everything and showed nothing: working out what was happening to patient flow right now meant reading numbers off a screen and comparing them in your head, between two other jobs.</p>
+        <p>So the charts and the summaries got rebuilt around the question actually being asked &mdash; what is happening now, and is it getting worse. Both sites sit inside every tile, one colour each all the way through, so comparison is the default reading instead of something you assemble from two tabs.</p>
+        <p>Almost everything here is measured in time: longest bed wait, average diagnosis time, four- and twelve-hour breaches. A number like that is worthless a shift late, so each one carries its trend next to it &mdash; the figure says where you are, the line says which way you are heading.</p>
+      </div>
+
+      <!-- Kadr otwierający moduł, ta sama rola co tablica w module 01.
+           Plik to kopia „assets/zrodla/Agyle - dashboards.png" pod nazwą bez
+           spacji w ścieżce. -->
+      <figure class="figure figure-wide">
+        <img src="assets/agyle/agyle-dashboards.png"
+             alt="Moduł Agyle Dashboards na tablecie. Ciemny interfejs: u góry pasek z nazwą Dashboard, przełącznikiem All / Trust 1 / Trust 2, datą 16/12/2023 i godziną 08:21 AM oraz przełącznikiem AM/PM. Niżej kafle wskaźników, w każdym dane dwóch szpitali rozróżnione kolorem — Hospital 1 niebieski, Hospital 2 fioletowy. Breaches 12hr: liczby 12 i 15 z odsetkami i podziałem na strefy Zone RH, RESUS, Majors A. Longest Bed Wait: dwa liczniki 36:34:49 ze strzałką w górę na czerwono i w dół na zielono oraz odsetki 76,22% i 85,76%, a pod spodem wykres liniowy od 10 do 40 godzin. Avg. Diagnosis Time: szeroki wykres warstwowy z dwiema liniami i średnimi 12:42:00 wraz z wartością najniższą i najwyższą. Current Capacity: dwa pierścienie z liczbami 34 i 42, rozbite na Majors, Paeds, Resus i ACA. Breaches 4hr: liczby 12 i 15 z odsetkami oraz wykres słupkowy z naprzemiennymi słupkami obu szpitali."
+             width="2404" height="1726" loading="lazy" decoding="async">
+        <figcaption>One screen for two hospitals. Every tile carries both sites in the same two colours, and every time-based number carries the trend that gives it meaning.</figcaption>
+      </figure>
+
+      <h3 class="decisions-title">Three decisions I made</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h4>Both sites inside every tile</h4>
+          <span class="label">Why</span>
+          <p>The obvious build is one dashboard per hospital and a switch between them. That turns every comparison into a memory test. Putting both sites in the same tile makes the comparison the thing you read, not the thing you reconstruct.</p>
+        </div>
+        <div class="decision">
+          <h4>Twenty charts to choose from, not one fixed screen</h4>
+          <span class="label">Why</span>
+          <p>A layout we decide on is a layout the Trust has to come back to us to change, and then wait for a release. So we handed over a set of twenty chart and summary types they arrange themselves &mdash; the dashboard follows whoever is reading it, ops, clinical or executive, without a ticket and without us.</p>
+        </div>
+        <div class="decision">
+          <h4>No time figure without its trend</h4>
+          <span class="label">Why</span>
+          <p>Longest bed wait, diagnosis time, breaches &mdash; a time on its own tells you where you are and nothing about whether it is getting worse. Every one of them carries a line or an arrow next to it, because the direction is what anyone actually acts on.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODUŁ 03 — SCHEDULER ===================== -->
+  <section>
+    <div class="wrap">
+      <div class="module-head">
+        <span class="eyebrow">Module 03</span>
+        <h2>Agyle Scheduler <span class="module-claim">&mdash; a day of parallel clinics, where a free slot is something you see rather than something you search for.</span></h2>
+      </div>
+
+      <div class="prose">
+        <p>A standalone module for BARS and outpatient scheduling: who is booked, with which clinician, into which slot, across every clinic running that day.</p>
+        <p>The interface is swimlanes. Each clinic is a column with its consultant and its opening hours, time runs down the side, and a line marks where the day currently is. Hatching covers what is outside a clinic&rsquo;s hours. A gap in a lane is therefore a free slot, drawn as empty space rather than stated as a number somewhere else &mdash; which is the whole reason for the layout.</p>
+        <p>Booking an appointment is the easy half. The job is everything after: moving one, cancelling one, removing it, locking a slot so nobody takes it, opening a new session when a clinic needs more room. An outpatient appointment is booked once and changed four times, so the module was built around the changing rather than around the booking.</p>
+      </div>
+
+      <!-- Kadr otwierający moduł. Plik to kopia „assets/zrodla/agyle - Scheduler.png"
+           pod nazwą bez spacji w ścieżce. -->
+      <figure class="figure figure-wide">
+        <img src="assets/agyle/agyle-scheduler.png"
+             alt="Moduł Agyle Scheduler na tablecie. Ciemny interfejs: u góry pasek z nazwą NHS Trust 1 i wyborem specjalizacji ambulatoryjnej, niżej zakładki All Patients, Bookings, Appointments i Departures — otwarta jest Appointments. Pod nimi data 10 Nov 2023 ze strzałkami nawigacji, przełącznik Me Mode oraz filtry Date Range, Clinician i Status. Główny obszar to kalendarz w układzie pływalni: cztery kolumny klinik, każda z numerem ID, nazwą, nazwiskiem konsultanta i godzinami pracy. Oś czasu po lewej biegnie od 6:00 do 10:00, a bieżącą godzinę 7:30 znaczy niebieska linia w poprzek. W kolumnach kafelki wizyt z nazwiskiem pacjentki, numerem szpitalnym, wiekiem i licznikiem czasu; obszary poza godzinami pracy kliniki są zakreskowane. Po prawej otwarty panel Global Actions z przełącznikami BARS / Appointments i Table / Calendar oraz akcjami New Slot, Lock Slot, Assign i New Session, a pod nimi przełącznik Smart Day View z podpowiedzią „Automatically skip days with no appointments when navigating the calendar”."
+             width="2394" height="1719" loading="lazy" decoding="async">
+        <figcaption>A day of outpatient clinics as swimlanes. The hatched areas are outside a clinic&rsquo;s hours, so the only white space left in a lane is a slot somebody can actually be booked into.</figcaption>
+      </figure>
+
+      <!-- Wątek modułu: drugi widok tych samych danych. -->
+      <div class="split">
+        <div>
+          <h3>The same day, zoomed out to a month</h3>
+          <div class="prose">
+            <p>Swimlanes answer &bdquo;what does today look like". They are useless for &bdquo;when is there room in three weeks" &mdash; so the board switches to a calendar, and a month of load reads in one pass.</p>
+            <p>Every day carries two counts, patients and sessions, with a coloured edge for how hard it is being pushed. You are not reading dates; you are looking for the green ones.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-scheduler-calendar-1400.png"
+               alt="Widok kalendarza w module Agyle Scheduler na tablecie. U góry zakładki All Patients, Bookings, ED Review i Departures, z aktywną ED Review, a pod nimi cztery kafle podsumowań: ED Review Sessions 63 z adnotacją 36 w następnej godzinie, ED Review Patients Today 16 z adnotacją 3 w następnej godzinie oraz karty bieżącego i następnego pacjenta z godziną, wiekiem i powodem przyjęcia. Niżej siatka miesiąca November 2023 od poniedziałku do niedzieli. Dni z obłożeniem mają kolorową krawędź po lewej — zieloną, pomarańczową albo czerwoną — i dwie niebieskie plakietki: liczbę pacjentów i liczbę sesji. Dzisiejszy dzień, 14, jest zaznaczony białym kółkiem. Po prawej panel Ed Review z licznikiem 24 i listą wizyt: nazwisko pacjentki, rozpoznanie, lekarz prowadzący oraz godzina 10:00 z oznaczeniem UROL."
+               width="1400" height="1005" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <!-- Wątek modułu: formularz nowej sesji. Zrzut jest pionowy
+           i wąski — to wycinek modala, nie cały ekran, więc siedzi
+           w kolumnie .split, a nie w .figure-wide. -->
+      <div class="split">
+        <div>
+          <h3>A session is a rule, not an appointment</h3>
+          <div class="prose">
+            <p>Nothing on the board exists until somebody opens a clinic, and that turned out to be the hardest form in the module. A session is not one event: it is which days of the week, from when, repeating how often, with what hours &mdash; and often different hours on a Monday than on a Wednesday.</p>
+            <p>So the form grows only as you commit to it. Tick different times per day and the per-day blocks appear; say the sessions repeat and the interval appears; leave custom intervals off and that half stays empty. What has to be filled in to submit is stated at the top, before you start, rather than in red after you have tried.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-scheduler-modal.png"
+               alt="Okno modalne „New ED Review Session” w module Agyle Scheduler, na ciemnym tle. U góry tytuł i krzyżyk zamknięcia, pod nim szary pasek informacyjny: „To submit please fill at least one Days of week option and valid time interval option”. Dalej sekcja Days of Week z siedmioma polami wyboru, zaznaczone Mon, Tue i Wed, oraz zaznaczona opcja „Different dates and times for each day of the week”. Niżej pola Start Date 11/10/2023 i Start Time 08:00a, przełącznik „Repeat sessions?” ustawiony na Yes i „Custom time intervals?” ustawiony na No, lista Time interval z wartością „Each week”, a pod nią przełączniki Locked / Unlocked i Active / Inactive. Na dole zaczyna się blok Monday z polami Start Time 08:00a i End Time 4:00p, a w stopce okna przyciski Reset i Submit."
+               width="1280" height="1356" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <h3 class="decisions-title">Three decisions I made</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h4>Swimlanes, not a list of bookings</h4>
+          <span class="label">Why</span>
+          <p>A list can only tell you what is booked. The thing a scheduler is actually hunting for is what is not &mdash; and a free slot has no row of its own. Laid out as lanes against a clock, availability becomes the empty space on the screen, and you stop searching for an absence.</p>
+        </div>
+        <div class="decision">
+          <h4>The same global panel as the Whiteboard</h4>
+          <span class="label">Why</span>
+          <p>Scheduler is a separate module built by a separate squad, and it would have been easier to invent its own home for New Slot, Lock Slot and Assign. It uses the Whiteboard&rsquo;s pattern instead: anything acting beyond the thing under your finger lives in one panel, in the same corner, in every module. That is what the design system was for.</p>
+        </div>
+        <div class="decision">
+          <h4>Skip the empty days, but make it a switch</h4>
+          <span class="label">Why</span>
+          <p>Most clinics do not run most days, so stepping through the calendar one day at a time means tapping through emptiness. Smart Day View jumps to the next day that has something in it. It is a toggle, not a rule, because a scheduler sometimes needs to see the empty day on purpose &mdash; that is where a new session goes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODUŁ 04 — FLOW ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <div class="module-head">
+        <span class="eyebrow">Module 04</span>
+        <h2>Agyle Flow <span class="module-claim">&mdash; finding a patient the right bed, with the reason it is the right one on the card.</span></h2>
+      </div>
+
+      <div class="prose">
+        <p>Flow is capacity management: which beds exist across the wards and sites, which are occupied, which are being cleaned, which are isolation-ready, and who is waiting for one. It replaces the phone calls and the paper that hospitals ran this on, and a discharge here triggers the cleaning job that makes the bed real again.</p>
+        <p>Availability is the easy half of the question. A bed is only the right bed if it also matches the specialty, the gender mix of the bay, the side room requirement, the infection status and the equipment at the bedside &mdash; and all of that lives in systems a bed manager used to open one at a time. Flow pulls it onto one screen so the decision is made where the information is.</p>
+        <p>None of it is leisurely. Every request runs against a clock that is visible the whole time, because a patient waiting for a bed is a patient occupying something else &mdash; usually a trolley in the Emergency Department.</p>
+      </div>
+
+      <!-- Kadr otwierający moduł. Plik to kopia „assets/zrodla/agyle flow - table.png"
+           pod nazwą bez spacji w ścieżce. -->
+      <figure class="figure figure-wide">
+        <img src="assets/agyle/agyle-flow-table.png"
+             alt="Ekran Overview modułu Agyle Flow na tablecie. U góry pole wyszukiwania pacjenta po nazwisku, numerze NHS lub szpitalnym oraz przełącznik Overview / Ward Map. Niżej wybór oddziału All Wards i rząd ośmiu kafli liczbowych: Capacity 247, Available 68, Outliers 34, Occupied 167 (72%), EDD 15, CDD 22, TCIs 38 i Pre-Reg 21; pod każdą liczbą prognoza na następną godzinę ze zmianą na zielono lub czerwono. Pod kaflami zakładki Actions, Requested, Allocated, Cancelled i Completed, przycisk Acknowledge All, filtry All / TCI / ED / Inpatients oraz listy Age Restriction, Speciality i High division spec. Główny obszar to tabela zgłoszeń łóżkowych z kolumnami Status, Patient Details, ID Numbers, Type, Bed Wait, OBS, Cur. Site, Destin., Zone/Bed, Speciality, ECDS, RTA i Post Take Comp. Każdy wiersz ma kolorową plakietkę statusu — Requested, Allocated albo Cancelled — czerwony licznik oczekiwania na łóżko i kolorowy wskaźnik OBS; część pacjentów ma w kolumnie Zone/Bed wpis Corridor."
+             width="2394" height="1719" loading="lazy" decoding="async">
+        <figcaption>The bed request queue. Eight numbers across the top say what the hospital has, and each one carries its forecast for the next hour &mdash; capacity is a thing you steer, not a thing you report.</figcaption>
+      </figure>
+
+      <!-- Wątek modułu: dobór łóżka. -->
+      <div class="split">
+        <div>
+          <h3>The system proposes, the bed manager decides</h3>
+          <div class="prose">
+            <p>Automatic allocation ranks every candidate bed against three named criteria &mdash; gender, specialty, availability &mdash; and prints the result on the card as three ticks or 2/3 with the failing one marked. The beds that do not match are not hidden; they are ranked lower with their reason showing.</p>
+            <p>That was deliberate. A bed manager answers for the placement afterwards, and a list that just says &bdquo;best" is a list they will second-guess by opening four other systems. Given the reason, they either accept it in a second or override it knowingly &mdash; and the patient&rsquo;s own flags stay pinned on the left the whole time, because the things that make a bed wrong should never be on a screen you have left.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-flow-automatic-1400.png"
+               alt="Ekran Bed Request w module Agyle Flow na tablecie. Po lewej panel pacjentki Margaret Williamson: status Requested, oddział ED, czerwony licznik 12:21:52, numer szpitalny i NHS, data urodzenia, przełącznik Ready oraz kolorowe flagi COVID-19, Violent Patient i SEPSIS. Niżej zakładki Bed Request i Timeline z danymi zgłoszenia: data i godzina, przydzielona specjalizacja Urology, ECDS Orthopaedic Service, powód przyjęcia, Sideroom YES z adnotacją o podejrzeniu biegunki. Po prawej nagłówek Bed Request z przełącznikami Side Room i Secondary Bed Request oraz przyciskami Acknowledge i Cancel, pod nimi zakładki Manual Allocation, Automatic Allocation i Map Allocation — aktywna jest środkowa. Dalej filtry oddziału i sali, licznik 64 beds oraz przełącznik Best Matches / Unavailable / Ready. Główny obszar to karuzela kart łóżek; każda ma etykietę Allocated albo Ready, datę i godzinę lub napis Available Now, trzy kryteria dopasowania — Gender, Specialty, Availability — z zielonym ptaszkiem lub czerwonym krzyżykiem i wynikiem 3/3, 2/3 albo 1/3, nazwę oddziału St Michael Care Ward z numerem łóżka, plakietki UROL i Adults oraz ikony wyposażenia, a na dole przycisk Reserve Bed lub Allocate Bed."
+               width="1400" height="1005" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <h3 class="decisions-title">Three decisions I made</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h4>Show the misses, don&rsquo;t hide them</h4>
+          <span class="label">Why</span>
+          <p>The easy build ranks beds and shows the good ones. But a bed manager is accountable for the placement, and &bdquo;the system said so" is not a defence. Every card names which of the three criteria it fails, so an override is an informed choice rather than a fight with the software.</p>
+        </div>
+        <div class="decision">
+          <h4>Three ways to allocate, one request</h4>
+          <span class="label">Why</span>
+          <p>Automatic is right when the ward is ordinary, manual when somebody knows something the data does not, and the map when the question is really about where in the building. Same bed request underneath all three &mdash; the method changes, the record does not.</p>
+        </div>
+        <div class="decision">
+          <h4>The patient&rsquo;s flags never leave the screen</h4>
+          <span class="label">Why</span>
+          <p>Infection status, a side room requirement, a violence warning: these are exactly the facts that make a bed wrong, and they used to sit in a different system. Pinned to the left of the chooser, they are in view at the moment of the decision rather than one screen behind it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODUŁ 05 — UCR 2.0 ===================== -->
+  <section>
+    <div class="wrap">
+      <div class="module-head">
+        <span class="eyebrow">Module 05</span>
+        <h2>Agyle UCR 2.0 <span class="module-claim">&mdash; years of a patient&rsquo;s paperwork, filed by the episode of care it belongs to.</span></h2>
+      </div>
+
+      <div class="prose">
+        <p>UCR is where the documents live: scans, letters, reports, results &mdash; everything written about a patient across every episode and spell of care, which for anyone with a long history is thousands of files and a decade of them.</p>
+        <p>A flat list of that is a filing cabinet tipped on the floor. So the record is grouped the way clinicians already think about it: by spell, each one dated and counted, with its documents laid out as thumbnails underneath and tagged by the specialty that produced them. You narrow by episode first and by specialty second, which is how somebody asks the question out loud.</p>
+        <p>This was also the module where AI earned its place rather than being announced: an algorithm reads what is inside a document instead of trusting where it was filed, and automated summaries say what is in one before you open it. On a record this size, the value is not reading faster &mdash; it is knowing which five documents out of two thousand are the ones to read at all.</p>
+      </div>
+
+      <!-- Kadr otwierający moduł. Plik to kopia „assets/zrodla/agyle ucr - main.png"
+           pod nazwą bez spacji w ścieżce. -->
+      <figure class="figure figure-wide">
+        <img src="assets/agyle/agyle-ucr-main.png"
+             alt="Zakładka Documents modułu Agyle UCR 2.0 na tablecie. U góry pasek pacjenta: nazwisko MACKENZIE, Geoff, ikony ostrzeżeń i alergii, data urodzenia, wiek, numer szpitalny, numer NHS i łóżko, a pod nim zakładki Patient, Clinical Notes, Observations, Forms, Assessments, Sepsis Pathway, Activity History, Documents, Links i Reports — aktywna jest Documents. Ekran dzieli się na dwie części. Po lewej lista dokumentów z przełącznikiem widoku kafelkowego i listy, filtrami All Documents, View 1 i V1 oraz ikonami wyszukiwania, filtrowania i dodawania. Dokumenty są pogrupowane w epizody opieki: nagłówek Inpatient z zakresem dat 24/01/2026 – 29/01/2026 i liczbą trzech załączników, pod nim rząd miniatur dokumentów z nazwami, datami i kolorowymi plakietkami specjalizacji — Psychology, Radiology, Urology; niżej kolejny epizod ED Attendance z zakresem 19/01/2026 – 24/01/2026 i własnym rzędem miniatur. Po prawej otwarty podgląd pliku Guidances_2024.pdf: treść raportu z badania gęstości kości z sekcjami Examination, Technique, Findings, Assessment i Recommendations, pionowy pasek narzędzi czytnika oraz numery stron 123 i 124."
+             width="2394" height="1719" loading="lazy" decoding="async">
+        <figcaption>Documents grouped by spell, with the one you are reading open beside the list &mdash; so finding the next document does not mean leaving the last one.</figcaption>
+      </figure>
+
+      <!-- Wątek modułu: katalogowanie po treści zamiast po folderach. -->
+      <div class="split">
+        <div>
+          <h3>Smart Catalogues: filed by what the document says</h3>
+          <div class="prose">
+            <p>A folder records where somebody put a file. It says nothing about what is in it, and in a record of two and a half thousand documents that is the only thing worth knowing. So instead of a better folder tree we built a different idea of filing: an AI pass reads each document and catalogues it by its clinical content &mdash; conditions, clinical conclusions, medications, allergies, contraindications.</p>
+            <p>Pick one of those and the record regroups around it. Choose Conditions and the list stops being files by date and becomes Pneumonia, Asthma, each with its own dates and its own documents underneath. The counter in the corner says 29 of 2562 &mdash; and those twenty-nine were chosen by what they contain, not by where a clerk once dropped them.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-ucr-catalogues-1400.png"
+               alt="Zakładka Documents modułu Agyle UCR 2.0 z włączonymi katalogami inteligentnymi, na tablecie. Ekran dzieli się na trzy części. Po lewej lista dokumentów z licznikiem „Showing 29/2562” i przyciskiem Clear Filters; dokumenty są pogrupowane nie w foldery, lecz w rozpoznania: nagłówek RESP Pneumonia z zakresem 23/10/2025 – Ongoing i czterema załącznikami, pod nim pozycje plików z plakietkami I lub E oraz NEU albo CARD, dalej kolejna grupa RESP Asthma z własnym zestawem plików. W środkowej kolumnie panel Filters, a w nim sekcja Smart Catalogues z licznikiem 5 i listą katalogów: Conditions (3) z zaznaczonym ptaszkiem, Clinical Conclusions (3), Medications (2), Allergies (3) i Contraindications (6). Po prawej otwarty podgląd pliku Guidances_2024.pdf z treścią raportu z badania gęstości kości i pionowym paskiem narzędzi czytnika."
+               width="1400" height="1005" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <h3 class="decisions-title">Three decisions I made</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h4>Group by spell, not by folder</h4>
+          <span class="label">Why</span>
+          <p>Folders are how a system stores things; episodes of care are how a clinician remembers them. &bdquo;The inpatient stay in January" is a question somebody actually asks, and &bdquo;the Radiology folder" is not &mdash; so the dated spell became the top level and specialty became a tag inside it.</p>
+        </div>
+        <div class="decision">
+          <h4>Read and browse at the same time</h4>
+          <span class="label">Why</span>
+          <p>Opening a document used to mean losing the list. On a record with hundreds of files, that turns comparing two reports into a navigation exercise. The viewer sits beside the list instead of replacing it, so your place in the record survives reading.</p>
+        </div>
+        <div class="decision">
+          <h4>AI catalogues and summarises &mdash; it never hides a document</h4>
+          <span class="label">Why</span>
+          <p>In a clinical record the dangerous failure is omission, not clutter. So the AI is allowed to read, catalogue and summarise &mdash; but narrowing the list is always something you switched on, labelled with the count you are seeing and cleared in one click. The model changes what you open first; it never quietly decides what you never see.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODUŁ 06 — BOOKED ADMISSIONS ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <div class="module-head">
+        <span class="eyebrow">Module 06</span>
+        <h2>Agyle Booked Admissions <span class="module-claim">&mdash; planned surgery, booked against a theatre list and a ward bed at the same time.</span></h2>
+      </div>
+
+      <div class="prose">
+        <p>The most complex thing in the suite. Booked Admissions schedules planned inpatient surgery: a full calendar-based tool where clinical teams book a patient into the right surgical slot on a ward that will still have a bed for them when they wake up. It runs the admission end to end &mdash; not just the moment it is entered into the diary.</p>
+        <p>What makes it hard is that a booking has to be true in several places at once. A slot is only real if the theatre time, the surgeon, the ward capacity and the patient&rsquo;s own pathway all agree on it &mdash; and each of those is maintained by a different team with a different idea of what the day looks like. The calendar had to hold all four without turning into a spreadsheet.</p>
+        <p>The point of the module is theatre utilisation. An empty theatre slot is one of the most expensive things a hospital owns, and a cancelled admission on the morning of surgery wastes it at the last moment anybody could have filled it. So the work was less about booking and more about making the gaps, the clashes and the fragile bookings visible early enough to do something about them.</p>
+      </div>
+
+      <!-- Kadr otwierający moduł. Plik to kopia „assets/zrodla/Agyle - BA - main.png"
+           pod nazwą bez spacji w ścieżce. -->
+      <figure class="figure figure-wide">
+        <img src="assets/agyle/agyle-ba-main.png"
+             alt="Moduł Agyle Booked Admissions na tablecie. Ciemny interfejs: u góry pole wyszukiwania pacjenta po nazwisku, numerze NHS lub szpitalnym, przełącznik Theatres / MDU, lista wyboru Theatre 1, niebieski przycisk +Add Session oraz ikony drukowania i ustawień. Niżej zakładki Worklist, Unscheduled i Scheduled, przełącznik Schedule / Information, przycisk Today ze strzałkami nawigacji, zakres dat 14–17 Nov 2023, widok 4 Days, filtry i przełącznik AM / PM / TW. Po lewej kolumna z zakładkami Active i Canceled — otwarta jest Canceled z licznikiem trzech odwołanych zabiegów. Każda karta pacjenta ma nazwisko, numer szpitalny, wiek, płeć, plakietkę pilności Emergency albo Urgent, kody zabiegów UROL z nazwami CYSTOSCOPY + BIOPSY i ARTHROSCOPY AND PREPARATION FOR JOINT SURGERY wraz z czasem trwania w minutach, sumę Total Time, rodzaj znieczulenia, konsultanta prowadzącego i żółte ostrzeżenie „Requires Bariatric table”. Przy drugiej karcie dopisano powód odwołania: „Patient feels unwell. Have a swine flu.”. Główny obszar to kalendarz czterech dni jako kolumny, każda z własną specjalizacją i statusem: 14 Mon OBGYN z zapasem 240 min., 15 Tue ORTHO oznaczony czerwonym (FULL), 16 Wed UROL z zapasem 240 min. i 17 Thu PAED oznaczony pomarańczowym (LOCKED); pod nagłówkiem każdego dnia wpisani są chirurg i anestezjolog. Oś czasu po lewej biegnie od 6:00 do 7:30, a bieżącą godzinę 6:46 znaczy niebieska linia w poprzek. W kolumnach leżą karty zabiegów obwiedzione kolorową ramką zależnie od stanu — czerwoną dla trwających z przyciskiem End Surgery, zieloną z napisem „Surgery has ended” dla zakończonych — a między nimi puste bloki z etykietą „Available Slot 240 min”."
+             width="2394" height="1719" loading="lazy" decoding="async">
+        <figcaption>Four days of theatre time as columns, each with its own speciality, surgeon and anaesthetist. The empty blocks are labelled &bdquo;Available Slot&rdquo; with the minutes they hold, so the gap reads as loudly as the booking &mdash; and a day that cannot take any more says so in its header: FULL, LOCKED.</figcaption>
+      </figure>
+
+      <!-- Wątek modułu: widok miesięczny jako mapa ciepła. Plik to
+           kopia „assets/zrodla/agyle - BA - sub.png" przeskalowana do 1400 px
+           (2× kolumny .split), nazwa bez spacji w ścieżce. -->
+      <div class="split">
+        <div>
+          <h3>A month of theatre time, as a heat map</h3>
+          <div class="prose">
+            <p>The four-day view answers &bdquo;can I put this patient in on Thursday". It cannot answer the question a waiting list actually asks: where, in the next two months, is there room at all. So the calendar zooms out to whole months and stops printing bookings &mdash; each day becomes a single tile carrying one number, the theatre minutes still unsold, with the colour reading that number rather than a status.</p>
+            <p>It also makes the uncomfortable thing visible. The scheduler is hunting for the emptiest days, because that is where the next patient fits &mdash; but a month of empty days is a month of theatre time nobody sold. The same screen serves the person booking and the person answering for utilisation, and it lets them disagree out loud.</p>
+          </div>
+        </div>
+
+        <figure class="figure">
+          <img src="assets/agyle/agyle-ba-monthly-1400.png"
+               alt="Widok miesięczny modułu Agyle Booked Admissions na tablecie. U góry pasek z wyszukiwaniem pacjenta, przełącznikiem Theatres / MDU, listą Theatre 1 i niebieskim przyciskiem +Add Session. Niżej zakładki Worklist, Unscheduled i Scheduled — aktywna jest Scheduled — oraz przełącznik Schedule / Information, przycisk Today, miesiąc Nov 2023, filtr specjalizacji ORTHO, widok Month i przełącznik AM / PM / TW. Po lewej lista Scheduled Patients z licznikiem dwudziestu czterech; każda karta ma nazwisko, numer szpitalny, wiek, płeć, kolorową krawędź po lewej i plakietkę pilności: czerwoną Urgent albo szarą Emergency lub Fast Track. Główny obszar to dwie siatki miesięcy, November 2023 i December 2023, od poniedziałku do niedzieli. Każdy dzień jest jednolitym kolorowym kaflem z datą i jedną wartością: zielone kafle mają 240 min, pomarańczowe 120, 45 albo 30 min, czerwone napis Full, a ciemnoszare No Session. Część kafli ma w rogu ikonę kłódki. Dzisiejszy dzień, 14 listopada, jest pomarańczowy i zaznaczony białym kółkiem wokół daty."
+               width="1400" height="1005" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <h3 class="decisions-title">Three decisions I made</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h4>One calendar, not one per team</h4>
+          <span class="label">Why</span>
+          <p>Theatres, wards and admissions each had their own view of the same day, which is how a patient ends up booked into a slot with nowhere to recover. Putting the booking on a single calendar made the conflict visible at the moment somebody creates it, instead of at the morning huddle.</p>
+        </div>
+        <div class="decision">
+          <h4>Show the empty slot as loudly as the booked one</h4>
+          <span class="label">Why</span>
+          <p>Scheduling tools are built to display what is arranged, because that is what the data is. But the expensive thing here is the gap &mdash; unused theatre time nobody noticed in time to fill. The calendar reads for holes first, the same instinct as the Scheduler&rsquo;s swimlanes.</p>
+        </div>
+        <div class="decision">
+          <h4>A booking carries its own preconditions</h4>
+          <span class="label">Why</span>
+          <p>An admission is not confirmed by being in the diary; it depends on assessments, consent and a bed. Hanging those on the booking itself meant the calendar could show which admissions are solid and which are one missing step from collapsing &mdash; which is the difference between a plan and a wish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WNIOSKI ===================== -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">What it taught me</span>
+      <h2>Four years, and the honest parts are the awkward ones.</h2>
+      <div class="prose">
+        <p>Working across parallel Agile projects meant adapting to whatever shape delivery took that quarter. It also had a cost worth naming: feedback loops stretched, and developers split across several streams of work lost continuity inside a delivery cycle. Design that assumes an undivided team is design that will be half-built.</p>
+        <p>Healthcare added the harder constraint. Direct access to end users was limited, so validation ran through Business Strategists, Technical Consultants and operational or managerial NHS staff, who reviewed and tested internally and came back with consolidated feedback. That works &mdash; those people know the domain cold &mdash; but it puts a step between design intent and a clinician actually using the thing on a shift. Consolidated feedback tells you what the organisation concluded; it does not tell you where somebody hesitated.</p>
+      </div>
+
+      <div class="prose aside-note">
+        <p><strong>What I'd do differently.</strong> I would have fought harder, and earlier, for time on the floor. Even a handful of observed shifts in an ED &mdash; not interviews, just watching what people do with their hands while the department is busy &mdash; would have settled arguments we instead resolved in review meetings. The design system was the right call and I would make it again; the research access was the thing I accepted as fixed when it was only difficult.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NASTĘPNY CASE STUDY ===================== -->
+  <section class="bg-soft">
+    <div class="wrap">
+      <span class="eyebrow">Next case study</span>
+      <a class="story" href="case-study-bajecznewakacje.html">
+        <span class="story-media ph ph-3x2">
+          <img src="assets/bajecznewakacje/bajecznewakacje-hero.png"
+               alt="BajeczneWakacje.pl — strona główna serwisu po przebudowie, pokazana na limonkowym tle: fioletowy pasek nawigacji, wyszukiwarka w białej karcie na zdjęciu tarasów ryżowych, pod nią kafelki okazji z oceną, datami i ceną za osobę."
+               width="1990" height="1286" loading="lazy" decoding="async">
+          <span class="px-frame" aria-hidden="true"></span>
+        </span>
+        <div>
+          <span class="story-meta">UX/UI Design &middot; 2023</span>
+          <h3>A holiday booking flow that survives the fifth step</h3>
+          <ul class="facts">
+            <li><span class="label">Problem</span><span class="value">The site could sell a holiday and then couldn't take payment for it &mdash; you reserved and waited for a call back.</span></li>
+            <li><span class="label">What I did</span><span class="value">Solo, end to end: an audit of the live site, then the whole path &mdash; search and filters, results in the list instead of behind a pop-up, an online checkout where there had been none, and the states nobody screenshots.</span></li>
+            <li><span class="label">Result</span><span class="value">A booking that ends in a payment instead of a phone call, and the agency's own trips finally visible on the pages where people choose.</span></li>
+          </ul>
+          <span class="story-link">Read the case study</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== KONTAKT ===================== -->
+  <section id="contact">
+    <div class="wrap contact">
+      <div>
+        <h2>Tell me what's tangled. I'll tell you where I'd start.</h2>
+        <p>Two sentences about the problem is enough. You get a straight answer back: what I would do, and in what order.</p>
+      </div>
+
+      <div class="mail-box">
+        <span class="mail-label">Email</span>
+        <span class="mail-address">dsikoradesign@gmail.com</span>
+        <div class="contact-actions">
+          <a class="btn" href="mailto:dsikoradesign@gmail.com">Write to me</a>
+          <a class="btn btn-ghost" href="/cv.pdf">Download CV</a>
+        </div>
+        <p class="alt-channel">Prefer another channel? I'm on <a class="lnk" href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a> and I answer just as fast there.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Dawid Sikora · UX/UI &amp; Product Designer</span>
+    <div class="foot-links">
+      <a href="mailto:dsikoradesign@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dawid-sikora-176795140">LinkedIn</a>
+      <a href="/cv.pdf">CV</a>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     PASEK PO ODERWANIU — logotyp ustępuje miejsca powrotowi
+     Klasa leci dopiero po ruszeniu strony w dół; na samej górze
+     pasek wygląda tak samo jak na stronie głównej.
+     ========================================================= -->
+<script>
+(() => {
+  const bar = document.querySelector('.bar');
+  const row = document.querySelector('.backlink-row');
+  if (!bar) return;
+
+  // 8px zapasu: gumowe odbicie przy krawędzi nie ma migać logotypem
+  const ustaw = () => bar.classList.toggle('is-stuck', window.scrollY > 8);
+  addEventListener('scroll', ustaw, { passive: true });
+  ustaw();                       // wejście z zakładki albo z kotwicy
+
+  // Wysokości paska i linku zależą od kroju i szerokości okna, więc
+  // pozycji parkowania nie da się wpisać w CSS na sztywno. Liczymy ją:
+  // połowa różnicy = równy odstęp nad linkiem i pod nim.
+  if (!row) return;
+  const srodkuj = () => {
+    const gora = Math.round((bar.offsetHeight - row.offsetHeight) / 2);
+    document.documentElement.style.setProperty('--backlink-top', gora + 'px');
+  };
+  addEventListener('resize', srodkuj);
+  addEventListener('load', srodkuj);   // po doczytaniu kroju wysokości się zmienią
+  srodkuj();
+})();
+</script>
+
+<script src="reveal.js"></script>
+<script src="count.js"></script>
+
+</body>
+</html>
